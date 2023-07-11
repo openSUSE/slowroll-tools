@@ -2,9 +2,14 @@
 pkglist=`osc ls openSUSE:Factory`
 mkdir -p buildinfo
 cd buildinfo
+n=0
 for p in $pkglist ; do
   if ! [ -e $p ] ; then # fetch only once
-    osc api /build/openSUSE:Factory/standard/x86_64/$p/_buildinfo > $p
-    sleep 0.2
+    osc api /build/openSUSE:Factory/standard/x86_64/$p/_buildinfo > $p &
+    #sleep 0.2
+    let n++
+    if [ $(expr $n % 3) == 0 ] ; then
+      wait
+    fi
   fi
 done
