@@ -40,6 +40,7 @@ for my $map (qw(pkgmap pkgmapsrcbin pkgmapdep pkgmapdepcount)) {
 
 sub dumpmap($)
 { my $mapname=shift;
-  open(F, ">$mapname") or die;
+  mkdir("out");
+  open(F, ">out/$mapname") or die;
   print F $coder->encode(eval '\%'.$mapname);
 }
