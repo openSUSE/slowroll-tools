@@ -15,4 +15,9 @@ We can try to express that as a single float between 0 (leaf - nothing depends o
 we collect buildinfo of 16k Factory packages that contain details on which dependencies are used during build and which subpackages are created.
 After collection, this data is post-processed into local JSON files.
 
-https://www.zq1.de/~bernhard/linux/opensuse/slowroll/ has zstd-compressed data dumps that avoid a length fetch via `collectbuildinfo`.
+https://www.zq1.de/~bernhard/linux/opensuse/slowroll/ has zstd-compressed data dumps that avoid a slow fetch via `collectbuildinfo`.
+
+# Usage
+
+    ./collectbuildinfo
+    ./processbuildinfo-secondary
