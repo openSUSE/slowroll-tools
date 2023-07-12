@@ -1,4 +1,13 @@
 #!/bin/sh
+mkdir -p out ; ( cd out
+wget -N https://www.zq1.de/~bernhard/linux/opensuse/slowroll/pkgmapsrc{bin,dep}.zstd && zstd -cd pkgmapsrcbin.zstd > pkgmapsrcbin && zstd -cd pkgmapsrcdep.zstd > pkgmapsrcdep
+)
+
+if [ "$FORCE" != 1 -a -s out/pkgmapsrcdep -a -s out/pkgmapsrcbin ] ; then
+  echo "files already done"
+  exit 0
+fi
+
 pkglist=`osc ls openSUSE:Factory`
 mkdir -p buildinfo
 cd buildinfo
