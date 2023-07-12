@@ -3,10 +3,8 @@ use strict;
 use JSON::XS;
 sub dumpmap($);
 
-my %pkgmap=();
 my %pkgmapsrcbin=();
-my %pkgmapdep=();
-my %pkgmapdepcount=();
+my %pkgmapsrcdep=();
 
 for my $filename (<buildinfo/*>) {
   my $pkg = $filename; $pkg=~s!.*/!!;
@@ -17,24 +15,13 @@ for my $filename (<buildinfo/*>) {
   my @subpack = $xml =~ m!<subpack>([^<>]+)</subpack>!g;
   #die "$pkg @subpack @dep" if $pkg eq "bash"; # debug
   #die "$pkg @subpack @dep" if @dep; # debug
-  for my $p ($pkg, @subpack) {
-    $pkgmap{$pkg} = \@dep;
-  }
   $pkgmapsrcbin{$pkg} = \@subpack;
-  for my $dep (@dep) {
-    foreach my $sub (@subpack) {
-      $pkgmapdep{$dep}->{$sub} = 1;
-    }
-  }
-}
-
-foreach my $p (keys %pkgmapdep) {
-  $pkgmapdepcount{$p} = scalar keys %{$pkgmapdep{$p}};
+  $pkgmapsrcdep{$pkg} = \@dep;
 }
 
 # dump parsed maps
 my $coder = JSON::XS->new->pretty->canonical;
-for my $map (qw(pkgmap pkgmapsrcbin pkgmapdep pkgmapdepcount)) {
+for my $map (qw(pkgmapsrcdep pkgmapsrcbin)) {
   dumpmap $map;
 }
 
