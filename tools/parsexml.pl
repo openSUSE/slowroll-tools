@@ -14,6 +14,6 @@ my $coder = JSON::XS->new->pretty->canonical;
 
 my $pkgs = $ref->{metadata}->{package};
 foreach my $pkg (@$pkgs) {
-  print("$pkg->{name}->{value} $pkg->{version}->{ver}->{value} $pkg->{version}->{rel}->{value} $pkg->{format}->{'rpm:sourcerpm'}->{value} $pkg->{time}->{file}->{value}\n");
+  print("$pkg->{name}{value} $pkg->{version}{ver}{value} $pkg->{version}{rel}{value} $pkg->{location}{href}{value} $pkg->{format}{'rpm:sourcerpm'}{value} $pkg->{time}{file}{value}\n");
   #die;
 }
