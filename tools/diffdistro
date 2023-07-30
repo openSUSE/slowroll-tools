@@ -1,6 +1,6 @@
 #!/bin/bash
 d=`pwd`
 mkdir -p cache/tumbleweed cache/slowroll
-( cd cache/tumbleweed && $d/tools/getprimary https://download.opensuse.org/tumbleweed/repo/oss/ )
-( cd cache/slowroll && $d/tools/getprimary http://stage3.opensuse.org:17080/repositories/SUSE%3A/ALP%3A/Experimental%3A/Slowroll/base/repo/oss/ )
+( cd cache/tumbleweed && $d/tools/getprimary https://download.opensuse.org/source/tumbleweed/repo/oss/ && $d/tools/parsexml.pl primary.xml.gz > primary.pkgs )
+( cd cache/slowroll && $d/tools/getprimary http://stage3.opensuse.org:17080/repositories/SUSE%3A/ALP%3A/Experimental%3A/Slowroll/base/repo/src-oss/ && $d/tools/parsexml.pl primary.xml.gz > primary.pkgs )
 
