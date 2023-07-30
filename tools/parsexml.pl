@@ -1,5 +1,6 @@
 #!/usr/bin/perl -w
 # SPDX-License-Identifier: GPL-2.0-only
+# zypper -n in perl-XML-Bare perl-JSON-XS
 
 use strict;
 use XML::Bare;
