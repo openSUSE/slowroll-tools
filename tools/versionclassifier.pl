@@ -42,8 +42,13 @@ foreach my $fname (@files) {
 
 foreach my $pkg (sort keys (%{$jsons[0]})) {
     my $p0 = $jsons[0]->{$pkg};
-    my $p1 = $jsons[1]->{$pkg};
-    my $vercmp = cmpversion($p0->{version}, $p1->{version});
-    print "$pkg $p0->{version}{ver} $p1->{version}{ver} $vercmp\n";
+    print "$pkg $p0->{version}{ver} ";
+    if (exists $jsons[1]{$pkg}) {
+        my $p1 = $jsons[1]->{$pkg};
+        my $vercmp = cmpversion($p0->{version}, $p1->{version});
+        print "$p1->{version}{ver} $vercmp\n";
+    } else {
+        print "\n";
+    }
 }
 
