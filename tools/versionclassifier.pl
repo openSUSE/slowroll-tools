@@ -20,10 +20,10 @@ sub cmpversion($$)
 { my ($v1, $v2) = @_;
     if($v1->{epoch} ne $v2->{epoch}) {
         return 1;
-    } elsif(my $p = cmpverpart($v1->{ver}, $v2->{ver})) {
-        return $p;
-    } elsif(my $p = cmpverpart($v1->{rel}, $v2->{rel})) {
-        return $p+64;
+    } elsif(my $pv = cmpverpart($v1->{ver}, $v2->{ver})) {
+        return $pv;
+    } elsif(my $pr = cmpverpart($v1->{rel}, $v2->{rel})) {
+        return $pr+64;
     } else {
         return 0;
     }
