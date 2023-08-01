@@ -9,7 +9,7 @@ use lib "lib";
 use common;
 
 our $dryrun = 1;
-our @delay = (8*DAY);
+our @delay = (8*DAY, 60*DAY);
 our $changelogurl = 'http://stage3.opensuse.org:18080/cgi-bin/getchangelog?path=';
 our @baseurl = ('/source/tumbleweed/repo/oss/', # needs trailing slash
         '/repositories/SUSE%3A/ALP%3A/Experimental%3A/Slowroll/base/repo/src-oss/');
@@ -53,7 +53,7 @@ sub getdiff($)
     mkdir($changelogdir);
     mkdir($changelogdir."diff");
     my $difffilename = "${changelogdir}diff/$pkg-$p[0]{version}{ver}-$p[0]{version}{rel}-$p[1]{version}{ver}-$p[1]{version}{rel}";
-    print STDERR "@url $difffilename\n";
+    #print STDERR "@url $difffilename\n";
     my $diff = cache_or_run($difffilename, sub {
         for my $i (0,1) {
             $changelog[$i] = cache_or_run($changelogf[$i],
@@ -87,25 +87,39 @@ foreach my $pkg (sort keys (%{$versionclass})) {
     my $diff = getdiff($pkg) unless $vercmp == 255 or $vercmp == 66;
     $diff //= "";
     $pkgs[0]->{$pkg}{diff} = $diff;
+    my $delay = $delay[0];
     if($vercmp == 255) {
         print "found new package $pkg - submitting right away\n";
-        submit($pkg);
+        $delay = 0;
     } elsif ($vercmp == 65) {
-        my $d = haddelay($p->{time}, $delay[0])||0;
-        print "openSUSE patch update in $pkg $d $deps\n";
-        if(!$d) { print "wait some longer with the update\n"; next }
+        print "openSUSE patch update in $pkg $deps\n";
         # patch-updates should remain compatible
-        submit($pkg);
     } elsif ($vercmp == 63) {
-        my $d = haddelay($p->{time}, $delay[0])||0;
-        print "upstream patchlevel update in $pkg $d $deps\n";
-        if(!$d) { print "wait some longer with the update\n"; next }
+        print "upstream patchlevel update in $pkg $deps\n";
         # patchlevel-updates should remain compatible
-        submit($pkg);
     } elsif ($vercmp >= 3) {
         print "upstream patchlevel update in $pkg $deps\n";
         # TODO patchlevel update
+    } else {
+        $delay = $delay[1];
     }
-        # TODO: check core-ness of $pkg
-        # TODO: consider if we need a new dep for $pkg - might not be declared in .spec
+    if($diff =~ /(?:boo|bsc)#\d/) {
+        $delay *= 0.7;
+    }
+    if($vercmp >=3 and $diff =~ /CVE-20/) {
+        $delay = min($delay, 1*DAY);
+    }
+    # check core-ness of $pkg
+    if($deps > 10000) {
+        $delay *= 2;
+    }
+    # TODO: consider if a package is in SLE or DVD
+    # TODO: consider open bugreports
+    # TODO: consider if we need a new dep for $pkg - might not be declared in .spec
+    if(!haddelay($p->{time}, $delay)) {
+        print "wait some longer with the update of $pkg\n";
+        next
+    }
+    print STDERR "submit $pkg now after $delay s delay\n";
+    submit($pkg);
 }
