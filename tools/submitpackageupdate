@@ -1,10 +1,19 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-2.0-only
 pkg=$1
+srcprj=openSUSE:Factory
+dstprj=openSUSE:ALP:Experimental:Slowroll
+
 if [ -z "$pkg" ] ; then
     echo "Usage: $0 PKG"
     echo "submits a package named PKG from Tumbleweed to Slowroll"
     exit 1
 fi
 
-osc copypac -e -K openSUSE:Factory "$pkg" openSUSE:ALP:Experimental:Slowroll
+# find out if it has any diff:
+if PAGER="wc -c" osc rdiff --missingok $srcprj "$pkg" $dstprj | grep -q . ; then
+    echo "submitting $pkg ..."
+    osc copypac -e -K $srcprj "$pkg" $dstprj
+else
+    echo "no diff"
+fi
