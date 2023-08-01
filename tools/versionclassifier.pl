@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: GPL-2.0-only
 use strict;
 use JSON::XS;
+use lib "lib";
+use common;
 
 sub cmpverpart($$)
 { my ($v1, $v2) = @_;
@@ -34,10 +36,7 @@ my @files = @ARGV;
 #print "@files\n";
 my @jsons = ();
 foreach my $fname (@files) {
-    open(my $f, "<", $fname) or die "error reading $fname";
-    local $/=undef;
-    my $json = <$f>;
-    push(@jsons, decode_json $json);
+    push(@jsons, load_json($fname));
 }
 
 my %pkgdata = ();
@@ -56,5 +55,4 @@ foreach my $pkg (sort keys (%{$jsons[0]})) {
          vercmp=>$vercmp,
     };
 }
-my $coder = JSON::XS->new->pretty->canonical;
-print $coder->encode(\%pkgdata);
+print encode_pretty_json(\%pkgdata);
