@@ -2,28 +2,23 @@
 # SPDX-License-Identifier: GPL-2.0-only
 use strict;
 use JSON::XS;
+use LWP::Simple qw(get);
+use IO::Uncompress::Gunzip qw(gunzip);
 use constant DAY => 86400;
 use lib "lib";
 use common;
 
 our $dryrun = 1;
 our @delay = (8*DAY);
-our @baseurl = ('http://stage3.opensuse.org:17080/source/tumbleweed/repo/oss/', # needs trailing slash
-        'http://stage3.opensuse.org:17080/repositories/SUSE%3A/ALP%3A/Experimental%3A/Slowroll/base/repo/src-oss/');
+our $changelogurl = 'http://stage3.opensuse.org:18080/cgi-bin/getchangelog?path=';
+our @baseurl = ('/source/tumbleweed/repo/oss/', # needs trailing slash
+        '/repositories/SUSE%3A/ALP%3A/Experimental%3A/Slowroll/base/repo/src-oss/');
 our $changelogdir = "cache/changelog";
 
 sub haddelay($$)
 { my ($timestamp, $delay) = @_;
     print STDERR "$delay $timestamp\n"; # debug
     return ((time - $timestamp) > $delay);
-}
-
-sub submit($)
-{ my ($pkg) = @_;
-    print "submitting $pkg\n";
-    if(!$dryrun) {
-        system("tools/submitpackageupdate", $pkg);
-    }
 }
 
 my $versionclass = load_json("out/versionclass.json");
@@ -62,12 +57,26 @@ sub getdiff($)
     my $diff = cache_or_run($difffilename, sub {
         for my $i (0,1) {
             $changelog[$i] = cache_or_run($changelogf[$i],
-                sub{ `rpm -qp --changelog $url[$i]`
+                #sub{ `rpm -qp --changelog $url[$i]` # too slow
+                sub {
+                    my $gz = get($changelogurl.$url[$i]);
+                    my $c;
+                    gunzip(\$gz, \$c);
+                    return $c;
             });
         }
         return `diff -u $changelogf[1] $changelogf[0] | grep ^+[^+]`;
     });
     return $diff;
+}
+
+sub submit($)
+{ my ($pkg) = @_;
+    print "submitting $pkg\n";
+    if(!$dryrun) {
+        system("tools/submitpackageupdate", $pkg);
+        # TODO store $pkgs[0]->{$pkg}{diff} for consumption by users - e.g. RSS feed
+    }
 }
 
 foreach my $pkg (sort keys (%{$versionclass})) {
@@ -76,6 +85,8 @@ foreach my $pkg (sort keys (%{$versionclass})) {
     next unless $vercmp;
     my $deps = getdepcount $pkg;
     my $diff = getdiff($pkg) unless $vercmp == 255 or $vercmp == 66;
+    $diff //= "";
+    $pkgs[0]->{$pkg}{diff} = $diff;
     if($vercmp == 255) {
         print "found new package $pkg - submitting right away\n";
         submit($pkg);
@@ -91,6 +102,10 @@ foreach my $pkg (sort keys (%{$versionclass})) {
         if(!$d) { print "wait some longer with the update\n"; next }
         # patchlevel-updates should remain compatible
         submit($pkg);
+    } elsif ($vercmp >= 3) {
+        print "upstream patchlevel update in $pkg $deps\n";
+        # TODO patchlevel update
     }
         # TODO: check core-ness of $pkg
+        # TODO: consider if we need a new dep for $pkg - might not be declared in .spec
 }
