@@ -40,15 +40,21 @@ foreach my $fname (@files) {
     push(@jsons, decode_json $json);
 }
 
+my %pkgdata = ();
 foreach my $pkg (sort keys (%{$jsons[0]})) {
     my $p0 = $jsons[0]->{$pkg};
-    print "$pkg $p0->{version}{ver} ";
+    my $vercmp = 255;
+    my $ver1 = "";
     if (exists $jsons[1]{$pkg}) {
         my $p1 = $jsons[1]->{$pkg};
-        my $vercmp = cmpversion($p0->{version}, $p1->{version});
-        print "$p1->{version}{ver} $vercmp\n";
-    } else {
-        print "\n";
+        $ver1 = $p1->{version}{ver};
+        $vercmp = cmpversion($p0->{version}, $p1->{version});
     }
+    #print STDERR join("\t", $p0->{time}, $vercmp, $pkg, $p0->{version}{ver}, $ver1), "\n";
+    $pkgdata{$pkg} = {
+         time=>$p0->{time},
+         vercmp=>$vercmp,
+    };
 }
-
+my $coder = JSON::XS->new->pretty->canonical;
+print $coder->encode(\%pkgdata);
