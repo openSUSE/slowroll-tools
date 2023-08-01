@@ -65,7 +65,7 @@ sub getdiff($)
                     return $c;
             });
         }
-        return `diff -u $changelogf[1] $changelogf[0] | grep ^+[^+]`;
+        return `diff -u $changelogf[1] $changelogf[0] | grep --text ^+[^+]`;
     });
     return $diff;
 }
