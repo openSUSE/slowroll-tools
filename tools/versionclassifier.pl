@@ -30,7 +30,7 @@ sub cmpversion($$)
 }
 
 
-my @files = <cache/*/primary.pkgs>;
+my @files = @ARGV;
 #print "@files\n";
 my @jsons = ();
 foreach my $fname (@files) {
