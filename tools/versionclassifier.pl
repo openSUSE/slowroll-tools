@@ -9,7 +9,7 @@ sub cmpverpart($$)
     my @v1 = split("[-._+~]", $v1);
     my @v2 = split("[-._+~]", $v2);
     for my $i (0..$#v1) {
-        if($v1[$i] ne $v2[$i]) {
+        if(($v1[$i]//"") ne ($v2[$i]//"")) {
             return 1+$i;
         }
     }
