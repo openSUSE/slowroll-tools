@@ -1,0 +1,24 @@
+#!/usr/bin/perl -w
+use strict;
+use CGI ":standard";
+use IO::Compress::Gzip qw(gzip);
+our $basedir='/srv/ftp/pub/opensuse/';
+
+my $path = param('path');
+die if $path=~m/\.\./ or $path=~m/[^a-zA-Z0-9.:\/+~_-]/; # sanitize
+my $fullpath = $basedir.$path;
+
+if(! -e $fullpath) {
+    print header(404);
+    exit 0;
+}
+
+print header("application/x-gzip");
+open(F, "-|", qw(rpm -qp --changelog), $fullpath) or die $!;
+$/=undef;
+my $txt = <F>;
+my $gz;
+gzip(\$txt, \$gz);
+print $gz;
+#system("rpm -qp --changelog $fullpath | gzip -9") # unsafe shell injection
+#system(qw(rpm -qp --changelog), $fullpath); # uncompressed text wastes bandwidth
