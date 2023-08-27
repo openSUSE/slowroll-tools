@@ -12,7 +12,7 @@ our $dryrun = 1;
 our @delay = (8*DAY, 60*DAY);
 our $changelogurl = 'http://stage3.opensuse.org:18080/cgi-bin/getchangelog?path=';
 our @baseurl = ('/source/tumbleweed/repo/oss/', # needs trailing slash
-        '/repositories/SUSE%3A/ALP%3A/Experimental%3A/Slowroll/base/repo/src-oss/');
+        '/repositories/openSUSE%3A/ALP%3A/Experimental%3A/Slowroll/base/repo/src-oss/');
 our $changelogdir = "cache/changelog";
 
 sub haddelay($$)
