@@ -20,4 +20,4 @@ https://www.zq1.de/~bernhard/linux/opensuse/slowroll/ has zstd-compressed data d
 # Usage
 
     ./collectbuildinfo
-    ./processbuildinfo-secondary
+    go run cmd/processbuildinfo.go
