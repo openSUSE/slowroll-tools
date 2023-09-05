@@ -3,40 +3,41 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
-
 	"os"
-
-	"github.com/schollz/progressbar/v3"
 )
 
-var (
-	pkgMapSrcBin map[string][]string
-	pkgMapSrcDep map[string][]string
+const (
+	scoreMapPath       = "out/scoremap.json"
+	pkgMapSrcBinPath   = "out/pkgmapsrcbin"
+	pkgMapSrcDepPath   = "out/pkgmapsrcdep"
+	pkgMapDepCountPath = "out/pkgmapdepcount"
 )
 
 func main() {
 	fmt.Println("Loading data from files...")
 
-	err := loadFromJsonFile("out/pkgmapsrcbin", &pkgMapSrcBin)
+	pkgMapSrcBin := make(map[string][]string)
+
+	err := loadFromJsonFile(pkgMapSrcBinPath, &pkgMapSrcBin)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
-	err = loadFromJsonFile("out/pkgmapsrcdep", &pkgMapSrcDep)
+	pkgMapSrcDep := make(map[string][]string)
+
+	err = loadFromJsonFile(pkgMapSrcDepPath, &pkgMapSrcDep)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
-	bar := progressbar.NewOptions(
-		len(pkgMapSrcBin),
-		progressbar.OptionSetDescription("Calculating dependencies..."),
-	)
+	totDeps := len(pkgMapSrcDep)
+	fmt.Print("Analyzing ", totDeps, " dependencies...")
+
+	dotSep := totDeps / 70
+	i := 0
 	dependencyMap := make(map[string][]string)
 	for pkg, binaries := range pkgMapSrcBin {
-
 		deps := pkgMapSrcDep[pkg]
-		bar.Add(1)
 
 		for _, dep := range deps {
 			for _, sub := range binaries {
@@ -44,9 +45,13 @@ func main() {
 				if dependencyMap[dep] == nil {
 					dependencyMap[dep] = make([]string, 0)
 				}
-
 				dependencyMap[dep] = append(dependencyMap[dep], sub)
 			}
+		}
+
+		i++
+		if i%dotSep == 0 {
+			fmt.Print(".")
 		}
 	}
 	fmt.Println()
@@ -56,18 +61,13 @@ func main() {
 		dependencyCountMap[pkg] = len(deps)
 	}
 
-	err = saveToJsonFile("out/pkgmapdepcount", dependencyCountMap)
+	err = saveToJsonFile(pkgMapDepCountPath, dependencyCountMap)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	// find the max number of dependencies for a package
-	maxDeps := 0
-	for _, deps := range dependencyCountMap {
-		if deps > maxDeps {
-			maxDeps = deps
-		}
-	}
+	maxDeps := getMaxDependencies(dependencyCountMap)
 
 	// score based on number of dependencies (normalized)
 	scoreMap := make(map[string]float64)
@@ -75,7 +75,10 @@ func main() {
 	rootPackages := make([]string, 0)
 
 	for pkg, deps := range dependencyCountMap {
+		// normalize
 		scoreMap[pkg] = float64(deps) / float64(maxDeps)
+
+		// find leaf and root packages
 		if scoreMap[pkg] == 1 {
 			rootPackages = append(rootPackages, pkg)
 		} else if scoreMap[pkg] == 0 {
@@ -86,12 +89,22 @@ func main() {
 	fmt.Println("Root packages:", rootPackages)
 	fmt.Println("Leaf packages:", leafPackages)
 
-	err = saveToJsonFile("out/scoremap.json", scoreMap)
+	err = saveToJsonFile(scoreMapPath, scoreMap)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
-	fmt.Println("Saved scoremap to out/scoremap.json")
 
+	fmt.Println("Saved scoremap to", scoreMapPath)
+}
+
+func getMaxDependencies(depCountMap map[string]int) int {
+	maxDeps := 0
+	for _, deps := range depCountMap {
+		if deps > maxDeps {
+			maxDeps = deps
+		}
+	}
+	return maxDeps
 }
 
 func saveToJsonFile(filename string, v any) error {
