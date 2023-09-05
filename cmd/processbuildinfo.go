@@ -113,7 +113,9 @@ func saveToJsonFile(filename string, v any) error {
 		return err
 	}
 
-	err = json.NewEncoder(file).Encode(v)
+	enc := json.NewEncoder(file)
+	enc.SetIndent("", "  ")
+	err = enc.Encode(v)
 	if err != nil {
 		return err
 	}
