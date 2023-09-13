@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-2.0-only
 pkg=$1
 srcprj=openSUSE:Factory
-dstprj=openSUSE:ALP:Experimental:Slowroll
+dstprj=openSUSE:ALP:Experimental:Slowroll:Staging
 
 if [ -z "$pkg" ] ; then
     echo "Usage: $0 PKG"
