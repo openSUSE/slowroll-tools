@@ -14,6 +14,7 @@ fi
 if PAGER="wc -c" osc rdiff --missingok $srcprj "$pkg" $dstprj | grep -q . ; then
     echo "submitting $pkg ..."
     osc copypac -e -K $srcprj "$pkg" $dstprj
+    touch out/pending/$pkg
 else
     echo "no diff"
 fi
