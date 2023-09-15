@@ -15,7 +15,7 @@ our @baseurl = ('/source/tumbleweed/repo/oss/', # needs trailing slash
         '/repositories/openSUSE%3A/ALP%3A/Experimental%3A/Slowroll/base/repo/src-oss/');
 our $changelogdir = "cache/changelog";
 our %exceptions;
-for my $t ("major", "minor") {
+for my $t ("major", "minor", "never") {
     my $x = `cat in/$t-update-exceptions`;
     $exceptions{$t} = {map { $_ => 1} split("\n", $x)};
 }
@@ -88,6 +88,7 @@ foreach my $pkg (sort keys (%{$versionclass})) {
     my $p = $versionclass->{$pkg};
     my $vercmp = $p->{vercmp};
     next unless $vercmp;
+    next if $exceptions{never}{$pkg};
     my $deps = getdepcount $pkg;
     my $diff = getdiff($pkg) unless $vercmp == 255 or $vercmp == 66;
     $diff //= "";
