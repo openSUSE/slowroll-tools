@@ -100,6 +100,7 @@ foreach my $pkg (sort keys (%{$versionclass})) {
     } elsif ($vercmp == 65) {
         print "openSUSE patch update in $pkg $deps\n";
         # patch-updates should remain compatible
+        $delay *= 0.7;
     } elsif ($vercmp == 63) {
         print "upstream patchlevel update in $pkg $deps\n";
         # patchlevel-updates should remain compatible
@@ -119,6 +120,8 @@ foreach my $pkg (sort keys (%{$versionclass})) {
     if(($vercmp >=3 or $delay<10*DAY) and $diff =~ /CVE-20/) {
         $delay = min($delay, 1*DAY);
     }
+    if($diff =~ /fixed/i) { $delay *= 0.9 }
+    if($diff =~ /incompatib/i) { $delay *= 1.5 }
     # check core-ness of $pkg
     if($deps > 10000) {
         $delay *= 2;
