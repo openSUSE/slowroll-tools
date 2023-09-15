@@ -1,0 +1,10 @@
+#!/bin/sh
+slo=openSUSE:ALP:Experimental:Slowroll
+v=cache/view
+mkdir -p $v
+osc api /source/openSUSE:Factory?view=info > $v/factory.xml
+osc api /source/$slo?view=info > $v/slo.xml
+osc api /source/$slo:Staging?view=info > $v/slos.xml
+for view in factory slo slos ; do
+    tools/parseview.pl $v/$view.xml > $v/$view.json
+done
