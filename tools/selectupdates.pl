@@ -14,6 +14,11 @@ our $changelogurl = 'http://stage3.opensuse.org:18080/cgi-bin/getchangelog?path=
 our @baseurl = ('/source/tumbleweed/repo/oss/', # needs trailing slash
         '/repositories/openSUSE%3A/ALP%3A/Experimental%3A/Slowroll/base/repo/src-oss/');
 our $changelogdir = "cache/changelog";
+our %exceptions;
+for my $t ("major", "minor") {
+    my $x = `cat in/$t-update-exceptions`;
+    $exceptions{$t} = {map { $_ => 1} split("\n", $x)};
+}
 
 sub haddelay($$)
 { my ($timestamp, $delay) = @_;
@@ -100,13 +105,17 @@ foreach my $pkg (sort keys (%{$versionclass})) {
     } elsif ($vercmp >= 3) {
         print "upstream patchlevel update in $pkg $deps\n";
         # TODO patchlevel update
+    } elsif ($vercmp == 2 && $exceptions{minor}{$pkg}) {
+	print "upstream minor update exception for $pkg\n"
+    } elsif ($exceptions{major}{$pkg}) {
+        print "upstream major update exception for $pkg\n"
     } else {
         $delay = $delay[1];
     }
     if($diff =~ /(?:boo|bsc)#\d/) {
         $delay *= 0.7;
     }
-    if($vercmp >=3 and $diff =~ /CVE-20/) {
+    if(($vercmp >=3 or $delay<10*DAY) and $diff =~ /CVE-20/) {
         $delay = min($delay, 1*DAY);
     }
     # check core-ness of $pkg
