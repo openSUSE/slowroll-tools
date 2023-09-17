@@ -25,6 +25,10 @@ sub haddelay($$)
     return ((time - $timestamp) > $delay);
 }
 
+my %repo;
+for my $repo (qw(factory slo slos)) {
+    $repo{$repo} = load_json("cache/view/$repo.json");
+}
 my $versionclass = load_json("out/versionclass.json");
 my $pkgmapdepcount = load_json("out/pkgmapdepcount");
 my @pkgs;
@@ -84,6 +88,13 @@ sub submit($)
 }
 
 foreach my $pkg (sort keys (%{$versionclass})) {
+    my $repopkg = $repo{factory}{$pkg};
+    next unless $repopkg;
+    my $slorepopkg = $repo{slos}{$pkg} || $repo{slo}{$pkg} ;
+    if($slorepopkg && $slorepopkg->{md5} eq $repopkg->{md5}) {
+        diag("skip already submitted");
+	next;
+    }
     my $p = $versionclass->{$pkg};
     my $vercmp = $p->{vercmp};
     next unless $vercmp;

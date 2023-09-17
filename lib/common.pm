@@ -46,4 +46,8 @@ sub min($$) {
     return ($_[0] < $_[1])?$_[0]:$_[1];
 }
 
+sub diag($) {
+    print STDERR $_[0],"\n" if $ENV{DEBUG};
+}
+
 1;
