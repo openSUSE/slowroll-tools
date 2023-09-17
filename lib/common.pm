@@ -15,6 +15,11 @@ sub store_file($$)
     close $f;
 }
 
+sub load_list_map($)
+{
+    return {map { $_ => 1} split("\n", load_file(shift))};
+}
+
 sub load_json($)
 { my $filename = shift;
     return decode_json(load_file($filename));

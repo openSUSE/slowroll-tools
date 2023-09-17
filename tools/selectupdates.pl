@@ -16,8 +16,7 @@ our @baseurl = ('/source/tumbleweed/repo/oss/', # needs trailing slash
 our $changelogdir = "cache/changelog";
 our %exceptions;
 for my $t ("major", "minor", "never") {
-    my $x = `cat in/$t-update-exceptions`;
-    $exceptions{$t} = {map { $_ => 1} split("\n", $x)};
+    $exceptions{$t} = load_list_map "in/$t-update-exceptions";
 }
 
 sub haddelay($$)
