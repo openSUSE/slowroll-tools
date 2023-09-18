@@ -28,6 +28,10 @@ function osc_getbinaries
 pkgs=out/pending/*
 for pkg in $pkgs ; do
   pkg=$(basename $pkg)
+  if grep ^$pkg in/build-compare-differed-builds.txt ; then
+    echo "skipping unreproducible package $pkg..."
+    continue
+  fi
   # fetch binaries from Factory + Staging
   if ! $offline ; then
     rm -rf tmp/{slo,slos,slos.s,fac}
