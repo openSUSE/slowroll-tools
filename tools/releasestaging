@@ -57,7 +57,8 @@ for pkg in $pkgs ; do
   if $equivalent || grep "^$pkg$" in/kernel-update-exceptions ; then
     src=openSUSE:Factory
   fi
-  echo "XX releasing $pkg"
-  $dry osc release $src --target-project=$slo "$pkg" --target-repository=standard -r standard
+  echo "XX releasing $src $pkg"
+  $dry osc release $src --target-project=$slo "$pkg" --target-repository=standard -r standard &&
+  $dry osc rdelete -m "released" $slo:Staging $pkg &&
   $dry rm out/pending/$pkg
 done
