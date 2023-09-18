@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+if [[ $DEBUG ]] ; then set -x ; fi
 slo=openSUSE:ALP:Experimental:Slowroll
 # from https://github.com/bmwiedemann/build-compare/tree/slowroll
 bc=build-compare
