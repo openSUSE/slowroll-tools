@@ -127,6 +127,7 @@ foreach my $pkg (sort keys (%{$versionclass})) {
     if($diff =~ /(?:boo|bsc)#\d/) {
         $delay *= 0.7;
     }
+    if($diff =~ /reproducible/i) { $delay *= 0.7 }
     if(($vercmp >=3 or $delay<10*DAY) and $diff =~ /CVE-20/) {
         $delay = min($delay, 1*DAY);
     }
