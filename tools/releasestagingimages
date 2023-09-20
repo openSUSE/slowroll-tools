@@ -1,0 +1,3 @@
+#!/bin/sh
+slo=openSUSE:ALP:Experimental:Slowroll
+osc release $slo:Staging --target-project=$slo openSUSE-Slowroll-Guests --target-repository=images -r images
