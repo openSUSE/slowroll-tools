@@ -1,6 +1,7 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-2.0-only
 pkg=$1
+rev=${2:-latest}
 srcprj=openSUSE:Factory
 dstprj=openSUSE:ALP:Experimental:Slowroll:Staging
 
@@ -13,7 +14,7 @@ fi
 # find out if it has any diff:
 if PAGER="wc -c" osc rdiff --missingok $srcprj "$pkg" $dstprj | grep -q . ; then
     echo "submitting $pkg ..."
-    osc copypac -e -K $srcprj "$pkg" $dstprj
+    osc branch -f -r $rev --nodevelproject $srcprj "$pkg" $dstprj
     touch out/pending/$pkg
 else
     echo "no diff"

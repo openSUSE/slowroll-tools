@@ -61,7 +61,7 @@ sub getdiff($)
     mkdir($changelogdir);
     mkdir($changelogdir."diff");
     my $difffilename = "${changelogdir}diff/$pkg-$p[0]{version}{ver}-$p[0]{version}{rel}-$p[1]{version}{ver}-$p[1]{version}{rel}";
-    #print STDERR "@url $difffilename\n";
+    diag "getdiff @url $difffilename";
     my $diff = cache_or_run($difffilename, sub {
         for my $i (0,1) {
             $changelog[$i] = cache_or_run($changelogf[$i],
@@ -78,11 +78,11 @@ sub getdiff($)
     return $diff;
 }
 
-sub submit($)
-{ my ($pkg) = @_;
-    print "submitting $pkg\n";
+sub submit($$)
+{ my ($pkg, $rev) = @_;
+    print "submitting $pkg $rev\n";
     if(!$dryrun) {
-        system("tools/submitpackageupdate", $pkg);
+        system("tools/submitpackageupdate", $pkg, $rev);
         # TODO store $pkgs[0]->{$pkg}{diff} for consumption by users - e.g. RSS feed
     }
 }
@@ -101,7 +101,9 @@ foreach my $pkg (sort keys (%{$versionclass})) {
     next if $exceptions{never}{$pkg};
     my $deps = getdepcount $pkg;
     my $diff = getdiff($pkg) unless $vercmp == 255 or $vercmp == 66;
-    $diff //= "";
+    next unless $diff;
+    $diff =~ m!\A\+"obs://build\.opensuse\.org/openSUSE:Factory/standard/([0-9a-f]*)!;
+    my $rev = $1 // die "did not find disturl for $pkg";
     $pkgs[0]->{$pkg}{diff} = $diff;
     my $delay = $delay[0];
     if($vercmp == 255) {
@@ -144,6 +146,6 @@ foreach my $pkg (sort keys (%{$versionclass})) {
         diag "wait some longer with the update of $pkg";
         next
     }
-    diag "submit $pkg now after $delay s delay";
-    submit($pkg);
+    diag "submit $pkg $rev now after $delay s delay";
+    submit($pkg, $rev);
 }

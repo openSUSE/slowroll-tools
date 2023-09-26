@@ -14,7 +14,7 @@ if(! -e $fullpath) {
 }
 
 print header("application/x-gzip");
-open(F, "-|", qw(rpm -qp --changelog), $fullpath) or die $!;
+open(F, "-|", qw(rpm -qp --qf "%{disturl}\n" --changelog), $fullpath) or die $!;
 $/=undef;
 my $txt = <F>;
 my $gz;
