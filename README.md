@@ -21,3 +21,5 @@ https://www.zq1.de/~bernhard/linux/opensuse/slowroll/ has zstd-compressed data d
 
     ./collectbuildinfo
     go run cmd/processbuildinfo.go
+    DEBUG=1 DRYRUN=0 make daily
+    DEBUG=1 make release # later after builds finished and QA succeeded
