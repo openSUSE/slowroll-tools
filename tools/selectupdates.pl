@@ -21,7 +21,7 @@ for my $t ("major", "minor", "never") {
 
 sub haddelay($$)
 { my ($timestamp, $delay) = @_;
-    print STDERR "$delay $timestamp\n"; # debug
+    diag "$delay $timestamp"; # debug
     return ((time - $timestamp) > $delay);
 }
 
@@ -105,22 +105,22 @@ foreach my $pkg (sort keys (%{$versionclass})) {
     $pkgs[0]->{$pkg}{diff} = $diff;
     my $delay = $delay[0];
     if($vercmp == 255) {
-        print "found new package $pkg - submitting right away\n";
+        diag "found new package $pkg - submitting right away";
         $delay = 0;
     } elsif ($vercmp == 65) {
-        print "openSUSE patch update in $pkg $deps\n";
+        diag "openSUSE patch update in $pkg $deps";
         # patch-updates should remain compatible
         $delay *= 0.7;
     } elsif ($vercmp == 63) {
-        print "upstream patchlevel update in $pkg $deps\n";
+        diag "upstream patchlevel update in $pkg $deps";
         # patchlevel-updates should remain compatible
     } elsif ($vercmp >= 3) {
-        print "upstream patchlevel update in $pkg $deps\n";
+        diag "upstream patchlevel update in $pkg $deps";
         # TODO patchlevel update
     } elsif ($vercmp == 2 && $exceptions{minor}{$pkg}) {
-	print "upstream minor update exception for $pkg\n"
+        diag "upstream minor update exception for $pkg"
     } elsif ($exceptions{major}{$pkg}) {
-        print "upstream major update exception for $pkg\n"
+        diag "upstream major update exception for $pkg"
     } else {
         $delay = $delay[1];
     }
@@ -140,9 +140,9 @@ foreach my $pkg (sort keys (%{$versionclass})) {
     # TODO: consider open bugreports
     # TODO: consider if we need a new dep for $pkg - might not be declared in .spec
     if(!haddelay($p->{time}, $delay)) {
-        print "wait some longer with the update of $pkg\n";
+        diag "wait some longer with the update of $pkg";
         next
     }
-    print STDERR "submit $pkg now after $delay s delay\n";
+    diag "submit $pkg now after $delay s delay";
     submit($pkg);
 }
