@@ -46,6 +46,7 @@ for pkg in $pkgs ; do
   # build-compare with special exception for disturl+distribution
   if $bc/same-build-result.sh tmp/slo tmp/slos tmp/slos.s ; then
     # skip release if same
+    $dry rm out/pending/$pkg
     continue
   fi
   $offline || osc_getbinaries openSUSE:Factory $pkg tmp/fac
@@ -59,6 +60,6 @@ for pkg in $pkgs ; do
   fi
   echo "XX releasing $src $pkg"
   $dry osc release $src --target-project=$slo "$pkg" --target-repository=standard -r standard &&
-  $dry osc rdelete -m "released" $slo:Staging $pkg &&
+  #$dry osc rdelete -m "released" $slo:Staging $pkg &&
   $dry rm out/pending/$pkg
 done
