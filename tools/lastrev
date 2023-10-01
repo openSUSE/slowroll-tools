@@ -1,0 +1,24 @@
+#!/usr/bin/perl -w
+# SPDX-License-Identifier: GPL-2.0-only
+# zypper -n in perl-XML-Bare perl-JSON-XS
+
+# take output from
+# osc api /source/openSUSE:Factory/bzip2/_history
+# and find the latest rev before a given cutoff timestamp
+
+use strict;
+use XML::Bare;
+our $cutoff = shift; #1692223200; #2023-08-17
+$/ = undef;
+my $xml = <>;#`cat /tmp/bzip2.xml`;
+my $ref = new XML::Bare(text => $xml) ->parse();
+
+
+my $revs = $ref->{revisionlist}->{revision};
+my $lastsrcmd5;
+foreach my $rev (@$revs) {
+    my $t = $rev->{time}{value};
+    last if $t > $cutoff;
+    $lastsrcmd5 = $rev->{srcmd5}{value};
+}
+print "$lastsrcmd5\n";

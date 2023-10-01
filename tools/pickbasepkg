@@ -1,0 +1,19 @@
+#!/bin/sh
+pkg=$1
+[ -n "$pkg" ] || exit 1
+slo=openSUSE:ALP:Experimental:Slowroll
+xml=.xml
+osc api /source/openSUSE:Factory/$pkg/_history > $xml
+base=$(tools/lastrev 1692223200 $xml)
+last=$(tools/lastrev 3000000000 $xml)
+
+osc ls $slo $pkg >/dev/null 2>&1 && exit 0
+if [ -n "$base" -a "$base" = "$last" ] ; then
+    echo "release Factory $pkg"
+    osc release openSUSE:Factory --target-project=$slo $pkg --target-repository=standard -r standard
+else
+    echo "branch Factory $pkg $base"
+    tools/submitpackageupdate "$pkg" "$base"
+fi
+
+rm .xml
