@@ -4,7 +4,8 @@ v=cache/view
 mkdir -p $v
 osc api /source/openSUSE:Factory?view=info > $v/factory.xml
 osc api /source/$slo?view=info > $v/slo.xml
+osc api /source/$slo:Base?view=info > $v/slob.xml
 osc api /source/$slo:Staging?view=info > $v/slos.xml
-for view in factory slo slos ; do
+for view in factory slo slob slos ; do
     tools/parseview.pl $v/$view.xml > $v/$view.json
 done
