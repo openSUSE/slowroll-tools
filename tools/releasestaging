@@ -35,7 +35,9 @@ for pkg in $pkgs ; do
   # fetch binaries from Factory + Staging
   if ! $offline ; then
     rm -rf tmp/{slo,slos,slos.s,fac}
-    osc_getbinaries $slo:Staging     $pkg tmp/slos || continue
+    osc r -r standard -a x86_64 $slo:Staging $pkg | grep -q ' succeeded' || continue
+
+    osc_getbinaries $slo:Staging     $pkg tmp/slos
     osc_getbinaries $slo             $pkg tmp/slo
     mkdir tmp/slos.s
     mv tmp/slos/*.src.rpm tmp/slos.s
