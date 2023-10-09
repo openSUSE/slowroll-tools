@@ -276,7 +276,6 @@ scala-pickling
 scap-security-guide
 scheme48
 sdcc
-seamonkey
 segment
 selinux-policy
 serialization

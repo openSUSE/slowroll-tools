@@ -9,3 +9,4 @@ osc api /source/$slo:Staging?view=info > $v/slos.xml
 for view in factory slo slob slos ; do
     tools/parseview.pl $v/$view.xml > $v/$view.json
 done
+cp -a $v $v.$(date -I)

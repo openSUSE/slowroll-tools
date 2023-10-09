@@ -16,5 +16,10 @@ release:
 	tools/releasestaging 2>&1 | tee out/log/release-$$(date -Iseconds)
 
 newsnapshot:
+	osc api -X POST /source/openSUSE:ALP:Experimental:Slowroll:Next?cmd=freezelink
 	# on pontifex2 run /usr/local/bin/slowroll-snapshot
+	tools/cleanuprepo $$slo:Staging
+	tools/cleanuprepo $$slo
 	FORCE=1 ./collectbuildinfo
+	rm -f out/pending/*
+	touch out/pending/000release-packages # and update the version numbers in there

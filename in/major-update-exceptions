@@ -1,5 +1,7 @@
+abseil-cpp
 MozillaFirefox
 MozillaThunderbird
+cargo-audit-advisory-db
 chromium
 python-awkward-cpp
 ungoogled-chromium
