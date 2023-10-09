@@ -1,9 +1,12 @@
 install:
 	zypper -n in perl-JSON-XS perl-XML-Bare
 
-daily:
+daily: fetch select
+fetch:
 	tools/getrepoviews
 	tools/diffdistro
+
+select:
 	mkdir -p out/log
 	DEBUG=1 tools/selectupdates.pl 2>&1 | tee out/log/select-$$(date -Iseconds)
 	#DRYRUN=0 tools/selectupdates.pl
