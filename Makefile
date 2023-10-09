@@ -4,7 +4,7 @@ install:
 daily:
 	tools/getrepoviews
 	tools/diffdistro
-	make -p out/log
+	mkdir -p out/log
 	DEBUG=1 tools/selectupdates.pl 2>&1 | tee out/log/select-$$(date -Iseconds)
 	#DRYRUN=0 tools/selectupdates.pl
 
