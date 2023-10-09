@@ -3,6 +3,7 @@ install:
 
 daily: fetch select
 fetch:
+	mkdir -p out/frozenlinks/ ; osc api /source/openSUSE:ALP:Experimental:Slowroll:Next/_project/_frozenlinks?meta=1 > out/frozenlinks/$$(date -I)
 	tools/getrepoviews
 	tools/diffdistro
 
