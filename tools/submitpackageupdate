@@ -11,10 +11,17 @@ if [ -z "$pkg" ] ; then
     exit 1
 fi
 
+if [ $rev = latest ] ; then
+    rev=$(osc log $srcprj "$pkg" |
+        head -2 |tail -1 |
+	cut -d" " -f1 | cut -c2-)
+fi
+
 # find out if it has any diff:
-if PAGER="wc -c" osc rdiff --missingok $srcprj "$pkg" $dstprj | grep -q . ; then
+if PAGER="wc -c" osc rdiff --missingok -r $rev $srcprj "$pkg" $dstprj | grep -q . ; then
     echo "submitting $pkg ..."
     osc branch -f -r $rev --nodevelproject $srcprj "$pkg" $dstprj
+    #osc detachbranch -m "drop link" $dstprj "$pkg"
     touch out/pending/$pkg
 else
     echo "no diff"
