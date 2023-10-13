@@ -4,7 +4,7 @@ slo=openSUSE:ALP:Experimental:Slowroll
 # from https://github.com/bmwiedemann/build-compare/tree/slowroll
 bc=build-compare
 dry=echo
-dry=
+[ "$DRYRUN" = 0 ] && dry=
 offline=true
 offline=false
 mkdir -p tmp
