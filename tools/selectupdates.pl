@@ -9,7 +9,7 @@ use lib "lib";
 use common;
 
 our $dryrun = $ENV{DRYRUN}//1;
-our @delay = (8*DAY, 60*DAY);
+our @delay = (8*DAY, 60*DAY, 100*DAY);
 our $changelogurl = 'http://stage3.opensuse.org:18080/cgi-bin/getchangelog?path=';
 our @baseurl = ('/source/tumbleweed/repo/oss/', # needs trailing slash
         '/repositories/openSUSE%3A/ALP%3A/Experimental%3A/Slowroll/base/repo/src-oss/');
@@ -124,14 +124,18 @@ foreach my $pkg (sort keys (%{$versionclass})) {
     } elsif ($exceptions{major}{$pkg}) {
         diag "upstream major update exception for $pkg"
     } else {
-        $delay = $delay[1];
+        $delay = $delay[3-$vercmp];
     }
     if($diff =~ /(?:boo|bsc)#\d/) {
         $delay *= 0.7;
     }
     if($diff =~ /reproducible/i) { $delay *= 0.7 }
-    if(($vercmp >=3 or $delay<10*DAY) and $diff =~ /CVE-20/) {
-        $delay = 1;
+    if($diff =~ /CVE-20/) {
+        if($vercmp >=3 or $delay<10*DAY) {
+            $delay = 1;
+        } else {
+            print "Warning: CVE $diff waiting $delay - manual action might be needed\n";
+	}
     }
     if($diff =~ /fixed/i) { $delay *= 0.9 }
     if($diff =~ /incompatib/i) { $delay *= 1.5 }
@@ -146,6 +150,7 @@ foreach my $pkg (sort keys (%{$versionclass})) {
         diag "wait some longer with the update of $pkg";
         next
     }
+    diag "Diff for $pkg: $diff\n----";
     diag "submit $pkg $rev now after $delay s delay";
     submit($pkg, $rev);
 }
