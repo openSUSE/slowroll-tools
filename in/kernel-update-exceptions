@@ -1,0 +1,7 @@
+# unreproducible - take from Factory to keep signatures for secure-boot
+kernel-debug
+kernel-default
+kernel-kvmsmall
+kernel-obsbuild
+kernel-pae
+kernel-vanilla

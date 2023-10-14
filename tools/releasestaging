@@ -54,7 +54,7 @@ for pkg in $pkgs ; do
     equivalent=true
   fi
   src=$slo:Staging
-  if $equivalent ; then
+  if $equivalent || grep "^$pkg$" in/kernel-update-exceptions ; then
     src=openSUSE:Factory
   fi
   echo "XX releasing $pkg"
