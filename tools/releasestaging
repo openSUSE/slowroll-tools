@@ -3,6 +3,7 @@ if [[ $DEBUG ]] ; then set -x ; fi
 slo=openSUSE:ALP:Experimental:Slowroll
 # from https://github.com/bmwiedemann/build-compare/tree/slowroll
 bc=build-compare
+: ${RELEASE_UNREPRODUCIBLE:=false}
 dry=echo
 [ "$DRYRUN" = 0 ] && dry=
 offline=true
@@ -28,7 +29,7 @@ function osc_getbinaries
 pkgs=out/pending/*
 for pkg in $pkgs ; do
   pkg=$(basename $pkg)
-  if grep ^$pkg in/build-compare-differed-builds.txt ; then
+  if ! $RELEASE_UNREPRODUCIBLE && grep ^$pkg in/build-compare-differed-builds.txt ; then
     echo "skipping unreproducible package $pkg..."
     continue
   fi
