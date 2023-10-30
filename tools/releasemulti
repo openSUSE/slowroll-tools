@@ -1,0 +1,29 @@
+#!/usr/bin/perl -w
+# one source package such as kernel-source can contain multiple .spec files
+# and we need to call osc release for all of them individually
+
+use strict;
+use lib 'lib';
+use common;
+
+our $srcprj = shift;
+our $dstprj = shift;
+my $pkg = shift;
+
+if(!$pkg) {
+    die "usage: $0 SRCPRJ DSTPRJ PKG\n";
+}
+
+sub release_one($)
+{ my($pkg) = @_;
+    diag("release $srcprj $pkg $dstprj");
+    system('osc', 'release', $srcprj, '--target-project', $dstprj, $pkg, '--target-repository=standard', '-r', 'standard');
+}
+
+my $ls = `osc ls $srcprj $pkg | grep \\\\.spec\$`;
+diag($ls);
+foreach my $spec (split("\n", $ls)) {
+    my $subpkg = $spec ; $subpkg =~ s/\.spec$// or die;
+    print "$subpkg\n";
+    release_one($subpkg);
+}

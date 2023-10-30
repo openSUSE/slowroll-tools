@@ -60,7 +60,7 @@ for pkg in $pkgs ; do
     src=openSUSE:Factory
   fi
   echo "XX releasing $src $pkg"
-  $dry osc release $src --target-project=$slo "$pkg" --target-repository=standard -r standard &&
+  $dry tools/releasemulti "$src" "$slo" "$pkg"
   #$dry osc rdelete -m "released" $slo:Staging $pkg &&
   $dry rm out/pending/$pkg
 done
