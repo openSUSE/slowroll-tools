@@ -3,7 +3,7 @@ if [[ $DEBUG ]] ; then set -x ; fi
 slo=openSUSE:ALP:Experimental:Slowroll
 # from https://github.com/bmwiedemann/build-compare/tree/slowroll
 bc=build-compare
-: ${RELEASE_UNREPRODUCIBLE:=false}
+: ${RELEASE_UNREPRODUCIBLE:=true}
 dry=echo
 [ "$DRYRUN" = 0 ] && dry=
 offline=true
