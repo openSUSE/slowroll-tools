@@ -20,7 +20,7 @@ sub release_one($)
     system('osc', 'release', $srcprj, '--target-project', $dstprj, $pkg, '--target-repository=standard', '-r', 'standard');
 }
 
-my $ls = `osc ls $srcprj $pkg | grep \\\\.spec\$`;
+my $ls = `osc ls -e $srcprj $pkg | grep \\\\.spec\$`;
 diag($ls);
 foreach my $spec (split("\n", $ls)) {
     my $subpkg = $spec ; $subpkg =~ s/\.spec$// or die;
