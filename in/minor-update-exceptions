@@ -1,9 +1,12 @@
 gpp
 kubo
+matrix-synapse
 nghttp2
 nvidia-open-driver-G06-signed
 nodejs20
 nodejs-electron
 perl-Mojolicious
 picard
+postgresql14
 python-gevent
+redis
