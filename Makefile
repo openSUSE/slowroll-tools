@@ -6,6 +6,9 @@ fetch:
 	mkdir -p out/frozenlinks/ ; osc api /source/openSUSE:ALP:Experimental:Slowroll:Next/_project/_frozenlinks?meta=1 > out/frozenlinks/$$(date -I)
 	tools/getrepoviews
 	tools/diffdistro
+	osc api /build/openSUSE:ALP:Experimental:Slowroll/_result > out/result/slo/$$(date -I)
+	osc api /build/openSUSE:ALP:Experimental:Slowroll:Staging/_result > out/result/slos/$$(date -I)
+	osc api /build/openSUSE:ALP:Experimental:Slowroll:Base/_result > out/result/slos/$$(date -I)
 
 select:
 	mkdir -p out/log
