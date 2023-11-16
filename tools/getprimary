@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: GPL-2.0-only
 
 wget -N $1/repodata/repomd.xml
-p=$(grep -o '[^"]*primary.xml.gz' repomd.xml)
+p=$(grep -o '[^"]*primary.xml.[a-z]*' repomd.xml)
 wget --progress=dot:mega -nc $1/$p
-ln -f $(basename $p) primary.xml.gz
+n=$(basename $p)
+ext=$(echo $n | sed 's/.*\.//')
+ln -f $n primary.xml.$ext
