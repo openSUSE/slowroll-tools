@@ -39,7 +39,8 @@ for pkg in $pkgs ; do
     osc r -r standard -a x86_64 $slo:Staging $pkg | grep -q ' succeeded' || continue
 
     osc_getbinaries $slo:Staging     $pkg tmp/slos
-    osc_getbinaries $slo             $pkg tmp/slo
+    osc_getbinaries $slo             $pkg tmp/slo ||
+    osc_getbinaries $slo:Base        $pkg tmp/slo
     mkdir tmp/slos.s
     mv tmp/slos/*.src.rpm tmp/slos.s
   fi
