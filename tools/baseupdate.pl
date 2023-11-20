@@ -16,7 +16,7 @@ sub submit($$)
 { my ($pkg, $rev) = @_;
     if(!$dryrun) {
         my $src  = "openSUSE:Factory";
-        my $dest = "openSUSE:ALP:Experimental:Slowroll:Base";
+        my $dest = "openSUSE:Slowroll:Base";
         print "osc release $src --target-project=$dest '$pkg' --target-repository=standard -r standard\n";
         #system("tools/releasepackage", $pkg, $rev);
     }

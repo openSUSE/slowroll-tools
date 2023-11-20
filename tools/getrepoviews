@@ -1,5 +1,5 @@
 #!/bin/sh
-slo=openSUSE:ALP:Experimental:Slowroll
+slo=openSUSE:Slowroll
 v=cache/view
 mkdir -p $v
 osc api /source/openSUSE:Factory?view=info > $v/factory.xml

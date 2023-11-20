@@ -3,6 +3,6 @@
 d=`pwd`
 mkdir -p cache/tumbleweed cache/slowroll
 ( cd cache/tumbleweed && $d/tools/getprimary https://download.opensuse.org/source/tumbleweed/repo/oss/ && $d/tools/parsexml.pl primary.xml.zst > primary.pkgs )
-( cd cache/slowroll && $d/tools/getprimary http://download.opensuse.org/repositories/openSUSE%3A/ALP%3A/Experimental%3A/Slowroll/base/repo/src-oss/ && $d/tools/parsexml.pl primary.xml.gz > primary.pkgs )
+( cd cache/slowroll && $d/tools/getprimary http://download.opensuse.org/slowroll/repo/src-oss/ && $d/tools/parsexml.pl primary.xml.gz > primary.pkgs )
 tools/versionclassifier.pl cache/{tumbleweed,slowroll}/primary.pkgs | tee out/versionclass.json
 

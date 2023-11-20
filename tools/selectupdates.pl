@@ -12,7 +12,7 @@ our $dryrun = $ENV{DRYRUN}//1;
 our @delay = (8*DAY, 60*DAY, 100*DAY);
 our $changelogurl = 'http://stage3.opensuse.org:18080/cgi-bin/getchangelog?path=';
 our @baseurl = ('/source/tumbleweed/repo/oss/', # needs trailing slash
-        '/repositories/openSUSE%3A/ALP%3A/Experimental%3A/Slowroll/base/repo/src-oss/');
+        '/slowroll/repo/src-oss/');
 our $changelogdir = "cache/changelog";
 our %exceptions;
 for my $t ("major", "minor", "never") {

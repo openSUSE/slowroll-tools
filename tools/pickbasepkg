@@ -1,7 +1,7 @@
 #!/bin/sh
 pkg=$1
 [ -n "$pkg" ] || exit 1
-slo=openSUSE:ALP:Experimental:Slowroll
+slo=openSUSE:Slowroll
 xml=.xml
 osc api /source/openSUSE:Factory/$pkg/_history > $xml
 base=$(tools/lastrev 1692223200 $xml)

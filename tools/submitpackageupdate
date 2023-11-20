@@ -3,7 +3,7 @@
 pkg=$1
 rev=${2:-latest}
 srcprj=openSUSE:Factory
-dstprj=openSUSE:ALP:Experimental:Slowroll:Staging
+dstprj=openSUSE:Slowroll:Staging
 
 if [ -z "$pkg" ] ; then
     echo "Usage: $0 PKG"
