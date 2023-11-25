@@ -1,0 +1,21 @@
+#!/usr/bin/perl -w
+use strict;
+#input from stage3:
+#for p in slowroll/repo/src-oss/src/* ; do rpm -qp --qf '%{name} %{version} %{release} %{disturl}\n' $p ; done > .slowroll
+# and from tools/getrepoviews
+use lib 'lib';
+use common;
+
+open(F1, "<cache/slowroll-base-20231119.disturls") or die $!;
+my $slob = load_json("cache/view.2023-11-25/slob.json");
+
+while(<F1>) {
+    my ($name, $version, $release, $disturl) = split();
+    my $md5 = $disturl;
+    $md5 =~ s,^obs://build.opensuse.org/openSUSE:Factory/standard/,,;
+    $md5 =~ s,-$name$,, or next;
+    my $slobmd5 = $slob->{$name}{md5}//"newpkg";
+    next if $slobmd5 eq $md5;
+    print STDERR "$name\t$md5\n";
+    print "osc copypac -r $md5 openSUSE:Factory $name openSUSE:Slowroll:Base\n";
+}
