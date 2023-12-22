@@ -6,8 +6,8 @@ use strict;
 use lib 'lib';
 use common;
 
-open(F1, "<cache/slowroll-base-20231119.disturls") or die $!;
-my $slob = load_json("cache/view.2023-11-25/slob.json");
+open(F1, "<cache/slowroll-base-20231219.disturls") or die $!; # created on stage3 with /srv/ftp/pub/opensuse # for p in slowroll/repo/src-oss/src/* ; do rpm -qp --qf '%{name} %{version} %{release} %{disturl}\n' $p ; done > .slowroll
+my $slob = load_json("cache/view.2023-12-22/slob.json");
 
 while(<F1>) {
     my ($name, $version, $release, $disturl) = split();

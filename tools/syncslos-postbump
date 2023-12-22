@@ -1,0 +1,30 @@
+#!/bin/sh
+#usage:
+#for p in $(osc ls $slo:Staging) ; do echo "$p"; tools/syncslos-postbump "$p" ; done
+srcprj=openSUSE:Factory
+prj=openSUSE:Slowroll:Staging
+pkg=${1:-qt6-webview}
+basedisturls=cache/slowroll-base-20231219.disturls
+
+grep "^$pkg$" in/never-update-exceptions && exit 0
+
+#osc api "/source/$prj/$pkg/_history"|tail -3|grep -q adrianSuSE
+isold=0
+#$?
+
+if [ $isold != 0 ] ; then
+  echo "keeping new $pkg"
+  exit 0 # for now keep new pkgs
+fi
+
+if osc ls -b -a i586 $prj "$pkg" | grep -q . ||
+   osc ls -b -a x86_64 $prj "$pkg" | grep -q -- -bootstrap ; then
+  echo "updating $pkg"
+  rev=$(basename $(grep ^$pkg\  $basedisturls|cut -d" " -f4) |cut -d- -f1)
+  if PAGER="wc -c" osc rdiff --missingok -r "$rev" $srcprj "$pkg" $prj | grep -q . ; then
+  osc copypac -r "$rev" $srcprj "$pkg" $prj
+  fi
+else
+  echo "dropping $pkg"
+  osc rdelete -m "rebased" $prj "$pkg"
+fi
