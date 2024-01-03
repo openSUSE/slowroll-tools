@@ -17,7 +17,9 @@ if [ $isold != 0 ] ; then
   exit 0 # for now keep new pkgs
 fi
 
-if osc ls -b -a i586 $prj "$pkg" | grep -q . ||
+if \
+   grep -q "^$pkg$" in/baselibs.list in/dont-delete ||
+   osc ls -b -a i586 $prj "$pkg" | grep -q . ||
    osc ls -b -a x86_64 $prj "$pkg" | grep -q -- -bootstrap ; then
   echo "updating $pkg"
   rev=$(basename $(grep ^$pkg\  $basedisturls|cut -d" " -f4) |cut -d- -f1)
@@ -27,4 +29,5 @@ if osc ls -b -a i586 $prj "$pkg" | grep -q . ||
 else
   echo "dropping $pkg"
   osc rdelete -m "rebased" $prj "$pkg"
+  rm -f "out/pending/$pkg"
 fi
