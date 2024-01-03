@@ -9,7 +9,7 @@ use lib "lib";
 use common;
 
 our $dryrun = $ENV{DRYRUN}//1;
-our @delay = (8*DAY, 60*DAY, 100*DAY);
+our @delay = (8*DAY, 80*DAY, 150*DAY);
 our $changelogurl = 'http://stage3.opensuse.org:18080/cgi-bin/getchangelog?path=';
 our @baseurl = ('/source/tumbleweed/repo/oss/', # needs trailing slash
         '/slowroll/repo/src-oss/');
