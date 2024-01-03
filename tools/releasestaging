@@ -6,8 +6,7 @@ bc=build-compare
 : ${RELEASE_UNREPRODUCIBLE:=true}
 dry=echo
 [ "$DRYRUN" = 0 ] && dry=
-offline=true
-offline=false
+: ${offline:=false}
 mkdir -p tmp
 
 function osc_getbinaries
@@ -25,6 +24,7 @@ function osc_getbinaries
     return $ret
 }
 
+$dry tools/cleanuprepo $slo:Releasing
 #pkgs=`osc ls $slo:Staging`
 pkgs=out/pending/*
 for pkg in $pkgs ; do
@@ -61,7 +61,9 @@ for pkg in $pkgs ; do
     src=openSUSE:Factory
   fi
   echo "XX releasing $src $pkg"
-  $dry tools/releasemulti "$src" "$slo" "$pkg"
+  $dry tools/releasemulti "$src" "$slo:Releasing" "$pkg"
   #$dry osc rdelete -m "released" $slo:Staging $pkg &&
   $dry rm out/pending/$pkg
 done
+$dry osc release $slo:Releasing --target-project $slo
+# Instead waiting here for completion, we delay the cleanup to next start
