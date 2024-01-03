@@ -3,5 +3,7 @@ MozillaFirefox
 MozillaThunderbird
 cargo-audit-advisory-db
 chromium
+kernel-firmware
 python-awkward-cpp
+ucode-intel
 ungoogled-chromium

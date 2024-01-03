@@ -4,5 +4,27 @@ installation-images
 skelcd-control-openSUSE
 openSUSE-Slowroll-Guests
 growpart-rootgrow
+build-compare
+
 # temp rb:
+build
 rpm
+
+
+# keep secure-boot sig
+kernel-64kb
+kernel-debug
+kernel-default
+kernel-default-base
+kernel-docs
+kernel-kvmsmall
+kernel-lpae
+kernel-obs-build
+kernel-obs-qa
+kernel-pae
+kernel-source
+kernel-syms
+kernel-vanilla
+kernel-zfcpdump
+
+# i586
