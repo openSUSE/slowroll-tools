@@ -1,4 +1,8 @@
 000release-packages
+skelcd-openSUSE
+kernel-longterm
+kernel-source-longterm
+kiwi-templates-Minimal
 Botan
 Box2D
 ColPack

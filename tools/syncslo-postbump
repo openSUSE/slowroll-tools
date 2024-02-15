@@ -1,11 +1,11 @@
 #!/bin/sh
 #usage:
-#for p in $(osc ls $slo) ; do echo "$p"; tools/syncslo-postbump "$p" ; done
+#for p in $(osc ls $slo) ; do echo "$p"; tools/syncslo-postbump "$p" ; done | tee out/log/syncslo-postbump-$(date -I)
 srcprj=openSUSE:Factory
 prj=openSUSE:Slowroll
 pkg=${1:-qt6-webview}
-basedisturls=cache/slowroll-base-20231219.disturls
-factoryjson=cache/view.2023-12-22/factory.json
+basedisturls=cache/slowroll-base.disturls
+factoryjson=cache/view.2024-02-15/factory.json
 dry=echo
 dry=
 

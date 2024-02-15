@@ -26,4 +26,5 @@ foreach my $spec (split("\n", $ls)) {
     my $subpkg = $spec ; $subpkg =~ s/\.spec$// or die;
     print "$subpkg\n";
     release_one($subpkg);
+    release_one("$pkg:$subpkg");
 }

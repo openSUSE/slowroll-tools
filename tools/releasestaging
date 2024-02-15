@@ -65,5 +65,6 @@ for pkg in $pkgs ; do
   #$dry osc rdelete -m "released" $slo:Staging $pkg &&
   $dry rm out/pending/$pkg
 done
+sleep 20m # TODO wait for completion of deferred release jobs
 $dry osc release $slo:Releasing --target-project $slo
 # Instead waiting here for completion, we delay the cleanup to next start

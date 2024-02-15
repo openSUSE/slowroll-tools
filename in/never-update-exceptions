@@ -7,8 +7,6 @@ growpart-rootgrow
 build-compare
 
 # temp rb:
-build
-rpm
 
 
 # keep secure-boot sig

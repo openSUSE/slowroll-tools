@@ -1,5 +1,5 @@
 #!/bin/sh
-grep XX out/log/syncslo-postbump-20231222 | cut -d\  -f4-5 | perl -ne '
+grep XX out/log/syncslo-postbump-2024-02-15 | cut -d\  -f4-5 | perl -ne '
   m/(\S+) ([0-9a-f]+)/ or next;
   my ($pkg, $md5) = ($1, $2);
   print "tools/submitpackageupdate $1 $2 ; touch out/pending/$1\n";
