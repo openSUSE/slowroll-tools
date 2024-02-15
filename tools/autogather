@@ -1,0 +1,28 @@
+#!/usr/bin/perl -w
+use strict;
+# help in pulling in trees of packages to resolve something
+# usage:
+#  osc buildinfo $slo:Staging python-importlib-metadata standard i586 | tools/autogather | bash -x
+
+while (<>) {
+  my @m = (m/nothing provides (\S+)/g);
+  my %pkg = ();
+  foreach my $m (@m) {
+    $m=~s!</error>!!;
+    $m=~s!,$!!;
+    $m=~s/python39/python/;
+    $m=~s/python31[0-3]/python/;
+    $m=~s/python3/python/;
+    $m=~s/(rubygem)\((\S+)\)/$1-$2/;
+    $m=~s/pkgconfig\((\S+)\)/$1/;
+    $m=~s/-devel$//;
+    if($m=~/perl\(([^()]+)\)/) {
+        my $n = $1; $n=~s/::/-/g;
+        $m = "perl-$n";
+    }
+    $pkg{$m} = 1;
+  }
+  foreach my $k (sort keys %pkg) {
+    print "tools/submitpackageupdate $k\n";
+  }
+}
