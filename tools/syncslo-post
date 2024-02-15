@@ -1,0 +1,4 @@
+#!/bin/sh
+osc meta prj -F cache/meta/slo.on $slo
+osc meta prj -F cache/meta/slos.on $slobuild
+
