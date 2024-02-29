@@ -2,68 +2,14 @@
 if [[ $DEBUG ]] ; then set -x ; fi
 slo=openSUSE:Slowroll
 # from https://github.com/bmwiedemann/build-compare/tree/slowroll
-bc=build-compare
-: ${RELEASE_UNREPRODUCIBLE:=true}
 dry=echo
 [ "$DRYRUN" = 0 ] && dry=
-: ${offline:=false}
-mkdir -p tmp
-
-function osc_getbinaries
-{
-    repo=$1
-    pkg=$2
-    dest=$3
-    osc ls -b $repo $pkg standard x86_64 | grep -q .
-    ret=$?
-    if [[ $ret = 0 ]] ; then
-        osc getbinaries --sources --destdir=$dest $repo $pkg standard x86_64
-        rm -f $dest/rpmlint.log
-        rm -f $dest/::import::i586::*-32bit*.rpm # workaround missing i586 builds in Slowroll - if 64-bit binaries match, we just use the TW version
-    fi
-    return $ret
-}
 
 $dry tools/cleanuprepo $slo:Releasing
 #pkgs=`osc ls $slo:Staging`
 pkgs=out/pending/*
 for pkg in $pkgs ; do
-  pkg=$(basename $pkg)
-  if ! $RELEASE_UNREPRODUCIBLE && grep ^$pkg in/build-compare-differed-builds.txt ; then
-    echo "skipping unreproducible package $pkg..."
-    continue
-  fi
-  # fetch binaries from Factory + Staging
-  if ! $offline ; then
-    rm -rf tmp/{slo,slos,slos.s,fac}
-    osc r -r standard -a x86_64 $slo:Staging $pkg | grep -q ' succeeded' || continue
-
-    osc_getbinaries $slo:Staging     $pkg tmp/slos
-    osc_getbinaries $slo             $pkg tmp/slo ||
-    osc_getbinaries $slo:Base        $pkg tmp/slo
-    mkdir tmp/slos.s
-    mv tmp/slos/*.src.rpm tmp/slos.s
-  fi
-
-  # build-compare with special exception for disturl+distribution
-  if $bc/same-build-result.sh tmp/slo tmp/slos tmp/slos.s ; then
-    # skip release if same
-    $dry rm out/pending/$pkg
-    continue
-  fi
-  $offline || osc_getbinaries openSUSE:Factory $pkg tmp/fac
-  equivalent=false
-  if $bc/same-build-result.sh tmp/fac tmp/slos tmp/slos.s ; then
-    equivalent=true
-  fi
-  src=$slo:Staging
-  if $equivalent || grep "^$pkg$" in/kernel-update-exceptions ; then
-    src=openSUSE:Factory
-  fi
-  echo "XX releasing $src $pkg"
-  $dry tools/releasemulti "$src" "$slo:Releasing" "$pkg"
-  #$dry osc rdelete -m "released" $slo:Staging $pkg &&
-  $dry rm out/pending/$pkg
+    tools/releasestagingone "$pkg"
 done
 sleep 20m # TODO wait for completion of deferred release jobs
 $dry osc release $slo:Releasing --target-project $slo
