@@ -37,6 +37,7 @@ newsnapshot:
 	osc meta prjconf openSUSE:Factory > cache/meta/factory-prjconf
 	osc meta prjconf -F cache/meta/factory-prjconf openSUSE:Slowroll:Base
 	find out/pending/ -mtime +2 -delete
+	rm cache/changelog/* cache/changelogdiff/*
 	#for p in $(osc ls $slo) ; do echo "$p"; tools/syncslo-postbump "$p" ; done | tee out/log/syncslo-postbump-$(date -I)
 	#for p in $(osc ls $slo:Staging) ; do echo "$p"; tools/syncslos-postbump "$p" ; done | tee out/log/syncslos-postbump-$(date -I)
 	#tools/syncslo-postbump2 | tee out/log/syncslo-postbump2-$(date -I)
