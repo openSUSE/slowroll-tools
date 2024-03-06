@@ -76,7 +76,7 @@ sub getdiff($)
                     return $c;
             });
         }
-        return `diff -u $changelogf[1] $changelogf[0] | grep --text ^+[^+]`;
+        return `diff -uN $changelogf[1] $changelogf[0] | grep --text ^+[^+]`;
     });
     return $diff;
 }
@@ -105,7 +105,7 @@ foreach my $pkg (sort keys (%{$versionclass})) {
     next if $exceptions{never}{$pkg};
     my $deps = getdepcount $pkg;
     my $diff = getdiff($pkg) unless $vercmp == 255 or $vercmp == 66;
-    if($vercmp == 255) {submit($pkg, "latest")}
+    #if($vercmp == 255) {submit($pkg, "latest")}
     next unless $diff;
     $diff =~ m!\A\+"obs://build\.opensuse\.org/openSUSE:Factory/standard/([0-9a-f]*)!;
     my $rev = $1 // die "did not find disturl for $pkg";
