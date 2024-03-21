@@ -19,8 +19,12 @@ fi
 
 # find out if it has any diff:
 if PAGER="wc -c" osc rdiff --missingok -r $rev $srcprj "$pkg" $dstprj | grep -q . ; then
-    echo "submitting $pkg ..."
+    vrev=`osc ls -b $srcprj "$pkg" standard x86_64 | perl -ne 'm/-([0-9]+\.[0-9]+)\.src\.rpm$/ && print $1'`
+    echo "submitting $pkg $vrev ..."
     osc branch -f -r $rev --nodevelproject $srcprj "$pkg" $dstprj
+    if [[ -n "$vrev" ]] ; then
+        osc setlinkrev --vrev "$vrev.0" -r $rev $dstprj "$pkg"
+    fi
     #osc detachbranch -m "drop link" $dstprj "$pkg"
     touch out/pending/$pkg
 else
