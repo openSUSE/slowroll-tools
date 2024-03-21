@@ -18,7 +18,7 @@ if [ $rev = latest ] ; then
 fi
 
 # find out if it has any diff:
-if PAGER="wc -c" osc rdiff --missingok -r $rev $srcprj "$pkg" $dstprj | grep -q . ; then
+if [[ -n `PAGER="wc -c" osc rdiff --missingok -r $rev $srcprj "$pkg" $dstprj` ]] ; then
     vrev=`osc ls -b $srcprj "$pkg" standard x86_64 | perl -ne 'm/-([0-9]+\.[0-9]+)\.src\.rpm$/ && print $1'`
     echo "submitting $pkg $vrev ..."
     osc branch -f -r $rev --nodevelproject $srcprj "$pkg" $dstprj
