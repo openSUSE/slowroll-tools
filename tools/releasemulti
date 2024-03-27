@@ -23,9 +23,4 @@ sub release_one($)
 
 my $ls = `osc ls -e $srcprj $pkg | grep \\\\.spec\$`;
 diag($ls);
-foreach my $spec (split("\n", $ls)) {
-    my $subpkg = $spec ; $subpkg =~ s/\.spec$// or die;
-    print "$subpkg\n";
-    release_one($subpkg);
-    release_one("$pkg:$subpkg");
-}
+release_one($pkg);
