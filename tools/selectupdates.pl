@@ -90,6 +90,7 @@ sub submit($$)
 foreach my $pkg (sort keys (%{$versionclass})) {
     my $repopkg = $repo{factory}{$pkg};
     next unless $repopkg;
+    diag("checking $pkg");
     my $slorepopkg = $repo{slos}{$pkg} || $repo{slo}{$pkg} ;
     if($slorepopkg && $slorepopkg->{md5} eq $repopkg->{md5}) {
         diag("skip already submitted");
