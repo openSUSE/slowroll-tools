@@ -9,6 +9,7 @@ use common;
 our $srcprj = shift;
 our $dstprj = shift;
 my $pkg = shift;
+our $dryrun = $ENV{DRYRUN}//0;
 
 if(!$pkg) {
     die "usage: $0 SRCPRJ DSTPRJ PKG\n";
@@ -17,7 +18,7 @@ if(!$pkg) {
 sub release_one($)
 { my($pkg) = @_;
     diag("release $srcprj $pkg $dstprj");
-    system('osc', 'release', $srcprj, '--target-project', $dstprj, $pkg, '--target-repository=standard', '-r', 'standard');
+    system('osc', 'release', $srcprj, '--target-project', $dstprj, $pkg, '--target-repository=standard', '-r', 'standard') unless $dryrun;
 }
 
 my $ls = `osc ls -e $srcprj $pkg | grep \\\\.spec\$`;
