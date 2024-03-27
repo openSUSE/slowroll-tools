@@ -12,5 +12,6 @@ for pkg in $pkgs ; do
     tools/releasestagingone "$pkg"
 done
 sleep 20m # TODO wait for completion of deferred release jobs
+cd /
 $dry osc release $slo:Releasing --target-project $slo
 # Instead waiting here for completion, we delay the cleanup to next start
