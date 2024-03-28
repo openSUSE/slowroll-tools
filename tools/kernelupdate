@@ -1,0 +1,2 @@
+#!/bin/sh
+for p in kernel-source kernel-firmware kernel-default-base $(cat in/kmps) ; do tools/releasemulti openSUSE:Factory $slo "$p" ; done
