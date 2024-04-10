@@ -18,7 +18,7 @@ if [ $rev = latest ] ; then
 fi
 
 # find out if it has any diff:
-if [[ -n `PAGER="wc -c" osc rdiff --missingok -r $rev $srcprj "$pkg" $dstprj` ]] ; then
+if [[ $FORCE ]] || [[ -n `PAGER="wc -c" osc rdiff --missingok -r $rev $srcprj "$pkg" $dstprj` ]] ; then
     vrev=`tools/findcireleasecounter $srcprj $pkg`
     echo "submitting $pkg $vrev ..."
     osc branch -f -r $rev --nodevelproject $srcprj "$pkg" $dstprj
