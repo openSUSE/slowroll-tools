@@ -6,7 +6,7 @@ use common;
 our $repo = shift || die "usage: $0 openSUSE:Slowroll";
 our $keeplist = load_list_map "in/never-update-exceptions";
 
-my $packages = `osc ls $repo`;
+my $packages = `osc ls $repo | grep -v :`;
 my @packages = split("\n", $packages);
 
 #print "@packages\n";
