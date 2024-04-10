@@ -34,11 +34,11 @@ pkg="$1"
   # fetch binaries from Factory + Staging
   if ! $offline ; then
     rm -rf tmp/{slo,slos,slos.s,fac}
-    osc r -r standard -a x86_64 $slo:Staging $pkg | grep -q ' succeeded' || continue
+    osc r -r standard -a x86_64 $slobuild $pkg | grep -q ' succeeded' || continue
 
-    osc_getbinaries $slo:Staging     $pkg tmp/slos
+    osc_getbinaries $slobuild        $pkg tmp/slos
     osc_getbinaries $slo             $pkg tmp/slo ||
-    osc_getbinaries $slo:Base        $pkg tmp/slo
+    osc_getbinaries $slobase         $pkg tmp/slo
     mkdir tmp/slos.s
     mv tmp/slos/*.src.rpm tmp/slos.s
   fi
@@ -54,11 +54,11 @@ pkg="$1"
   if $bc/same-build-result.sh tmp/fac tmp/slos tmp/slos.s ; then
     equivalent=true
   fi
-  src=$slo:Staging
+  src=$slobuild
   if $equivalent || grep -q "^$pkg$" in/kernel-update-exceptions ; then
     src=openSUSE:Factory
   fi
   echo "XX releasing $src $pkg"
   $dry tools/releasemulti "$src" "$slo:Releasing" "$pkg"
-  #$dry osc rdelete -m "released" $slo:Staging $pkg &&
+  #$dry osc rdelete -m "released" $slobuild $pkg &&
   $dry rm out/pending/$pkg
