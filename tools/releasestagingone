@@ -26,7 +26,11 @@ function osc_getbinaries
 
 
 pkg="$1"
-  pkg=$(basename "$pkg")
+pkg=$(basename "$pkg")
+if [[ -z "$pkg" ]] ; then
+  echo "usage: $0 PKG"
+  exit 1
+fi
   if ! $RELEASE_UNREPRODUCIBLE && grep ^$pkg in/build-compare-differed-builds.txt ; then
     echo "skipping unreproducible package $pkg..."
     exit 0
