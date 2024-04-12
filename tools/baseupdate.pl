@@ -6,6 +6,7 @@ use lib "lib";
 use common;
 
 our $dryrun = 0;#$ENV{DRYRUN}//1;
+$|=1;
 
 my %repo;
 for my $repo (qw(factory slob slo slos)) {

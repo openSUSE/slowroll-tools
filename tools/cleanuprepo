@@ -3,6 +3,7 @@ use strict;
 use lib "lib";
 use common;
 
+$|=1;
 our $repo = shift || die "usage: $0 openSUSE:Slowroll";
 our $keeplist = load_list_map "in/never-update-exceptions";
 

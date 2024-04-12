@@ -5,6 +5,7 @@ use strict;
 # and from tools/getrepoviews
 use lib 'lib';
 use common;
+$|=1;
 
 open(F1, "<cache/slowroll-base.disturls") or die $!; # created on stage3 with /srv/ftp/pub/opensuse # for p in slowroll/repo/src-oss/src/* ; do rpm -qp --qf '%{name} %{version} %{release} %{disturl}\n' $p ; done > .slowroll
 # or pontifex (download.o.o):/srv/ftp/pub/opensuse/repositories/openSUSE:/ALP:/Experimental:/Slowroll/base.20240212/repo/src-oss/src # for p in * ; do rpm -qp --qf '%{name} %{version} %{release} %{disturl}\n' $p ; done > .slowroll

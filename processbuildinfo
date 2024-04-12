@@ -1,6 +1,7 @@
 #!/usr/bin/perl -w
 use strict;
 use JSON::XS;
+$|=1;
 sub dumpmap($);
 
 my %pkgmapsrcbin=();

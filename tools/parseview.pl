@@ -5,6 +5,7 @@
 use strict;
 use XML::Bare;
 use JSON::XS;
+$|=1;
 my $xmlfile = shift;
 my $xml = `cat $xmlfile`;
 my $ref = new XML::Bare(text => $xml) ->parse();

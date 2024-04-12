@@ -5,6 +5,7 @@
 use strict;
 use XML::Bare;
 use JSON::XS;
+$|=1;
 my $xmlgz = shift;
 my $decompressor = ($xmlgz=~m/\.gz/ ? 'gzip':'zstd');
 my $xml = `$decompressor -cd $xmlgz`;

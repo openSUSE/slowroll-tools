@@ -6,6 +6,7 @@ use strict;
 use lib 'lib';
 use common;
 
+$|=1;
 our $srcprj = shift;
 our $dstprj = shift;
 my $pkg = shift;

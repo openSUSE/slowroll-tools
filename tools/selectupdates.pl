@@ -8,6 +8,7 @@ use constant DAY => 86400;
 use lib "lib";
 use common;
 
+$|=1;
 our $dryrun = $ENV{DRYRUN}//1;
 our @delay = (8*DAY, 80*DAY, 150*DAY);
 our $changelogurl = 'http://stage3.opensuse.org:18080/cgi-bin/getchangelog?path=';
