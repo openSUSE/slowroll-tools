@@ -5,7 +5,7 @@ slo=openSUSE:Slowroll
 dry=echo
 [ "$DRYRUN" = 0 ] && dry=
 
-$dry tools/cleanuprepo $sloreleasing
+FORCE=1 $dry tools/cleanuprepo $sloreleasing
 #pkgs=`osc ls $slo:Staging`
 pkgs=out/pending/*
 for pkg in $pkgs ; do
