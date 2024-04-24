@@ -33,12 +33,12 @@ if [[ -z "$pkg" ]] ; then
 fi
   if ! $RELEASE_UNREPRODUCIBLE && grep ^$pkg in/build-compare-differed-builds.txt ; then
     echo "skipping unreproducible package $pkg..."
-    exit 0
+    exit 11
   fi
   # fetch binaries from Factory + Staging
   if ! $offline ; then
     rm -rf tmp/{slo,slos,slos.s,fac}
-    osc r -r standard -a x86_64 $slobuild $pkg | grep -q ' succeeded' || exit 0
+    osc r -r standard -a x86_64 $slobuild $pkg | grep -q ' succeeded' || exit 12
 
     osc_getbinaries $slobuild        $pkg tmp/slos
     osc_getbinaries $slo             $pkg tmp/slo ||
@@ -51,7 +51,7 @@ fi
   if $bc/same-build-result.sh tmp/slo tmp/slos tmp/slos.s ; then
     # skip release if same
     $dry rm out/pending/$pkg
-    exit 0
+    exit 13
   fi
   $offline || osc_getbinaries openSUSE:Factory $pkg tmp/fac
   equivalent=false

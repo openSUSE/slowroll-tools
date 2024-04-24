@@ -8,10 +8,20 @@ dry=echo
 FORCE=1 $dry tools/cleanuprepo $sloreleasing
 #pkgs=`osc ls $slo:Staging`
 pkgs=out/pending/*
+releasedpkgs=""
 for pkg in $pkgs ; do
-    tools/releasestagingone "$pkg"
+    tools/releasestagingone "$pkg" && releasedpkgs="$releasedpkgs $pkg"
 done
 sleep 20m # TODO wait for completion of deferred release jobs
-cd /
-$dry osc release $sloreleasing --target-project $slo
-# Instead waiting here for completion, we delay the cleanup to next start
+( cd /
+$dry osc release --no-delay $sloreleasing
+)
+# Instead of waiting here for completion, we delay the cleanup to next start
+if [ -z "$dry" ] ; then
+    tag=`tools/findlastrelease`
+    # link released packages to standard name
+    for pkg in $releasedpkgs ; do
+        pkg=$(basename "$pkg")
+        osc linkpac -f "$slo" "$pkg.$tag" "$slo" "$pkg"
+    done
+fi
