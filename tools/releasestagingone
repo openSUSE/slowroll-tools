@@ -63,6 +63,6 @@ fi
     src=openSUSE:Factory
   fi
   echo "XX releasing $src $pkg"
-  $dry tools/releasemulti "$src" "$slo:Releasing" "$pkg"
+  $dry tools/releasemulti "$src" "$sloreleasing" "$pkg"
   #$dry osc rdelete -m "released" $slobuild $pkg &&
   $dry rm out/pending/$pkg

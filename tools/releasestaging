@@ -5,7 +5,7 @@ slo=openSUSE:Slowroll
 dry=echo
 [ "$DRYRUN" = 0 ] && dry=
 
-$dry tools/cleanuprepo $slo:Releasing
+$dry tools/cleanuprepo $sloreleasing
 #pkgs=`osc ls $slo:Staging`
 pkgs=out/pending/*
 for pkg in $pkgs ; do
@@ -13,5 +13,5 @@ for pkg in $pkgs ; do
 done
 sleep 20m # TODO wait for completion of deferred release jobs
 cd /
-$dry osc release $slo:Releasing --target-project $slo
+$dry osc release $sloreleasing --target-project $slo
 # Instead waiting here for completion, we delay the cleanup to next start
