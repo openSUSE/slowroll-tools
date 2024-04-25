@@ -17,7 +17,7 @@ sleep 20m # TODO wait for completion of deferred release jobs
 $dry osc release --no-delay $sloreleasing
 )
 # Instead of waiting here for completion, we delay the cleanup to next start
-if [ -z "$dry" ] ; then
+if [ -z "$dry" -a -n "$releasedpkgs" ] ; then
     tag=`tools/findlastrelease`
     # link released packages to standard name
     for pkg in $releasedpkgs ; do
