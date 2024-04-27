@@ -4,14 +4,17 @@
 srcprj=openSUSE:Factory
 prj=openSUSE:Slowroll
 pkg=${1:-qt6-webview}
+# from pontifex2 cd /srv/ftp/pub/opensuse/repositories/openSUSE:/ALP:/Experimental:/Slowroll/base.20240405/repo/src-oss/src && for p in * ; do rpm -qp --qf '%{name} %{version} %{release} %{disturl}\n' $p ; done > .slowroll
 basedisturls=cache/slowroll-base.disturls
-factoryjson=cache/view.2024-02-15/factory.json
+factoryjson=cache/view.2024-04-06/factory.json
 dry=echo
 dry=
 
-grep "^$pkg$" in/never-update-exceptions && exit 0
+xpkg=$(echo "$pkg" | perl -pe 's/\.2024\d{10}//') # handle maintenance release naming FIXME update in 2025
+grep "^$xpkg$" in/never-update-exceptions && exit 0
 
-if ! grep -q "^$pkg$" in/baselibs.list in/i586bitbuilddeps in/dont-delete ; then
+if ! grep -q "^$xpkg$" in/dont-delete ; then
+#if ! grep -q "^$pkg$" in/baselibs.list in/i586bitbuilddeps in/dont-delete ; then
 ##osc api "/source/$prj/$pkg/_history"|tail -3|grep -q "Release from openSUSE:Factory" # does not work because of :Releasing subprj
 #osc api /build/$srcprj/standard/x86_64/$pkg/_buildenv > tmp/srcenv
 #osc api /build/$prj/standard/x86_64/$pkg/_buildenv > tmp/dstenv
@@ -27,12 +30,13 @@ if ! grep -q "^$pkg$" in/baselibs.list in/i586bitbuilddeps in/dont-delete ; then
 fi
 
 echo "updating $pkg"
-rev=$(basename $(grep ^$pkg\  $basedisturls|cut -d" " -f4) |cut -d- -f1)
-frev=$(jq ".[\"$pkg\"][\"md5\"]" $factoryjson | sed 's/"//g')
+rev=$(basename $(grep ^$xpkg\  $basedisturls|cut -d" " -f4) |cut -d- -f1)
+frev=$(jq ".[\"$xpkg\"][\"md5\"]" $factoryjson | sed 's/"//g')
 if [[ $rev = $frev ]] ; then
 #if PAGER="wc -c" osc rdiff --missingok -r "$rev" $srcprj "$pkg" $prj | grep -q . ; then # check if there is any diff
 #echo osc copypac -r "$rev" $srcprj "$pkg" $prj
-    $dry tools/releasemulti $srcprj $prj "$pkg"
+    echo $dry tools/releasemulti $srcprj $prj "$pkg"
 else
     echo "XX mismatch in $pkg $rev vs $frev"
+    tools/submitpackageupdate "$xpkg" "$rev"
 fi
