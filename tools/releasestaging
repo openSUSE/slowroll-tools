@@ -12,6 +12,7 @@ releasedpkgs=""
 for pkg in $pkgs ; do
     tools/releasestagingone "$pkg" && releasedpkgs="$releasedpkgs $pkg"
 done
+[ -n "$releasedpkgs" ] || exit 0 # done
 sleep 20m # TODO wait for completion of deferred release jobs
 ( cd /
 $dry osc release --no-delay $sloreleasing
