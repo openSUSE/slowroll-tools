@@ -1,0 +1,42 @@
+#!/usr/bin/perl -w
+# usage: tools/syncslob | tee out/log/syncslob-$(date -I)
+use strict;
+use XML::Bare;
+use lib "lib";
+use common;
+
+$|=1;
+my $src  = "openSUSE:Factory";
+my $dest = $ENV{slobase};
+#my $fac  = load_json("cache/view/factory.json");
+#my $slob = load_json("cache/view/slob2.json");
+my $srcbin = load_json("out/pkgmapsrcbin");
+my %binsrc;
+while(my @a = each(%$srcbin)) {
+    foreach my $bin (@{$a[1]}) {
+        $binsrc{$bin} = $a[0];
+    }
+}
+#/build/openSUSE:Slowroll:Base/standard/i586/_repository?view=binaryversions
+my $facxml = cache_or_run("cache/factory-i586.xml", sub{ `osc api /build/openSUSE:Factory/standard/i586/_repository?view=binaryversions` });
+my $facref = new XML::Bare(text => $facxml) ->parse();
+#my $slobxml = `osc api /build/$dest/standard/i586/_repository?view=binaryversions`;
+#my $slobref = new XML::Bare(text => $slobxml) ->parse();
+my $pkgs = `osc ls $dest`;
+my %pkgs = map {$_=>1} split("\n", $pkgs);
+#foreach(split("\n", $pkgs)) { $pkgs{$_}=1 }
+my %submitted;
+foreach my $bin (@{$facref->{binaryversionlist}->{binary}}) {
+    my $name = $bin->{name}->{value}; $name =~ s/\.rpm$//;
+    my $pkg = $binsrc{$name};
+    if(!$pkg) {
+         $name =~ s/-[^-]+$//; $pkg = $binsrc{$name};
+         if(!$pkg) { warn "no src for $name rpm found" ; next}
+    }
+    #print "$name $pkg\n";
+    next if $submitted{$pkg}++;
+    next if $pkgs{$pkg};
+    #next if $slobref->{binaryversionlist}->{binary}
+    system "osc release $src --target-project=$dest '$pkg' --target-repository=standard -r standard"
+}
+
