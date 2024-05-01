@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# usage: tools/syncslob | tee out/log/syncslob-$(date -I)
+# usage: DRYRUN=0 tools/syncslob 2>&1 | tee out/log/syncslob-$(date -I)
 use strict;
 use XML::Bare;
 use lib "lib";
@@ -8,6 +8,7 @@ use common;
 $|=1;
 my $src  = "openSUSE:Factory";
 my $dest = $ENV{slobase};
+my $dry = ($ENV{DRYRUN}//1)==0 ? "":"echo";
 #my $fac  = load_json("cache/view/factory.json");
 #my $slob = load_json("cache/view/slob2.json");
 my $srcbin = load_json("out/pkgmapsrcbin");
@@ -37,6 +38,6 @@ foreach my $bin (@{$facref->{binaryversionlist}->{binary}}) {
     next if $submitted{$pkg}++;
     next if $pkgs{$pkg};
     #next if $slobref->{binaryversionlist}->{binary}
-    system "osc release $src --target-project=$dest '$pkg' --target-repository=standard -r standard"
+    system "$dry osc release $src --target-project=$dest '$pkg' --target-repository=standard -r standard"
 }
 
