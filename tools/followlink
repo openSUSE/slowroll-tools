@@ -1,0 +1,6 @@
+#!/bin/sh
+# openSUSE:Slowroll uses release tags to have multiple versions in parallel
+# so to find the actual latest version, we have to follow the _link
+: ${prj:=$slo}
+pkg=$1
+osc cat -u "$prj" "$pkg" _link | perl -ne 'if(m/<link +package="([^"]+)"/) {print "$1\n"; exit 0}'

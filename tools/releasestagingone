@@ -41,7 +41,8 @@ fi
     osc r -r standard -a x86_64 $slobuild $pkg | grep -q ' succeeded' || exit 12
 
     osc_getbinaries $slobuild        $pkg tmp/slos
-    osc_getbinaries $slo             $pkg tmp/slo ||
+    slopkg=$(tools/followlink $pkg); [ -n "$slopkg" ] || slopkg=$pkg
+    osc_getbinaries $slo             $slopkg tmp/slo ||
     osc_getbinaries $slobase         $pkg tmp/slo
     mkdir tmp/slos.s
     mv tmp/slos/*.src.rpm tmp/slos.s
