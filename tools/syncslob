@@ -37,6 +37,7 @@ foreach my $bin (@{$facref->{binaryversionlist}->{binary}}) {
     #print "$name $pkg\n";
     next if $submitted{$pkg}++;
     next if $pkgs{$pkg};
+    $pkg =~ s/:.*//; # sync whole pkg so the test above does not give false matches
     #next if $slobref->{binaryversionlist}->{binary}
     system "$dry osc release $src --target-project=$dest '$pkg' --target-repository=standard -r standard"
 }
