@@ -11,11 +11,11 @@ mkdir -p tmp
 
 function osc_getbinaries
 {
-    repo=$1
-    pkg=$2
-    dest=$3
+    local repo=$1
+    local pkg=$2
+    local dest=$3
     osc ls -b $repo $pkg standard x86_64 | grep -q .
-    ret=$?
+    local ret=$?
     if [[ $ret = 0 ]] ; then
         osc getbinaries --sources --destdir=$dest $repo $pkg standard x86_64
         rm -f $dest/rpmlint.log
