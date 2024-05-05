@@ -1,0 +1,39 @@
+#!/bin/sh -x
+# these scripts are tracked in https://github.com/openSUSE/slowroll-tools/
+# but are deployed on pontifex to create snapshots of Tumbleweed in an efficient manner
+b=/srv/ftp-stage/pub/opensuse
+b2=/srv/ftp/pub/opensuse
+oversion=$(cut -c 12-19 $b/slowroll/repo/oss/media.1/products)
+nversion=$(cut -c 12-19 $b/tumbleweed/repo/oss/media.1/products)
+d1=/srv/ftp-stage/pub/opensuse/repositories/openSUSE\:/ALP\:/Experimental\:/Slowroll/
+d2=/srv/ftp/pub/opensuse/repositories/openSUSE\:/ALP\:/Experimental\:/Slowroll/
+rsync -a --delete $d1/base."$oversion"/ $b/slowroll/
+d1=$d1/base."$nversion"
+d2=$d2/base."$nversion"
+
+mkdir -p $d1
+chown -R mirror: $d1
+#cd /srv/ftp/pub/opensuse/tumbleweed/
+cd /srv/ftp-stage/pub/opensuse/tumbleweed/
+rm -r $d1/*
+cp -afl --parent iso/openSUSE-Tumbleweed-[DN]*x86_64* $d2/
+cp -afl --parent repo/{oss,non-oss} $d2/
+cp -afl $b2/source/tumbleweed/repo/oss $d2/repo/src-oss
+cp -an $b2/source/tumbleweed/repo/oss/* $d2/repo/src-oss/
+cp -afl $b2/source/tumbleweed/repo/non-oss/ $d2/repo/src-non-oss
+cp -an $b2/source/tumbleweed/repo/non-oss/* $d2/repo/src-non-oss/
+
+rm $d2/../base-next-full ; ln -s base."$nversion" $d2/../base-next-full
+
+cp -anl $d2/* $b2/slowroll/
+cd /srv/ftp/pub/opensuse/debug && rm -rf "slowroll.$nversion" && cp -al tumbleweed "slowroll.$nversion" #rm -rf slowroll && cp -al tumbleweed slowroll
+echo "later: rm -rf /srv/ftp/pub/opensuse/debug/slowroll && ln -s /srv/ftp/pub/opensuse/debug/slowroll slowroll.$nversion"
+#echo -ne 'openSUSE\:/Slowroll/base\000' > /srv/bs/arrived/openSUSE\:Slowroll_base # to let mirrors sync
+
+echo "later: slowroll-snapshot-2"
+#echo "later: cp -afl $d2/* $b2/slowroll/"
+#echo "even later: rsync -a --delete $d1/ $b/slowroll/
+#echo "later: rsync -aPvSH --delete-after $d/repo/ $b/slowroll/repo/"
+
+# collect disturl extract
+cd $d2/repo/src-oss/src && for p in * ; do rpm -qp --qf '%{name} %{version} %{release} %{disturl}\n' $p ; done > .slowroll
