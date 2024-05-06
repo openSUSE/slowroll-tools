@@ -2,7 +2,7 @@
 # these scripts are tracked in https://github.com/openSUSE/slowroll-tools/
 # but are deployed on pontifex to create snapshots of Tumbleweed in an efficient manner
 # usage: dry=" " slowroll-snapshot-2
-b=/srv/ftp-stage/pub/opensuse
+b=/srv/ftp/pub/opensuse
 : ${dry:=echo}
 nversion=$(cut -c 12-19 $b/repositories/openSUSE\:/ALP\:/Experimental\:/Slowroll/base-next/media.1/products)
 d1=$b/repositories/openSUSE\:/ALP\:/Experimental\:/Slowroll/base."$nversion"
@@ -10,7 +10,7 @@ d1=$b/repositories/openSUSE\:/ALP\:/Experimental\:/Slowroll/base."$nversion"
 $dry rm -rf /srv/ftp/pub/opensuse/debug/slowroll &&
   $dry ln -s /srv/ftp/pub/opensuse/debug/slowroll slowroll.$nversion
 
-$dry cp -afl $d1/* /srv/ftp-stage/pub/opensuse/slowroll/
+$dry cp -afl $d1/* $b/slowroll/
 
 # cleanup previous version later to save storage space, but leave users time to sync
 cd /srv/ftp/pub/opensuse/debug && find . -maxdepth 4 -name oss -path "./slowroll.20*/*" -mtime +90 | xargs -r rm -r
