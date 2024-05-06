@@ -20,6 +20,11 @@ sub release_one($)
 { my($pkg) = @_;
     diag("release $srcprj $pkg $dstprj");
     system('osc', 'release', '--no-delay', $srcprj, '--target-project', $dstprj, $pkg, '--target-repository=standard', '-r', 'standard') unless $dryrun;
+    if($dstprj eq $ENV{slo}) { # this is a maintenance project and we need to update links
+        my $tag=`tools/findlastrelease`; chomp($tag);
+        # link released packages to standard name
+        system(qw(osc linkpac -f), $dstprj, "$pkg.$tag", $dstprj, $pkg);
+    }
 }
 
 my $ls = `osc ls -e $srcprj $pkg | grep \\\\.spec\$`;
