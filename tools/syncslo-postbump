@@ -7,8 +7,7 @@ pkg=${1:-qt6-webview}
 # from pontifex2 cd /srv/ftp/pub/opensuse/repositories/openSUSE:/ALP:/Experimental:/Slowroll/base.20240405/repo/src-oss/src && for p in * ; do rpm -qp --qf '%{name} %{version} %{release} %{disturl}\n' $p ; done > .slowroll
 basedisturls=cache/slowroll-base.disturls
 factoryjson=cache/view.2024-04-06/factory.json
-dry=echo
-dry=
+: ${dry:=echo}
 
 xpkg=$(echo "$pkg" | perl -pe 's/\.2024\d{10}//') # handle maintenance release naming FIXME update in 2025
 grep "^$xpkg$" in/never-update-exceptions && exit 0
