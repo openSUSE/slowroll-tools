@@ -1,15 +1,24 @@
 #!/bin/sh
 #usage:
-#for p in $(osc ls $slo|grep -v :) ; do echo "$p"; tools/syncslo-postbump "$p" ; done | tee out/log/syncslo-postbump-$(date -I)
+#for p in $(osc ls $slo|grep -v :|sort -r) ; do echo "$p"; tools/syncslo-postbump "$p" ; done | tee out/log/syncslo-postbump-$(date -I)
 srcprj=openSUSE:Factory
 prj=openSUSE:Slowroll
 pkg=${1:-qt6-webview}
 # from pontifex2 cd /srv/ftp/pub/opensuse/repositories/openSUSE:/ALP:/Experimental:/Slowroll/base.20240405/repo/src-oss/src && for p in * ; do rpm -qp --qf '%{name} %{version} %{release} %{disturl}\n' $p ; done > .slowroll
+# from curl https://downloadcontent.opensuse.org/repositories/openSUSE:/ALP:/Experimental:/Slowroll/base-next-full/repo/src-oss/src/.slowroll > cache/slowroll-base-20240429.disturls
 basedisturls=cache/slowroll-base.disturls
 factoryjson=cache/view.2024-04-06/factory.json
 : ${dry:=echo}
 
 xpkg=$(echo "$pkg" | perl -pe 's/\.2024\d{10}//') # handle maintenance release naming FIXME update in 2025
+
+if [ "$xpkg" = "$pkg" ] ; then
+    osc ls $pkg "$pkg" 2>&1 | grep -q "cannot be expanded:" &&
+        echo "drop dangling link" $prj "$pkg" &&
+        $dry osc rdelete -m "drop dangling link" $prj "$pkg"
+    exit 0
+fi
+
 grep "^$xpkg$" in/never-update-exceptions && exit 0
 
 if ! grep -q "^$xpkg$" in/dont-delete ; then
@@ -26,6 +35,13 @@ if ! grep -q "^$xpkg$" in/dont-delete ; then
     $dry osc rdelete -m "rebased" $prj "$pkg"
     exit 0 # done
 #fi
+fi
+
+latest=$(tools/followlink $xpkg)
+if [ "$pkg" != "$latest" ] ; then
+    echo "drop old version" "$prj" "$pkg"
+    $dry osc rdelete -m "drop old version" "$prj" "$pkg"
+    exit 0
 fi
 
 echo "updating $pkg"
