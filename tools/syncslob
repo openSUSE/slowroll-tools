@@ -42,3 +42,7 @@ foreach my $bin (@{$facref->{binaryversionlist}->{binary}}) {
     system "$dry osc release $src --target-project=$dest '$pkg' --target-repository=standard -r standard"
 }
 
+my @bootstrap = map {s/:bootstrap//;$_} split('\n', `osc ls openSUSE:Factory | grep :bootstrap\$`);
+foreach my $pkg (@bootstrap) {
+    system "$dry osc release $src --target-project=$dest '$pkg' --target-repository=standard -r standard"
+}
