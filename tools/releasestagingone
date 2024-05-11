@@ -18,8 +18,9 @@ function osc_getbinaries
     local ret=$?
     if [[ $ret = 0 ]] ; then
         osc getbinaries --sources --destdir=$dest $repo $pkg standard x86_64
+        osc getbinaries --sources --destdir=$dest $repo $pkg standard i586
         rm -f $dest/rpmlint.log
-        rm -f $dest/::import::i586::*-32bit*.rpm # workaround missing i586 builds in Slowroll - if 64-bit binaries match, we just use the TW version
+        #rm -f $dest/::import::i586::*-32bit*.rpm # workaround missing i586 builds in Slowroll - if 64-bit binaries match, we just use the TW version
     fi
     return $ret
 }
