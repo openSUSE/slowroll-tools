@@ -1,0 +1,30 @@
+# packages that don't build i586 in Factory, but we still want these for Packman and others
+AMF
+ffms2
+glassfish-annotation-api
+libmad
+libmng
+libmodplug
+libmpcdec
+mingw32-gcc
+mingw32-gmp
+mingw32-mpc
+mingw32-mpfr
+vcdimager
+
+# for VLC
+aalib
+ade
+libdvbpsi
+libebml
+libidn
+libkate
+libmatroska
+libmtp
+libplacebo
+libupnp
+live555
+opencv
+posix_cc
+projectM
+
