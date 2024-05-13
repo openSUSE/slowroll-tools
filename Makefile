@@ -25,7 +25,7 @@ newsnapshot1:
 	osc api -X DELETE /source/${BASENEXT}/_project/_frozenlinks\?meta=1
 	osc api -X POST /source/${BASENEXT}?cmd=freezelink
 	# sync prjconf from Factory to Base
-	osc meta prjconf openSUSE:Factory > cache/meta/factory-prjconf && osc meta prjconf -F cache/meta/factory-prjconf ${BASENEXT}
+	osc meta prjconf openSUSE:Factory > cache/meta/factory-prjconf && cat in/prjconf.custom.base >> cache/meta/factory-prjconf && osc meta prjconf -F cache/meta/factory-prjconf ${BASENEXT}
 	# sync i586 (and not -bootstrap (kept in :Staging)) binaries to ${BASENEXT}
 	#using /build/openSUSE:Slowroll:Base:2/standard/i586/_repository?view=binaryversions&withevr=1 and osc release
 	find cache -mtime +3 -name factory-i586.xml -delete

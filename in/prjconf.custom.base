@@ -1,0 +1,13 @@
+## prjconf that gets added into openSUSE:Slowroll:Base:1/2
+## by slowroll-tools
+
+%if "%{sub %_project 1 17}" == "openSUSE:Slowroll"
+Macros:
+%vendor openSUSE
+%distribution openSUSE Slowroll
+%packager https://bugs.opensuse.org
+:Macros
+%endif
+
+Prefer: distribution-logos-openSUSE-Slowroll
+
