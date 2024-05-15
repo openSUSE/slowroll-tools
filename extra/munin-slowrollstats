@@ -45,9 +45,15 @@ if [ "$1" = "config" ]; then
         echo 'pkgs.draw AREA'
         echo 'pkgs.min 0'
         echo 'twpkgs.label tw packages'
+	echo 'twpkgs.info .src.rpms in Tumbleweed released after the version bump'
         echo 'twpkgs.draw LINE'
         echo 'twpkgs.min 0'
+        echo 'srtwpkgs.label tw packages in slowroll'
+	echo 'srtwpkgs.info .src.rpms from Tumbleweed released verbatim into Slowroll'
+        echo 'srtwpkgs.draw LINE'
+        echo 'srtwpkgs.min 0'
         echo 'slowrollpkgs.label sr packages'
+	echo 'slowrollpkgs.info .src.rpms built specifically for Slowroll'
         echo 'slowrollpkgs.draw AREA'
         echo 'slowrollpkgs.min 0'
         print_warning pkgs
@@ -58,8 +64,8 @@ fi
 dir=/srv/ftp/pub/opensuse/update/slowroll/repo/oss/src
 pkgs=`ls $dir | wc -l`
 slowrollpkgs=`ls $dir | grep '[0-9]\.sr20[2-9][0-9][0-9][0-9][0-9][0-9]\.src\.rpm' | wc -l`
-twpkgs=$((pkgs - slowrollpkgs))
+srtwpkgs=$((pkgs - slowrollpkgs))
 echo "pkgs.value $pkgs"
-echo "twpkgs.value $twpkgs"
+echo "srtwpkgs.value $srtwpkgs"
 echo "slowrollpkgs.value $slowrollpkgs"
-
+echo "twpkgs.value `find /srv/ftp/pub/opensuse/source/tumbleweed/repo/oss/src/ -maxdepth 1 -newer /srv/ftp/pub/opensuse/slowroll/repo/oss/media.1/products -type f -name \*.src.rpm | wc -l`"
