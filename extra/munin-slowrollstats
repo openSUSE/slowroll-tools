@@ -41,8 +41,12 @@ if [ "$1" = "config" ]; then
         echo 'graph_vlabel packages'
         echo 'graph_category system'
         echo 'pkgs.label packages'
+	echo 'pkgs.info total number of .src.rpms in /update/slowroll'
         echo 'pkgs.draw AREA'
         echo 'pkgs.min 0'
+        echo 'twpkgs.label tw packages'
+        echo 'twpkgs.draw LINE'
+        echo 'twpkgs.min 0'
         echo 'slowrollpkgs.label sr packages'
         echo 'slowrollpkgs.draw AREA'
         echo 'slowrollpkgs.min 0'
@@ -52,6 +56,10 @@ if [ "$1" = "config" ]; then
 fi
 
 dir=/srv/ftp/pub/opensuse/update/slowroll/repo/oss/src
-echo pkgs.value `ls $dir | wc -l`
-echo slowrollpkgs.value `ls $dir | grep '[0-9]\.sr20[2-9][0-9][0-9][0-9][0-9][0-9]\.src\.rpm' | wc -l`
+pkgs=`ls $dir | wc -l`
+slowrollpkgs=`ls $dir | grep '[0-9]\.sr20[2-9][0-9][0-9][0-9][0-9][0-9]\.src\.rpm' | wc -l`
+twpkgs=$((pkgs - slowrollpkgs))
+echo "pkgs.value $pkgs"
+echo "twpkgs.value $twpkgs"
+echo "slowrollpkgs.value $slowrollpkgs"
 
