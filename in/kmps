@@ -1,3 +1,4 @@
+# autodetected from rb: grep -l -- -kmp-default- */RPMS/checksums | cut -d/ -f1
 CoreFreq
 avfs
 bbswitch
@@ -6,22 +7,20 @@ crash
 dpdk
 drbd
 facetimehd
-fwupd
-fwupd-efi
 gasket-driver
 hdjmod
-kernel-vanilla
 lttng-modules
-memtest86+
 mhvtl
 msr-safe
 nvidia-open-driver-G06-signed
 openafs
 oracleasm
+ovpn-dco
 pcfclock
 sysdig
 r8168
 rtl8812au
+rtl88x2bu
 rtw88
 tp_smapi
 v4l2loopback
@@ -29,5 +28,6 @@ vendor-reset
 vhba-kmp
 virtualbox:kmp
 wireguard
-xen
+xone
+xpadneo
 xtables-addons
