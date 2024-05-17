@@ -21,10 +21,10 @@ libidn
 libkate
 libmatroska
 libmtp
-libplacebo
+libplacebo5
 libupnp
 live555
-opencv
+opencv3
 posix_cc
 projectM
 
