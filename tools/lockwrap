@@ -1,0 +1,20 @@
+#!/usr/bin/perl -w
+use strict;
+use lib "lib";
+use lock;
+
+my $fname = shift;
+if(!$fname) {
+    print "usage: $0 LOCKFILE CMD CMDARGS\n";
+    exit 1;
+}
+
+if($ENV{TIMEOUT}) {
+    $SIG{ALRM} = sub {exit 0};
+    alarm($ENV{TIMEOUT});
+}
+
+my $lockfd = lock($fname);
+alarm 0;
+system(@ARGV);
+unlock($lockfd);
