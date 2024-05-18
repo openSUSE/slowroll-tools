@@ -1,0 +1,4 @@
+MAILTO="bernhard+slowrollbot@..."
+*/20 * * * * . ~/.slorc ; cd ~/code/git/obs/slowroll-tools && TIMEOUT=5 tools/lockwrap cache/locks/selectupdates tools/triggeronurlchange http://stage3.opensuse.org/tumbleweed/repo/oss/media.1/products bash -c 'sleep 30 ; DRYRUN=0 DEBUG=1 make daily'
+26 0 * * * . ~/.slorc ; cd ~/code/git/obs/slowroll-tools && TIMEOUT=5 tools/lockwrap cache/locks/selectupdates bash -c 'DRYRUN=0 DEBUG=1 make daily'
+27 6,10,16 * * * . ~/.slorc ; cd ~/code/git/obs/slowroll-tools && DRYRUN=0 DEBUG=1 make release
