@@ -1,4 +1,5 @@
 #!/bin/sh
-osc meta prj -F cache/meta/slo.on $slo
-osc meta prj -F cache/meta/slos.on $slobuild
+osc api -X POST "/source/$slo?cmd=remove_flag&flag=publish"
+osc api -X POST "/source/$slobuild?cmd=remove_flag&flag=build"
+osc api -X POST "/source/$slobuild?cmd=remove_flag&flag=publish"
 
