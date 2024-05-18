@@ -1,0 +1,25 @@
+#!/usr/bin/perl -w
+use strict;
+use lib "lib";
+use common;
+
+my $url = shift;
+if(!$url) {
+    print "usage: $0 URL CMD ARGS\n";
+    exit 1;
+}
+
+our $triggerdir = "cache/triggeronurlchange";
+mkdir $triggerdir;
+my $filename = $url;
+$filename =~ s/[^a-zA-Z0-9._-]/_/g;
+$filename = $triggerdir."/".$filename;
+our $prev;
+if(-e $filename) {
+    $prev = load_file($filename);
+}
+our $current = `curl -s $url`;
+if(!defined($prev) or $current ne $prev) {
+    store_file($filename, $current);
+    exec(@ARGV);
+}
