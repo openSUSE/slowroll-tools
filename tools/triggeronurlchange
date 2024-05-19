@@ -18,7 +18,7 @@ our $prev;
 if(-e $filename) {
     $prev = load_file($filename);
 }
-our $current = `curl -s $url`;
+our $current = `curl -L -s $url`;
 if(!defined($prev) or $current ne $prev) {
     store_file($filename, $current);
     exec(@ARGV);
