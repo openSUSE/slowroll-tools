@@ -1,4 +1,4 @@
 MAILTO="bernhard+slowrollbot@..."
-*/20 * * * * . ~/.slorc ; cd ~/code/git/obs/slowroll-tools && TIMEOUT=5 tools/lockwrap cache/locks/selectupdates tools/triggeronurlchange http://stage3.opensuse.org/tumbleweed/repo/oss/media.1/products bash -c 'sleep 30 ; DRYRUN=0 DEBUG=1 make daily' && TIMEOUT=5 tools/lockwrap cache/locks/release tools/triggeronurlchange https://download.opensuse.org/repositories/$slobuild/standard/repodata/repomd.xml.asc bash -c 'DRYRUN=0 DEBUG=1 make release'
-26 0 * * * . ~/.slorc ; cd ~/code/git/obs/slowroll-tools && TIMEOUT=5 tools/lockwrap cache/locks/selectupdates bash -c 'DRYRUN=0 DEBUG=1 make daily'
-27 6,10,16 * * * . ~/.slorc ; cd ~/code/git/obs/slowroll-tools && TIMEOUT=5 tools/lockwrap cache/locks/release bash -c 'DRYRUN=0 DEBUG=1 make release'
+*/20 * * * * . ~/.slorc ; cd ~/code/git/obs/slowroll-tools && TIMEOUT=5 tools/lockwrap cache/locks/selectupdates tools/triggeronurlchange http://stage3.opensuse.org/tumbleweed/repo/oss/media.1/products bash -c 'sleep 30 ; DRYRUN=0 DEBUG=1 make daily' && DRYRUN=0 DEBUG=1 TIMEOUT=5 tools/lockwrap cache/locks/release tools/triggeronurlchange https://download.opensuse.org/repositories/$slobuild/standard/repodata/repomd.xml.asc make release
+26 0 * * * . ~/.slorc ; cd ~/code/git/obs/slowroll-tools && DRYRUN=0 DEBUG=1 TIMEOUT=5 tools/lockwrap cache/locks/selectupdates make daily
+27 6,10,16 * * * . ~/.slorc ; cd ~/code/git/obs/slowroll-tools && DRYRUN=0 DEBUG=1 TIMEOUT=5 tools/lockwrap cache/locks/release make release
