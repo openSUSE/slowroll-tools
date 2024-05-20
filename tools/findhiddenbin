@@ -1,0 +1,9 @@
+#!/bin/sh
+# openSUSE:Slowroll is supposed to only contain binaries in the packages sent there via osc release, but some old ones still have their binaries
+# so we search for them
+# usage: tools/findhiddenbin | tee out/log/findhiddenbin-$(date -I)
+
+pkgs=$(osc ls $slo | grep -v '\.')
+for p in $pkgs ; do
+    osc ls -vb $slo "$p" |grep '^ *[0-9]' && echo $p
+done
