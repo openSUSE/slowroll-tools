@@ -2,6 +2,7 @@
 # find cicnt (checkin counter) and release-count of a given source package
 prj=$1
 pkg=$2
+rev=${rev:-.}
 if [ -z "$pkg" ] ; then
     echo "usage: $0 PRJ PKG"
     exit 1
@@ -9,5 +10,5 @@ fi
 
 binarypkg=$(osc r -r standard -a x86_64 "$prj" "$pkg" | perl -ne 'm/\s+x86_64\s+(\S+)\s+succeeded/ and print "$1" and exit 0') # for _multibuild
 [ -z "$binarypkg" ] && binarypkg=$pkg
-osc api "/build/$prj/standard/x86_64/$binarypkg/_history?limit=1" | perl -ne 'if(m/bcnt="(\d+)"/) { $b=$1-1; m/versrel="[^" ]*-(\d+)"/ and print "$1.$b" }'
+osc api "/build/$prj/standard/x86_64/$binarypkg/_history?limit=4" | tac | perl -ne 'if(m/srcmd5="$ENV{rev}.*bcnt="(\d+)"/) { $b=$1-1; m/versrel="[^" ]*-(\d+)"/ and print "$1.$b" ; exit 0 }'
 

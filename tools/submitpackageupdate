@@ -19,6 +19,7 @@ fi
 
 # find out if it has any diff:
 if [[ $FORCE ]] || [[ -n `PAGER="wc -c" osc rdiff --missingok -r $rev $srcprj "$pkg" $dstprj` ]] ; then
+    export rev
     vrev=`tools/findcireleasecounter $srcprj $pkg`
     echo "submitting $pkg $vrev ..."
     osc branch -f -r $rev --nodevelproject $srcprj "$pkg" $dstprj
