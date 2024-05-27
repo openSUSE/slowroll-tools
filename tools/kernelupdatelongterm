@@ -1,0 +1,5 @@
+#!/bin/sh
+tools/releasemulti openSUSE:Factory $slo kernel-source-longterm
+for p in $(grep -v '#' in/kmps) ; do
+    osc rebuild $slobuild "$p" && touch "out/pending/$p"
+done
