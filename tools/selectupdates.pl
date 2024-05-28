@@ -69,6 +69,7 @@ sub getdiff($)
             $changelog[$i] = cache_or_run($changelogf[$i],
                 #sub{ `rpm -qp --changelog $url[$i]` # too slow
                 sub {
+                    $url[$i] =~ s/\+/%2B/g; # URL-encode
                     my $gz = get($changelogurl.$url[$i]);
                     my $c;
                     gunzip(\$gz, \$c);
