@@ -30,6 +30,7 @@ my %repo;
 for my $repo (qw(factory slo slos)) {
     $repo{$repo} = load_json("cache/view/$repo.json");
 }
+my $unreproducible = load_list_map("in/build-compare-differed-builds.txt");
 my $versionclass = load_json("out/versionclass.json");
 my $pkgmapdepcount = load_json("out/pkgmapdepcount");
 my @pkgs;
@@ -142,6 +143,7 @@ foreach my $pkg (sort keys (%{$versionclass})) {
     }
     if($diff =~ /fix[e ]/i or $diff =~ /bug/i) { $delay *= 0.8125 }
     if($diff =~ /incompatib/i) { $delay *= 1.5 }
+    if($unreproducible->{$pkg}) { $delay *= 1.5 }
     # check core-ness of $pkg
     if($deps > 10000) {
         $delay *= 2;
