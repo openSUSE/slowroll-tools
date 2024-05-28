@@ -14,7 +14,7 @@ fi
 if [ $rev = latest ] ; then
     rev=$(osc log $srcprj "$pkg" |
         head -2 |tail -1 |
-	cut -d" " -f1 | cut -c2-)
+	grep -E -o ' [a-f0-9]{32} ' | sed 's/ //g')
 fi
 
 # find out if it has any diff:
