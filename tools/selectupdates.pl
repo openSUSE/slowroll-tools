@@ -140,7 +140,7 @@ foreach my $pkg (sort keys (%{$versionclass})) {
             print "Warning: CVE $diff waiting $delay - manual action might be needed\n";
 	}
     }
-    if($diff =~ /fixed/i) { $delay *= 0.9 }
+    if($diff =~ /fix[e ]/i or $diff =~ /bug/i) { $delay *= 0.8125 }
     if($diff =~ /incompatib/i) { $delay *= 1.5 }
     # check core-ness of $pkg
     if($deps > 10000) {
