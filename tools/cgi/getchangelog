@@ -5,7 +5,10 @@ use IO::Compress::Gzip qw(gzip);
 our $basedir='/srv/ftp/pub/opensuse/';
 
 my $path = param('path');
-die if $path=~m/\.\./ or $path=~m/[^a-zA-Z0-9.:\/+~_-]/; # sanitize
+if($path=~m/\.\./ or $path=~m/[^a-zA-Z0-9.:\/+~_-]/) { # sanitize
+    print header(403);
+    exit 0;
+}
 my $fullpath = $basedir.$path;
 
 if(! -e $fullpath) {
