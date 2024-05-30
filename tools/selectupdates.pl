@@ -16,7 +16,7 @@ our @baseurl = ('/source/tumbleweed/repo/oss/', # needs trailing slash
         '/slowroll/repo/src-oss/');
 our $changelogdir = "cache/changelog";
 our %exceptions;
-for my $t ("major", "minor", "never") {
+for my $t ("major", "minor", "never", "immediate") {
     $exceptions{$t} = load_list_map "in/$t-update-exceptions";
 }
 
@@ -111,8 +111,8 @@ foreach my $pkg (sort keys (%{$versionclass})) {
     my $rev = $1 // die "did not find disturl for $pkg";
     $pkgs[0]->{$pkg}{diff} = $diff;
     my $delay = $delay[0];
-    if($vercmp == 255) {
-        diag "found new package $pkg - submitting right away";
+    if($vercmp == 255 or $exceptions{immediate}{$pkg}) {
+        diag "found new|immediate-update package $pkg - submitting right away";
         $delay = 0;
     } elsif ($vercmp == 65) {
         diag "openSUSE patch update in $pkg $deps";

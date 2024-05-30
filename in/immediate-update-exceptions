@@ -1,0 +1,3 @@
+# some toolchain packages we want to keep updated to not have our builds deviate too much from openSUSE:Factory
+binutils
+gcc13
