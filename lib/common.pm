@@ -31,9 +31,17 @@ sub encode_pretty_json($)
     $coder->encode(shift);
 }
 
-sub cache_or_run($&)
-{ my ($cachefilename, $sub) = @_;
-    if(-e $cachefilename) {
+# check freshness of a cache file
+sub is_fresh($$)
+{ my ($cachefilename, $expiry) = @_;
+    $expiry //= 7*24*60*60; # default 7d
+    my $mtime = (stat($cachefilename))[9];
+    return $mtime + $expiry > time;
+}
+
+sub cache_or_run($&;$)
+{ my ($cachefilename, $sub, $expiry) = @_;
+    if(-e $cachefilename && is_fresh($cachefilename, $expiry)) {
         return load_file($cachefilename);
     } else {
         my $ret = &$sub;
