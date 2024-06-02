@@ -1,0 +1,29 @@
+#!/bin/sh
+# usage: for p in $(cat /dev/shm/pkglist) ; do tools/syncslo-pre2.one $p ; done 2>&1 | tee out/log/syncslo-pre2.log
+pkg=$1
+fac=openSUSE:Factory
+dry=echo
+if [ -z "$pkg" ] ; then
+    echo "usage: $0 PKG"
+    exit 1
+fi
+rm -rf cache/bin.{fac,slos}
+archs=x86_64
+if grep -q "^$pkg$" in/i586bitbuilddeps* ; then
+    archs="$archs i586"
+fi
+for arch in $archs ; do
+    osc getbinaries --sources --destdir=cache/bin.fac  $fac      "$pkg" standard $arch || exit 2
+    osc getbinaries --sources --destdir=cache/bin.slos $slobuild "$pkg" standard $arch || exit 3
+done
+rm cache/bin.{fac,slos}/rpmlint.log
+
+build-compare/same-build-result.sh cache/bin.fac cache/bin.slos
+ret=$?
+rm -r cache/bin.{fac,slos}
+if [ $ret = 0 ] ; then
+    echo "submitting $fac to $slo $pkg"
+    $dry tools/releasemulti $fac $slo $pkg
+else
+    echo "different $pkg binaries - do nothing"
+fi
