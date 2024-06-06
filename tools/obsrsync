@@ -61,7 +61,7 @@ for my $pkg (@pkgs) {
         if($destver ne $srcver) {$allsynced=0}
     }
     next if $allsynced;
-    system "$dry osc release $src --target-project=$dest '$pkg' --target-repository=standard -r standard"
+    system "$dry osc release --no-delay $src --target-project=$dest '$pkg' --target-repository=standard -r standard"
 }
 
 # find deleted pkgs
