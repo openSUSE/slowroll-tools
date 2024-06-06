@@ -28,6 +28,6 @@ if \
   fi
 else
   echo "dropping $pkg"
-  osc rdelete -m "rebased" $prj "$pkg"
+  osc rdelete --force -m "rebased" $prj "$pkg"
   rm -f "out/pending/$pkg"
 fi
