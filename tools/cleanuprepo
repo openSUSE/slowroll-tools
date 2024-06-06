@@ -13,7 +13,7 @@ my @packages = split("\n", $packages);
 #print "@packages\n";
 foreach my $p (@packages) {
     next if $keeplist->{$p} and not $ENV{FORCE};
-    diag("osc rdelete -m cleanuprepo $repo $p");
-    system(qw(osc rdelete -m cleanuprepo), $repo, $p);
+    diag("osc rdelete --force -m cleanuprepo $repo $p");
+    system(qw(osc rdelete --force -m cleanuprepo), $repo, $p);
 }
 
