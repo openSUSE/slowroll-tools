@@ -49,7 +49,9 @@ sub process_binaryversions($)
 process_binaryversions($srcref);
 process_binaryversions($destref);
 
+my %submitted;
 for my $pkg (@pkgs) {
+    next if $submitted{$pkg}++;
     my $allsynced = 1;
     foreach my $bin (@{$allbins{$pkg}}) {
 	my $srcver=$srcref->{$bin};
