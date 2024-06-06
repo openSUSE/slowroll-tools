@@ -32,6 +32,8 @@ while(my @a = each(%$srcbin)) {
 my $srcref  = new XML::Bare(text => cache_or_run("cache/factory-x86_64.xml", sub{ `osc api /build/$src/standard/x86_64/_repository?view=binaryversions` })) ->parse();
 #my $dest32ref = new XML::Bare(text => cache_or_run("cache/slob-i586.xml",   sub{ `osc api /build/$dest/standard/i586/_repository?view=binaryversions` })) ->parse();
 my $destref = new XML::Bare(text => cache_or_run("cache/slob-x86_64.xml",   sub{ `osc api /build/$dest/standard/x86_64/_repository?view=binaryversions` })) ->parse();
+my $srclist = cache_or_run("cache/factory.ls", sub{`osc ls $src | grep -v :`});
+my $destlist = cache_or_run("cache/slob.ls", sub{`osc ls $dest | grep -v :`});
 
 sub process_binaryversions($)
 { my ($ref) = @_;
@@ -58,4 +60,13 @@ for my $pkg (@pkgs) {
     }
     next if $allsynced;
     system "$dry osc release $src --target-project=$dest '$pkg' --target-repository=standard -r standard"
+}
+
+# find deleted pkgs
+my %srcpkg = map { $_=>1 } split("\n", $srclist);
+for my $pkg (split("\n", $destlist)) {
+    die if $pkg =~ m/[^a-zA-Z0-9,.+_-]/;
+    next if $srcpkg{$pkg};
+    diag "deleting $dest $pkg";
+    system("$dry osc rdelete --force -m obsrsync $dest $pkg")
 }
