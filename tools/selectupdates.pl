@@ -15,6 +15,7 @@ our $changelogurl = 'http://stage3.opensuse.org:18080/cgi-bin/getchangelog?path=
 our @baseurl = ('/source/tumbleweed/repo/oss/', # needs trailing slash
         '/slowroll/repo/src-oss/');
 our $changelogdir = "cache/changelog";
+our $submitted = 0;
 our %exceptions;
 for my $t ("major", "minor", "never", "immediate") {
     $exceptions{$t} = load_list_map "in/$t-update-exceptions";
@@ -87,7 +88,8 @@ sub submit($$)
     if(!$dryrun) {
         system("tools/submitpackageupdate", $pkg, $rev);
         # TODO store $pkgs[0]->{$pkg}{diff} for consumption by users - e.g. RSS feed
-    }
+        $submitted++ if $?==0;
+    } else { $submitted++ }
 }
 
 foreach my $pkg (sort keys (%{$versionclass})) {
@@ -156,3 +158,6 @@ foreach my $pkg (sort keys (%{$versionclass})) {
     diag "submit $pkg $rev now after $delay s delay";
     submit($pkg, $rev);
 }
+print "Submitted: $submitted\n";
+print "Total pending: ";
+system("ls out/pending/|wc -l")
