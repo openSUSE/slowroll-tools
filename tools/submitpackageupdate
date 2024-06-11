@@ -30,4 +30,5 @@ if [[ $FORCE ]] || [[ -n `PAGER="wc -c" osc rdiff --missingok -r $rev $srcprj "$
     touch out/pending/$pkg
 else
     echo "no diff"
+    exit 11
 fi
