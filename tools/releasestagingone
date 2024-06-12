@@ -41,7 +41,9 @@ fi
   # fetch binaries from Factory + Staging
   if ! $offline ; then
     rm -rf tmp/{slo,slos,slos.s,fac}
-    osc r -r standard -a x86_64 $slobuild $pkg | grep -q ' succeeded' || exit 12
+    mkdir -p tmp/slos
+    osc r -r standard -a x86_64 $slobuild $pkg | tee tmp/slos/.r | grep -q ' succeeded$' || exit 12
+    grep -E '^standard +x86_64 .* (building|blocked|scheduled|dispatching|signing)$' tmp/slos/.r && exit 14 # still in progress
 
     osc_getbinaries $slobuild        $pkg tmp/slos
     slopkg=$(tools/followlink $pkg); [ -n "$slopkg" ] || slopkg=$pkg
