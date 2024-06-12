@@ -26,4 +26,7 @@ if [ -z "$dry" -a -n "$releasedpkgs" ] ; then
         pkg=$(basename "$pkg")
         osc linkpac -f "$slo" "$pkg.$tag" "$slo" "$pkg"
     done
+    echo "Released $releasedpkgs"
+    n=$(echo $releasedpkgs | wc -w)
+    echo "Released $n packages"
 fi
