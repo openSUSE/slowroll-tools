@@ -22,11 +22,13 @@ $dry osc release --no-delay $sloreleasing
 if [ -z "$dry" -a -n "$releasedpkgs" ] ; then
     tag=`tools/findlastrelease`
     # link released packages to standard name
+    releasedpkgs2=""
     for pkg in $releasedpkgs ; do
         pkg=$(basename "$pkg")
+        releasedpkgs2="$releasedpkgs2 $pkg"
         osc linkpac -f "$slo" "$pkg.$tag" "$slo" "$pkg"
     done
-    echo "Released $releasedpkgs"
-    n=$(echo $releasedpkgs | wc -w)
+    n=$(echo $releasedpkgs2 | wc -w)
+    echo "Released $releasedpkgs2"
     echo "Released $n packages"
 fi
