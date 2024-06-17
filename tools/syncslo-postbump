@@ -15,7 +15,7 @@ xpkg=$(echo "$pkg" | perl -pe 's/\.2024\d{10}//') # handle maintenance release n
 if [ "$xpkg" = "$pkg" ] ; then
     osc ls $prj "$pkg" 2>&1 | grep -q "cannot be expanded:" &&
         echo "drop dangling link" $prj "$pkg" &&
-        $dry osc rdelete -m "drop dangling link" $prj "$pkg"
+        $dry osc rdelete --force -m "drop dangling link" $prj "$pkg"
     exit 0
 fi
 
