@@ -21,7 +21,7 @@ fi
 
 grep "^$xpkg$" in/never-update-exceptions && exit 0
 
-if ! grep -q "^$xpkg$" in/dont-delete ; then
+if ! grep -q "^$xpkg$" in/dont-delete in/i586bitbuilddeps1 ; then
 #if ! grep -q "^$pkg$" in/baselibs.list in/i586bitbuilddeps in/dont-delete ; then
 ##osc api "/source/$prj/$pkg/_history"|tail -3|grep -q "Release from openSUSE:Factory" # does not work because of :Releasing subprj
 #osc api /build/$srcprj/standard/x86_64/$pkg/_buildenv > tmp/srcenv
