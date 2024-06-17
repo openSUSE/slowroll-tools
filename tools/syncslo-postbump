@@ -1,6 +1,6 @@
 #!/bin/sh
 #usage:
-#for p in $(osc ls $slo|grep -v :|sort -r) ; do echo "$p"; tools/syncslo-postbump "$p" ; done | tee out/log/syncslo-postbump-$(date -I)
+#for p in $(osc ls $slo|grep -v :|sort -r) ; do echo "$p"; dry=" " tools/syncslo-postbump "$p" ; done | tee out/log/syncslo-postbump-$(date -I)
 srcprj=openSUSE:Factory
 prj=openSUSE:Slowroll
 pkg=${1:-qt6-webview}
