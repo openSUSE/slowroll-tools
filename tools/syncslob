@@ -21,12 +21,12 @@ while(my @a = each(%$srcbin)) {
 #/build/openSUSE:Slowroll:Base/standard/i586/_repository?view=binaryversions
 my $facxml = cache_or_run("cache/factory-i586.xml", sub{ `osc api /build/openSUSE:Factory/standard/i586/_repository?view=binaryversions` });
 my $facref = new XML::Bare(text => $facxml) ->parse();
-#my $slobxml = `osc api /build/$dest/standard/i586/_repository?view=binaryversions`;
-#my $slobref = new XML::Bare(text => $slobxml) ->parse();
-my $pkgs = `osc ls $dest`;
+#my $slobref = new XML::Bare(text => cache_or_run("cache/slob-i586.xml",sub{ `osc api /build/$dest/standard/i586/_repository?view=binaryversions` })) ->parse();
+my $pkgs = "";#`osc ls $dest`;
 my %pkgs = map {$_=>1} split("\n", $pkgs);
 #foreach(split("\n", $pkgs)) { $pkgs{$_}=1 }
 my %submitted;
+my @rsyncpkgs;
 foreach my $bin (@{$facref->{binaryversionlist}->{binary}}) {
     my $name = $bin->{name}->{value}; $name =~ s/\.rpm$//;
     my $pkg = $binsrc{$name};
@@ -38,11 +38,11 @@ foreach my $bin (@{$facref->{binaryversionlist}->{binary}}) {
     next if $submitted{$pkg}++;
     next if $pkgs{$pkg};
     $pkg =~ s/:.*//; # sync whole pkg so the test above does not give false matches
-    #next if $slobref->{binaryversionlist}->{binary}
-    system "$dry osc release $src --target-project=$dest '$pkg' --target-repository=standard -r standard"
+    push @rsyncpkgs, $pkg;
 }
 
 my @bootstrap = map {s/:bootstrap//;$_} split('\n', `osc ls openSUSE:Factory | grep :bootstrap\$`);
 foreach my $pkg (@bootstrap) {
-    system "$dry osc release $src --target-project=$dest '$pkg' --target-repository=standard -r standard"
+    push @rsyncpkgs, $pkg;
 }
+print("@rsyncpkgs");
