@@ -13,7 +13,7 @@ factoryjson=cache/view.2024-04-06/factory.json
 xpkg=$(echo "$pkg" | perl -pe 's/\.2024\d{10}//') # handle maintenance release naming FIXME update in 2025
 
 if [ "$xpkg" = "$pkg" ] ; then
-    osc ls $pkg "$pkg" 2>&1 | grep -q "cannot be expanded:" &&
+    osc ls $prj "$pkg" 2>&1 | grep -q "cannot be expanded:" &&
         echo "drop dangling link" $prj "$pkg" &&
         $dry osc rdelete -m "drop dangling link" $prj "$pkg"
     exit 0
