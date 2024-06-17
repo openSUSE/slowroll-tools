@@ -22,10 +22,9 @@ my @rpms;
 while(<F>) { chomp; push @rpms, $_;}
 my $pkgs = `osc ls $dest`;
 my %pkgs = map {$_=>1} split("\n", $pkgs);
-#foreach(split("\n", $pkgs)) { $pkgs{$_}=1 }
 my %submitted;
+my @pkgs=();
 foreach my $bin (@rpms) {
-#foreach my $bin ("kontactinterface") {
     my $name = $bin;
     my $pkg = $binsrc{$name}||$name;
     my $subpkg = "";
@@ -38,16 +37,7 @@ foreach my $bin (@rpms) {
     next if $pkgs{$pkg};
     if($pkg =~ s/:(.*)//) {$subpkg=":$1"}; # sync whole pkg so the test above does not give false matches
     my $check = `osc api /build/$src/standard/x86_64/$pkg$subpkg | grep rpmlint.log`;
-    unless($check =~ m/mtime="(\d+)"/) {
-        warn "could not find mtime for $name :$subpkg $src/$pkg";
-        next
-    }
-    if(0 && $1 > 1714262400) {
-        warn "$pkg too new";
-        next
-    }
-#die "check that src binaries are not too new : $name $pkg $dry $check";
-    #next if $slobref->{binaryversionlist}->{binary}
-    system "$dry osc release $src --target-project=$dest '$pkg' --target-repository=standard -r standard"
+    next unless $?==0;
+    push(@pkgs, $pkg);
 }
-
+system "$dry tools/obsrsync @pkgs";
