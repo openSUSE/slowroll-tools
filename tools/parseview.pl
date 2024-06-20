@@ -19,9 +19,13 @@ my %extract=();
 foreach my $pkg (@$pkgs) {
   #print("$pkg->{name}{value} $pkg->{version}{ver}{value} $pkg->{version}{rel}{value} $pkg->{location}{href}{value} $pkg->{format}{'rpm:sourcerpm'}{value} $pkg->{time}{file}{value}\n");
   #die;
-  $extract{$pkg->{package}{value}} = {
+  my $package = $pkg->{package}{value};
+  $extract{$package} = {
     md5 => $pkg->{verifymd5}{value},
   }; 
+  if(my $origin = $pkg->{originproject}) {
+    $extract{$package}{originproject} = $origin->{value}
+  }
 }
 
 print $coder->encode(\%extract);
