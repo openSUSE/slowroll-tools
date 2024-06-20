@@ -42,21 +42,25 @@ if [ "$1" = "config" ]; then
         echo 'graph_vlabel packages'
         echo 'graph_category system'
         echo 'pkgs.label packages'
-	echo 'pkgs.info total number of .src.rpms in /update/slowroll'
+        echo 'pkgs.info total number of .src.rpms in /update/slowroll'
         echo 'pkgs.draw AREA'
         echo 'pkgs.min 0'
         echo 'twpkgs.label tw packages'
-	echo 'twpkgs.info .src.rpms in Tumbleweed released after the version bump'
+        echo 'twpkgs.info .src.rpms in Tumbleweed released after the version bump'
         echo 'twpkgs.draw LINE'
         echo 'twpkgs.min 0'
         echo 'srtwpkgs.label tw packages in slowroll'
-	echo 'srtwpkgs.info .src.rpms from Tumbleweed released verbatim into Slowroll'
+        echo 'srtwpkgs.info .src.rpms from Tumbleweed released verbatim into Slowroll'
         echo 'srtwpkgs.draw LINE'
         echo 'srtwpkgs.min 0'
         echo 'slowrollpkgs.label sr packages'
-	echo 'slowrollpkgs.info .src.rpms built specifically for Slowroll'
+        echo 'slowrollpkgs.info .src.rpms built specifically for Slowroll'
         echo 'slowrollpkgs.draw AREA'
         echo 'slowrollpkgs.min 0'
+        echo 'slowrollpkgsuniq.label sr uniq packages'
+        echo 'slowrollpkgsuniq.info unique .src.rpms in Slowroll:Build'
+        echo 'slowrollpkgsuniq.draw LINE'
+        echo 'slowrollpkgsuniq.min 0'
         print_warning pkgs
         print_critical pkgs
         exit 0
@@ -70,3 +74,4 @@ echo "pkgs.value $pkgs"
 echo "srtwpkgs.value $srtwpkgs"
 echo "slowrollpkgs.value $slowrollpkgs"
 echo "twpkgs.value `find /srv/ftp/pub/opensuse/source/tumbleweed/repo/oss/src/ -maxdepth 1 -newer /srv/ftp/pub/opensuse/slowroll/repo/oss/media.1/products -type f -name \*.src.rpm | wc -l`"
+echo "slowrollpkgsuniq.value `curl -s https://build.opensuse.org/public/source/openSUSE:Slowroll:Build:2?deleted=0 | grep 'entry name="[^:"]*"'|wc -l`"
