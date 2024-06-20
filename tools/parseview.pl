@@ -26,6 +26,13 @@ foreach my $pkg (@$pkgs) {
   if(my $origin = $pkg->{originproject}) {
     $extract{$package}{originproject} = $origin->{value}
   }
+  if(my $linked = $pkg->{linked}) {
+    if(ref($linked) eq "ARRAY") { $linked = $linked->[0] }
+    $extract{$package}{linked} = {
+      project => $linked->{project}{value},
+      package => $linked->{package}{value},
+    }
+  }
 }
 
 print $coder->encode(\%extract);
