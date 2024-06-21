@@ -4,7 +4,8 @@
 # support partial sync via filter function
 # like rsync, this should be efficient in handling deltions, additions and updates
 # overlaps with tools/syncslob
-# tools/obsrsync $(cat in/missing-dvd-rpms)
+# usage:
+# DELETE=1 tools/obsrsync $(cat in/missing-dvd-rpms)
 use strict;
 use XML::Bare;
 use lib 'lib';
@@ -65,10 +66,12 @@ for my $pkg (@pkgs) {
 }
 
 # find deleted pkgs
-my %srcpkg = map { $_=>1 } split("\n", $srclist);
-for my $pkg (split("\n", $destlist)) {
-    die if $pkg =~ m/[^a-zA-Z0-9,.+_-]/;
-    next if $srcpkg{$pkg};
-    diag "deleting $dest $pkg";
-    system("$dry osc rdelete --force -m obsrsync $dest $pkg")
+if($ENV{DELETE} eq "1") {
+    my %srcpkg = map { $_=>1 } split("\n", $srclist);
+    for my $pkg (split("\n", $destlist)) {
+        die if $pkg =~ m/[^a-zA-Z0-9,.+_-]/;
+        next if $srcpkg{$pkg};
+        diag "deleting $dest $pkg";
+        system("$dry osc rdelete --force -m obsrsync $dest $pkg")
+    }
 }
