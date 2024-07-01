@@ -6,6 +6,7 @@ broadcom-wl
 crash
 dpdk
 drbd
+evdi
 facetimehd
 gasket-driver
 hdjmod
@@ -19,6 +20,7 @@ ovpn-dco
 pcfclock
 sysdig
 r8168
+rtl8188gu
 rtl8812au
 rtl88x2bu
 rtw88
