@@ -104,5 +104,16 @@ newsnapshot9:
 cache/ring0:
 	osc ls openSUSE:Factory:Rings:0-Bootstrap > $@
 
+cache/ring1:
+	osc ls openSUSE:Factory:Rings:1-MinimalX > $@
+
+cache/slfo.ls:
+	osc ls SUSE:SLFO:Main:Build > $@
+
 cache/factory-i586-binaries:
 	osc ls -vb --arch i586 openSUSE:Factory > $@
+
+branchrb0:
+	. .rbosrc && for p in $$(grep -v -e : -e '^rpm$$' cache/ring0) ; do \
+	  bash -x tools/submitpackageupdate $$p ;\
+	done
