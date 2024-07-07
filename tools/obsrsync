@@ -12,7 +12,7 @@ use lib 'lib';
 use common;
 
 
-my $src = "openSUSE:Factory";
+my $src = $ENV{syncsource} || "openSUSE:Factory";
 my $dest = $ENV{slobase};
 my @pkgs = @ARGV;
 if (!@pkgs) {
