@@ -14,6 +14,7 @@ use common;
 
 my $src = $ENV{syncsource} || "openSUSE:Factory";
 my $dest = $ENV{slobase};
+my $maxmtime = $ENV{maxmtime};
 my @pkgs = @ARGV;
 if (!@pkgs) {
     die "usage: $0 PGK1 PKG2 ..."
@@ -30,11 +31,12 @@ while(my @a = each(%$srcbin)) {
     }
 } 
 #my $src32ref  = new XML::Bare(text => cache_or_run("cache/factory-i586.xml", sub{ `osc api /build/$src/standard/i586/_repository?view=binaryversions` })) ->parse();
-my $srcref  = new XML::Bare(text => cache_or_run("cache/factory-x86_64.xml", sub{ `osc api /build/$src/standard/x86_64/_repository?view=binaryversions` })) ->parse();
+my $srcref  = new XML::Bare(text => cache_or_run("cache/factory-x86_64.xml", sub{ `osc api /build/$src/standard/x86_64/_repository?view=binaryversions` }, 6*3600)) ->parse();
 #my $dest32ref = new XML::Bare(text => cache_or_run("cache/slob-i586.xml",   sub{ `osc api /build/$dest/standard/i586/_repository?view=binaryversions` })) ->parse();
-my $destref = new XML::Bare(text => cache_or_run("cache/slob-x86_64.xml",   sub{ `osc api /build/$dest/standard/x86_64/_repository?view=binaryversions` })) ->parse();
-my $srclist = cache_or_run("cache/factory.ls", sub{`osc ls $src | grep -v :`});
-my $destlist = cache_or_run("cache/slob.ls", sub{`osc ls $dest | grep -v :`});
+my $destref = new XML::Bare(text => cache_or_run("cache/slob-x86_64.xml",   sub{ `osc api /build/$dest/standard/x86_64/_repository?view=binaryversions` }, 6*3600)) ->parse();
+my $srclist = cache_or_run("cache/factory.ls", sub{`osc ls $src | grep -v :`}, 6*3600);
+my $destlist = cache_or_run("cache/slob.ls", sub{`osc ls $dest | grep -v :`}, 6*3600);
+mkdir("cache/factory-bin");
 
 sub process_binaryversions($)
 { my ($ref) = @_;
@@ -59,9 +61,15 @@ for my $pkg (@pkgs) {
         next unless $srcver;
         my $destver=$destref->{$bin}//"missing";
         #diag("comparing $pkg $bin $srcver $destver");
-        if($destver ne $srcver) {$allsynced=0}
+        if($destver ne $srcver) {$allsynced=0; diag("$bin different for $pkg")}
     }
     next if $allsynced;
+    if($maxmtime) {
+        my $xml = cache_or_run("cache/factory-bin/$pkg", sub{ `osc api /build/openSUSE:Factory/standard/x86_64/$pkg` }, 6*3600);
+        if($xml =~ m/src\.rpm" size="\d+" mtime="(\d+)"/) {
+            next if $1 > $maxmtime;
+        }
+    }
     system "$dry osc release --no-delay $src --target-project=$dest '$pkg' --target-repository=standard -r standard"
 }
 
