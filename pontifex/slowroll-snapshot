@@ -7,7 +7,7 @@ oversion=$(cut -c 12-19 $b/slowroll/repo/oss/media.1/products)
 nversion=$(cut -c 12-19 $b/tumbleweed/repo/oss/media.1/products)
 d1=/srv/ftp-stage/pub/opensuse/repositories/openSUSE\:/ALP\:/Experimental\:/Slowroll/
 d2=/srv/ftp/pub/opensuse/repositories/openSUSE\:/ALP\:/Experimental\:/Slowroll/
-rsync -a --delete $d1/base."$oversion"/ $b/slowroll/
+rsync -a --delete $d1/base."$oversion"/repo/ $b/slowroll/repo/
 d1=$d1/base."$nversion"
 d2=$d2/base."$nversion"
 
@@ -24,6 +24,10 @@ cp -afl $b2/source/tumbleweed/repo/non-oss/ $d2/repo/src-non-oss
 cp -an $b2/source/tumbleweed/repo/non-oss/* $d2/repo/src-non-oss/
 
 rm $d2/../base-next-full ; ln -s base."$nversion" $d2/../base-next-full
+rm -r $d2/iso ; ln -s '../update/slowroll/images/iso' $d2/
+rm $d2/images ; ln -s '../update/slowroll/images' $d2/
+ln -s ../repositories/openSUSE\:/ALP\:/Experimental\:/Slowroll/base-next-full $d2/next
+#ln -s '../../update/slowroll/images/iso/openSUSE-Slowroll-DVD-x86_64-Current.iso' $d2/iso/
 
 cp -anl $d2/* $b2/slowroll/
 cd /srv/ftp/pub/opensuse/debug && rm -rf "slowroll.$nversion" && cp -al tumbleweed "slowroll.$nversion" #rm -rf slowroll && cp -al tumbleweed slowroll

@@ -8,7 +8,7 @@ nversion=$(cut -c 12-19 $b/repositories/openSUSE\:/ALP\:/Experimental\:/Slowroll
 d1=$b/repositories/openSUSE\:/ALP\:/Experimental\:/Slowroll/base."$nversion"
 
 $dry rm -rf /srv/ftp/pub/opensuse/debug/slowroll &&
-  $dry ln -s /srv/ftp/pub/opensuse/debug/slowroll slowroll.$nversion
+  $dry ln -s slowroll.$nversion /srv/ftp/pub/opensuse/debug/slowroll
 
 $dry cp -afl $d1/* $b/slowroll/
 
@@ -16,5 +16,5 @@ $dry cp -afl $d1/* $b/slowroll/
 cd /srv/ftp/pub/opensuse/debug && find . -maxdepth 4 -name oss -path "./slowroll.20*/*" -mtime +90 | xargs -r rm -r
 cd $d1/.. && find . -maxdepth 1 -name "base.20*" -mtime +140 | xargs -r rm -r
 
-sleep 12h &&
+sleep 36h &&
   $dry rsync -a --delete-delay --delay-updates "$d1/" $b/slowroll/
