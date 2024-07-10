@@ -3,6 +3,5 @@ osc meta prj $slo > cache/meta/slo.on
 osc meta prj $slobuild > cache/meta/slos.on
 osc api -X POST "/source/$slobuild?cmd=set_flag&flag=build&status=disable"
 osc api -X POST "/source/$slobuild?cmd=set_flag&flag=publish&status=disable"
-
-# Later:
-#osc api -X POST "/source/$slo?cmd=set_flag&flag=publish&status=disable"
+osc api -X POST "/source/$slo?cmd=set_flag&flag=publish&status=disable"
+#echo 'edit prjconf to enable Publishflag keepobsolete' # we keep it enabled
