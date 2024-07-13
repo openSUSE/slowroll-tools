@@ -58,7 +58,7 @@ if [ "$1" = "config" ]; then
         echo 'slowrollpkgs.draw AREA'
         echo 'slowrollpkgs.min 0'
         echo 'slowrollpkgsuniq.label sr uniq packages'
-        echo 'slowrollpkgsuniq.info unique .src.rpms in Slowroll:Build'
+        echo 'slowrollpkgsuniq.info unique .src.rpms in Slowroll:Build:1/2'
         echo 'slowrollpkgsuniq.draw LINE'
         echo 'slowrollpkgsuniq.min 0'
         print_warning pkgs
@@ -74,4 +74,6 @@ echo "pkgs.value $pkgs"
 echo "srtwpkgs.value $srtwpkgs"
 echo "slowrollpkgs.value $slowrollpkgs"
 echo "twpkgs.value `find /srv/ftp/pub/opensuse/source/tumbleweed/repo/oss/src/ -maxdepth 1 -newer /srv/ftp/pub/opensuse/slowroll/repo/oss/media.1/products -type f -name \*.src.rpm | wc -l`"
-echo "slowrollpkgsuniq.value `timeout 3 curl -s https://build.opensuse.org/public/source/openSUSE:Slowroll:Build:2?deleted=0 | grep 'entry name="[^:"]*"'|wc -l`"
+timeout 3 curl -s https://build.opensuse.org/public/source/openSUSE:Slowroll:Build:1?deleted=0 | grep 'entry name="[^:"]*"'|wc -l > ~/.slowroll-build-stat.new
+test -s ~/.slowroll-build-stat.new && mv ~/.slowroll-build-stat.new ~/.slowroll-build-stat # hide OBS outages
+echo "slowrollpkgsuniq.value `cat ~/.slowroll-build-stat`"
