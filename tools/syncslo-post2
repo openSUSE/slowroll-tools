@@ -1,0 +1,2 @@
+#!/bin/sh
+osc api -X POST "/source/$slo?cmd=remove_flag&flag=publish"
