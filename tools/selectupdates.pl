@@ -145,10 +145,6 @@ foreach my $pkg (sort keys (%{$versionclass})) {
     if($diff =~ /fix[e ]/i or $diff =~ /bug/i) { $delay *= 0.8125 }
     if($diff =~ /incompatib/i) { $delay *= 1.5 }
     if($unreproducible->{$pkg}) { $delay *= 1.5 }
-    # check core-ness of $pkg
-    if($deps > 10000) {
-        $delay *= 2;
-    }
     # TODO: consider if a package is in SLE or DVD
     # TODO: consider open bugreports
     # TODO: consider if we need a new dep for $pkg - might not be declared in .spec
