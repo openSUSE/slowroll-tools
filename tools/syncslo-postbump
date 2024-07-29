@@ -15,7 +15,7 @@ xpkg=$(echo "$pkg" | perl -pe 's/\.2024\d{10}//') # handle maintenance release n
 if [ "$xpkg" = "$pkg" ] ; then
     osc ls $prj "$pkg" 2>&1 | grep -q "cannot be expanded:" &&
         echo "drop dangling link" $prj "$pkg" &&
-        $dry osc rdelete --force -m "drop dangling link" $prj "$pkg"
+        $dry osc rdelete --force -m "drop-dangling-link" $prj "$pkg"
     exit 0
 fi
 
@@ -41,7 +41,7 @@ latest=$(tools/followlink $xpkg)
 if [ "$pkg" != "$latest" ] ; then
     grep -q "^$xpkg$" in/dont-delete && exit 0
     echo "drop old version" "$prj" "$pkg"
-    $dry osc rdelete --force -m "drop old version" "$prj" "$pkg"
+    $dry osc rdelete --force -m "drop-old-version" "$prj" "$pkg"
     exit 0
 fi
 
@@ -53,7 +53,7 @@ if [[ $rev = $frev ]] ; then
 #echo osc copypac -r "$rev" $srcprj "$pkg" $prj
     $dry tools/releasemulti $srcprj $prj "$xpkg"
     grep -q "^$xpkg$" in/dont-delete && exit 0
-    $dry osc rdelete --force -m "updated from Factory" "$prj" "$pkg"
+    $dry osc rdelete --force -m "updated-from-Factory" "$prj" "$pkg"
 else
     echo "XX mismatch in $pkg $rev vs $frev"
     $dry tools/submitpackageupdate "$xpkg" "$rev"
