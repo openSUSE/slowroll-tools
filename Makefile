@@ -114,6 +114,6 @@ cache/factory-i586-binaries:
 	osc ls -vb --arch i586 openSUSE:Factory > $@
 
 branchrb0:
-	. .rbosrc && for p in $$(grep -v -e : -e '^rpm$$' cache/ring0) ; do \
+	for p in $$(grep -v -e : -e '^rpm$$' cache/ring0) ; do \
 	  bash -x tools/submitpackageupdate $$p ;\
 	done
