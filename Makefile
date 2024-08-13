@@ -125,3 +125,6 @@ branchrb1: cache/ring1
 	for p in $$(grep -v -e : -e '^rpm$$' cache/ring1) ; do \
 	  bash -x tools/submitpackageupdate $$p ;\
 	done
+
+cache/minimalvm.srpms: in/minimalvm.rpms
+	tools/bin2src `cat $<` | cut -d: -f1 | sort -u > $@

@@ -1,0 +1,23 @@
+#!/usr/bin/perl -w
+# usage: DRYRUN=0 tools/syncslob 2>&1 | tee out/log/syncslob-$(date -I)
+use strict;
+use lib "lib";
+use common;
+
+$|=1;
+my $srcbin = load_json("out/pkgmapsrcbin");
+my %binsrc;
+while(my @a = each(%$srcbin)) {
+    foreach my $bin (@{$a[1]}) {
+        $binsrc{$bin} = $a[0];
+    }
+}
+foreach my $bin (@ARGV) {
+    my $pkg = $binsrc{$bin};
+    if(!$pkg) {
+         $bin =~ s/-[^-]+$//; $pkg = $binsrc{$bin};
+         if(!$pkg) { warn "no src for $bin rpm found" ; next}
+    }
+    print "$pkg\n";
+}
+
