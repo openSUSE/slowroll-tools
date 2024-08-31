@@ -1,0 +1,5 @@
+#!/bin/sh
+
+for p in kernel-source kernel-source-longterm ; do
+  osc cat openSUSE:Factory $p $p.spec | grep ^Version
+done
