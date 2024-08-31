@@ -28,7 +28,7 @@ tp_smapi
 v4l2loopback
 vendor-reset
 vhba-kmp
-virtualbox:kmp
+virtualbox
 wireguard
 xone
 xpadneo
