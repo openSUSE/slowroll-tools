@@ -29,6 +29,8 @@ if [ -z "$dry" -a -n "$releasedpkgs" ] ; then
         osc linkpac -f "$slo" "$pkg.$tag" "$slo" "$pkg"
     done
     n=$(echo $releasedpkgs2 | wc -w)
-    (echo -e "A collection of maintenance updates was released for Slowroll.\nReleased $n packages: $releasedpkgs2") | SUBJECT="New Slowroll update $(date -u +%Y%m%dT%H%M) released!" TOADDR=factory@lists.opensuse.org tools/notifyML
+    (echo -e "A collection of maintenance updates was released for Slowroll.\nReleased $n packages: "
+        perl -e 'foreach(@ARGV){print "* $_\n"}' $releasedpkgs2 ) |
+        SUBJECT="New Slowroll update $(date -u +%Y%m%dT%H%M) released!" TOADDR=factory@lists.opensuse.org tools/notifyML
     echo "Released $n packages: $releasedpkgs2"
 fi
