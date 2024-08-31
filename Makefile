@@ -62,7 +62,6 @@ newsnapshot4: # with new $slobuild
 	tools/syncslo-pre
 	##for p in `cat in/javabuilddeps |grep -v '#'` ; do tools/releasemulti openSUSE:Factory $$slobase "$$p" ; done # replaced by obsrsync
 	set -x ; for p in `grep -h -v '#' in/i586bitbuilddeps1 in/kmps` ; do FORCE=1 tools/submitpackageupdate "$$p" ; done
-	tools/submitpackageupdate virtualbox ; rm -f out/pending/virtualbox
 	echo "notify https://www.reddit.com/r/openSUSE_Slowroll/"
 	##tools/cleanuprepo $$slo:Staging
 	##tools/cleanuprepo $$slo
