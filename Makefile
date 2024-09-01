@@ -1,7 +1,7 @@
 BASENEXT:=${slobase}
 
 install:
-	zypper -n in perl-JSON-XS perl-XML-Bare
+	zypper -n in wget perl-JSON-XS perl-XML-Bare
 
 daily: fetch select
 fetch:
