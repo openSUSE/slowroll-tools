@@ -74,7 +74,7 @@ for my $pkg (@pkgs) {
 }
 
 # find deleted pkgs
-if($ENV{DELETE} eq "1") {
+if($ENV{DELETE}//0 eq "1") {
     my %srcpkg = map { $_=>1 } split("\n", $srclist);
     for my $pkg (split("\n", $destlist)) {
         die if $pkg =~ m/[^a-zA-Z0-9,.+_-]/;
