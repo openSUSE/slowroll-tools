@@ -21,7 +21,7 @@ fi
 
 grep "^$xpkg$" in/never-update-exceptions && exit 0
 
-if ! grep -q "^$xpkg$" in/dont-delete in/i586bitbuilddeps1 ; then
+if ! grep -q "^$xpkg$" in/dont-delete in/i586bitbuilddeps1 in/kmps ; then
 #if ! grep -q "^$pkg$" in/baselibs.list in/i586bitbuilddeps in/dont-delete ; then
 ##osc api "/source/$prj/$pkg/_history"|tail -3|grep -q "Release from openSUSE:Factory" # does not work because of :Releasing subprj
 #osc api /build/$srcprj/standard/x86_64/$pkg/_buildenv > tmp/srcenv
@@ -39,7 +39,7 @@ fi
 
 latest=$(tools/followlink $xpkg)
 if [ "$pkg" != "$latest" ] ; then
-    grep -q "^$xpkg$" in/dont-delete && exit 0
+    grep -q "^$xpkg$" in/dont-delete in/kmps && exit 0
     echo "drop old version" "$prj" "$pkg"
     $dry osc rdelete --force -m "drop-old-version" "$prj" "$pkg"
     exit 0
@@ -52,7 +52,7 @@ if [[ $rev = $frev ]] ; then
 #if PAGER="wc -c" osc rdiff --missingok -r "$rev" $srcprj "$pkg" $prj | grep -q . ; then # check if there is any diff
 #echo osc copypac -r "$rev" $srcprj "$pkg" $prj
     $dry tools/releasemulti $srcprj $prj "$xpkg"
-    grep -q "^$xpkg$" in/dont-delete && exit 0
+    grep -q "^$xpkg$" in/dont-delete in/kmps && exit 0
     $dry osc rdelete --force -m "updated-from-Factory" "$prj" "$pkg"
 else
     echo "XX mismatch in $pkg $rev vs $frev"
