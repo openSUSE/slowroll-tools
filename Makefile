@@ -67,7 +67,7 @@ newsnapshot4: # with new $slobuild
 	##tools/cleanuprepo $$slo
 	##rm -f out/pending/*
 	#for p in $(osc ls $slo|grep -v :|sort -r) ; do echo "$p"; tools/syncslo-postbump "$p" ; done | tee out/log/syncslo-postbump-$(date -I)
-	#grep ^osc.rdelete out/log/syncslo-postbump-2024-07-09| time parallel --jobs 20 --pipe --block 4k sh
+	#grep ^osc.rdelete out/log/syncslo-postbump-$(date -I)| time parallel --jobs 20 --pipe --block 4k sh
 	##tools/syncslos-postbump
 	##for p in `cat in/i586bitbuilddeps` ; do touch out/pending/$p ; done
 	##touch out/pending/000release-packages # and update the version numbers in there
