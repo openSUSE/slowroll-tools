@@ -11,6 +11,7 @@ mingw32-gmp
 mingw32-mpc
 mingw32-mpfr
 vcdimager
+vid_stab
 
 # for VLC
 aalib
