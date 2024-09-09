@@ -51,6 +51,7 @@ frev=$(jq ".[\"$xpkg\"][\"md5\"]" $factoryjson | sed 's/"//g')
 if [[ $rev = $frev ]] ; then
 #if PAGER="wc -c" osc rdiff --missingok -r "$rev" $srcprj "$pkg" $prj | grep -q . ; then # check if there is any diff
 #echo osc copypac -r "$rev" $srcprj "$pkg" $prj
+    grep -q "^$xpkg$" in/i586bitbuilddeps1 && exit 0
     $dry tools/releasemulti $srcprj $prj "$xpkg"
     grep -q "^$xpkg$" in/dont-delete in/kmps && exit 0
     $dry osc rdelete --force -m "updated-from-Factory" "$prj" "$pkg"
