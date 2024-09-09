@@ -97,7 +97,7 @@ newsnapshot8: # on day of bump
 newsnapshot9:
 	tools/syncslo-post2 # enable publishing of update repo
 	echo 'on mirror@pontifex: dry=" " /usr/local/bin/slowroll-snapshot-2'
-	echo "re-scan mirrors login for https://download.opensuse.org/app/folder/3855809"
+	echo "re-scan mirrors login for https://download.opensuse.org/slowroll/repo/oss/ noarch + x86_64"
 	echo "on stage3.o.o : edit /etc/munin/plugins/slowrollstats to update build prj"
 
 cache/ring0:
