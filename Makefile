@@ -75,7 +75,7 @@ newsnapshot4: # with new $slobuild
 	touch out/pending/000release-packages
 
 	##echo "adapt and run tools/syncbase | bash -x"
-	find out/pending/ -mtime +2 -delete
+	find out/pending/ -mtime +1 -delete
 	rm cache/changelog/* cache/changelogdiff/*
 	##echo "enable keepobsolete Flag in https://build.opensuse.org/projects/openSUSE:Slowroll/prjconf" # leave enabled. When publishing is enabled, it does not matter.
 	# osc copypac openSUSE:Factory kiwi-templates-Minimal $slobuild # for openQA # needs adaptation
