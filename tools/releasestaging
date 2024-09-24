@@ -6,21 +6,23 @@ dry=echo
 [ "$DRYRUN" = 0 ] && dry=
 
 FORCE=1 $dry tools/cleanuprepo $sloreleasing
-#pkgs=`osc ls $slo:Staging`
 shopt -s nullglob
-pkgs=out/pending/*
+pkgs=(out/pending/*)
 releasedpkgs=""
-for pkg in $pkgs ; do
+for pkg in "${pkgs[@]}"; do
     tools/releasestagingone "$pkg" && releasedpkgs="$releasedpkgs $pkg"
 done
+
 [ -n "$releasedpkgs" ] || exit 0 # done
 sleep 2m # TODO wait for completion of deferred release jobs
+
 ( cd /
-$dry osc release --no-delay $sloreleasing
+$dry osc release --no-delay "$sloreleasing"
 )
+
 # Instead of waiting here for completion, we delay the cleanup to next start
 if [ -z "$dry" -a -n "$releasedpkgs" ] ; then
-    tag=`tools/findlastrelease`
+    tag=$(tools/findlastrelease)
     # link released packages to standard name
     releasedpkgs2=""
     for pkg in $releasedpkgs ; do
@@ -30,7 +32,7 @@ if [ -z "$dry" -a -n "$releasedpkgs" ] ; then
     done
     n=$(echo $releasedpkgs2 | wc -w)
     (echo -e "A collection of maintenance updates was released for Slowroll.\nReleased $n packages: "
-        perl -e 'foreach(@ARGV){print "* $_\n"}' $releasedpkgs2 ) |
+        perl -e 'foreach(@ARGV){print "* $_\n"}' "$releasedpkgs2" ) |
         SUBJECT="New Slowroll update $(date -u +%Y%m%dT%H%M) released!" TOADDR=factory@lists.opensuse.org tools/notifyML
     echo "Released $n packages: $releasedpkgs2"
 fi
