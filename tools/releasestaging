@@ -24,6 +24,33 @@ function osc_getbinaries
     return $ret
 }
 
+function check_installability
+{
+    repo=$1
+    pkg=$2
+    tmp_dir="tmp/installcheck"
+    mkdir -p $tmp_dir
+    osc getbinaries --sources --destdir=$tmp_dir $repo $pkg standard x86_64
+    
+    for pending_pkg in out/pending/*; do
+        pending_pkg=$(basename $pending_pkg)
+        osc getbinaries --sources --destdir=$tmp_dir $repo $pending_pkg standard x86_64
+    done
+
+    rpms2solv $tmp_dir/*.rpm > $tmp_dir/all_packages.solv
+
+    # Capture the output of rpmdep to check for unmet dependencies
+    if ! missing_deps=$(rpmdep -T installcheck $tmp_dir/all_packages.solv 2>&1); then
+        echo "Package $pkg has unmet runtime dependencies and is not installable."
+        echo "Missing dependencies:"
+        echo "$missing_deps" | grep -i "nothing provides"  # Filter for missing dependencies
+        return 1
+    fi
+    echo "Package $pkg is installable."
+    return 0
+}
+
+
 #pkgs=`osc ls $slo:Staging`
 pkgs=out/pending/*
 for pkg in $pkgs ; do
@@ -32,12 +59,20 @@ for pkg in $pkgs ; do
     echo "skipping unreproducible package $pkg..."
     continue
   fi
+  src=$slo:Staging
+
+  # Check installability before releasing
+  if ! check_installability $src $pkg ; then
+    echo "Skipping release of $pkg due to installability issues."
+    continue
+  fi
+
   # fetch binaries from Factory + Staging
   if ! $offline ; then
     rm -rf tmp/{slo,slos,slos.s,fac}
-    osc r -r standard -a x86_64 $slo:Staging $pkg | grep -q ' succeeded' || continue
+    osc r -r standard -a x86_64 $src $pkg | grep -q ' succeeded' || continue
 
-    osc_getbinaries $slo:Staging     $pkg tmp/slos
+    osc_getbinaries $src             $pkg tmp/slos
     osc_getbinaries $slo             $pkg tmp/slo
     mkdir tmp/slos.s
     mv tmp/slos/*.src.rpm tmp/slos.s
@@ -53,7 +88,6 @@ for pkg in $pkgs ; do
   if $bc/same-build-result.sh tmp/fac tmp/slos tmp/slos.s ; then
     equivalent=true
   fi
-  src=$slo:Staging
   if $equivalent || grep "^$pkg$" in/kernel-update-exceptions ; then
     src=openSUSE:Factory
   fi
@@ -61,3 +95,4 @@ for pkg in $pkgs ; do
   $dry osc release $src --target-project=$slo "$pkg" --target-repository=standard -r standard
   $dry rm out/pending/$pkg
 done
+
