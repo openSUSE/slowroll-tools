@@ -9,6 +9,109 @@ FORCE=1 $dry tools/cleanuprepo $sloreleasing
 shopt -s nullglob
 pkgs=(out/pending/*)
 releasedpkgs=""
+tmp_dir="cache/installcheck"
+zypper_dir="cache/zypper"
+zypper_dir_absolute="$(pwd)/$zypper_dir"
+zypper="zypper --root=$zypper_dir_absolute"
+
+mkdir -p $tmp_dir
+mkdir -p "$zypper_dir_absolute"
+
+function setup_zypper_local_repos {
+    # Function to check if a repository exists
+    function repo_exists {
+        local repo_name=$1
+        $zypper lr "$repo_name" > /dev/null 2>&1
+    }
+
+    # Check and add the necessary repositories if they don't exist
+    if ! repo_exists "repo-oss"; then
+        echo "Adding repo-oss repository."
+        $zypper ar -f https://download.opensuse.org/slowroll/repo/oss/ repo-oss
+    fi
+
+    if ! repo_exists "repo-update"; then
+        echo "Adding repo-update repository."
+        $zypper ar -f https://download.opensuse.org/update/slowroll/repo/oss/ repo-update
+    fi
+
+    # Refresh the repositories to get metadata (only in the isolated environment)
+    $zypper --gpg-auto-import-keys refresh
+}
+
+
+# Function to download binaries once and cache them
+function osc_getbinaries_once {
+    local prj=$1
+    local pkg=$2
+    local dest=$3
+    local cachedpkg=$dest/$pkg
+
+    # If binaries are already cached, skip download
+    if [ ! -d "$cachedpkg" ]; then
+        echo "Downloading binaries for $pkg to $dest"
+        osc ls -b "$prj" "$pkg" standard x86_64 | grep -q .
+        ret=$?
+        if [[ $ret = 0 ]] ; then
+            osc getbinaries --sources --destdir="$dest" "$prj" "$pkg" standard x86_64
+            rm -f "$dest/rpmlint.log"
+            rm -f "$dest/::import::i586::*-32bit*.rpm"
+        fi
+        return $ret
+    else
+        echo "Using cached binaries for $pkg"
+    fi
+}
+
+# Function to check installability of all packages using libsolv-tools installcheck
+function check_installability {
+    local prj=$1
+
+    # Get binaries for all packages (downloaded only once and reused)
+    for pkg in "${pkgs[@]}"; do
+        pkg=$(basename "$pkg")
+        osc_getbinaries_once "$prj" "$pkg" "$tmp_dir"
+    done
+
+    # Convert all RPMs into a single solv file using libsolv's rpms2solv
+    rpms2solv $tmp_dir/*.rpm > $tmp_dir/all_packages.solv
+
+    # Check installability using libsolv's installcheck
+    if ! missing_deps=$(installcheck x86_64 $tmp_dir/all_packages.solv --nocheck "$zypper_dir_absolute/var/cache/zypp/solv/repo-oss/solv" "$zypper_dir_absolute/var/cache/zypp/solv/repo-update/solv" 2>&1); then
+        echo "Some packages have unmet runtime dependencies and are not installable."
+        echo "Missing dependencies:"
+        echo "$missing_deps" | grep -i "nothing provides"
+
+        # Remove un-installable packages (delete only their files)
+        problematic_pkgs=$(echo "$missing_deps" | grep -oP "(?<=package ).*?(?= )")
+        for prob_pkg in $problematic_pkgs; do
+            echo "Removing package $prob_pkg due to installability issues."
+            pkgs=("${pkgs[@]/$prob_pkg}")  # Remove from the list
+            rm -f "$tmp_dir/$prob_pkg"  # Remove package binaries
+        done
+        return 1  # Return non-zero to indicate issues found
+    fi
+    return 0  # Return zero if all packages are installable
+}
+
+setup_zypper_local_repos
+
+attempt=${#pkgs[@]}
+
+# Run installability check in a loop until all remaining packages are installable
+until check_installability $slobuild; do
+    if [[ ${#pkgs[@]} -eq 0 ]]; then
+        echo "No installable packages left."
+        exit 0
+    fi
+    if (( attempt <= 0 )); then
+        echo "Exceeded the maximum number of retries. Exiting."
+        exit 1
+    fi
+    (( attempt-- ))
+done
+
+# Proceed to release installable packages
 for pkg in "${pkgs[@]}"; do
     tools/releasestagingone "$pkg" && releasedpkgs="$releasedpkgs $pkg"
 done
@@ -36,3 +139,7 @@ if [ -z "$dry" -a -n "$releasedpkgs" ] ; then
         SUBJECT="New Slowroll update $(date -u +%Y%m%dT%H%M) released!" TOADDR=factory@lists.opensuse.org tools/notifyML
     echo "Released $n packages: $releasedpkgs2"
 fi
+
+#cleanup
+rm -rf $tmp_dir
+
