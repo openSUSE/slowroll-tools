@@ -1,0 +1,2 @@
+#!/bin/sh
+DRYRUN=0 DELETE=1 tools/obsrsync $(cat in/missing-dvd-rpms* in/i586bitbuilddeps* cache/slobrsync)
