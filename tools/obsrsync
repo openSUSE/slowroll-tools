@@ -5,7 +5,7 @@
 # like rsync, this should be efficient in handling deltions, additions and updates
 # overlaps with tools/syncslob
 # usage:
-# DELETE=1 tools/obsrsync $(cat in/missing-dvd-rpms)
+# DRYRUN=0 DELETE=1 tools/obsrsync $(cat in/missing-dvd-rpms)
 use strict;
 use XML::Bare;
 use lib 'lib';
