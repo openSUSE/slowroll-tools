@@ -16,6 +16,7 @@ fetch:
 select:
 	mkdir -p out/log
 	DEBUG=1 tools/selectupdates.pl 2>&1 | tee out/log/select-$$(date -Iseconds)
+	for p in $$(find cache/force-submit/ -type f|sort) ; do FORCE=1 tools/submitpackageupdate $$(basename $$p) ; rm $$p ; done
 	#DRYRUN=0 tools/selectupdates.pl
 
 release:
