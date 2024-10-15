@@ -1,5 +1,3 @@
-BASENEXT:=${slobase}
-
 install:
 	zypper -n in wget perl-JSON-XS perl-XML-Bare jq gnu_parallel
 
@@ -23,12 +21,12 @@ release:
 	tools/releasestaging 2>&1 | tee out/log/release-$$(date -Iseconds)
 
 newsnapshot1: # on day of TW snapshot (~6d ahead of bump)
-	osc api -X DELETE /source/${BASENEXT}/_project/_frozenlinks\?meta=1
-	osc api -X POST /source/${BASENEXT}?cmd=freezelink
+	osc api -X DELETE /source/${slobase}/_project/_frozenlinks\?meta=1
+	osc api -X POST /source/${slobase}?cmd=freezelink
 	# sync prjconf from Factory to Base
 	echo "sync meta prjconf from Factory to Slowroll:Base:N"
-	osc meta prjconf openSUSE:Factory > cache/meta/factory-prjconf && sed -i 's/distribution-logos-openSUSE-Tumbleweed/distribution-logos-openSUSE-Slowroll/; /excludebuild:installation-images:Slowroll/d' cache/meta/factory-prjconf && osc meta prjconf -F cache/meta/factory-prjconf ${BASENEXT}
-	# sync i586 (and not -bootstrap (kept in :Staging)) binaries to ${BASENEXT}
+	osc meta prjconf openSUSE:Factory > cache/meta/factory-prjconf && sed -i 's/distribution-logos-openSUSE-Tumbleweed/distribution-logos-openSUSE-Slowroll/; /excludebuild:installation-images:Slowroll/d' cache/meta/factory-prjconf && osc meta prjconf -F cache/meta/factory-prjconf ${slobase}
+	# sync i586 (and not -bootstrap (kept in :Staging)) binaries to ${slobase}
 	#using /build/openSUSE:Slowroll:Base:2/standard/i586/_repository?view=binaryversions&withevr=1 and osc release
 	##tools/syncslob > cache/slobrsync
 	# tools/obsrsync $(cat in/missing-dvd-rpms* cache/slobrsync)
