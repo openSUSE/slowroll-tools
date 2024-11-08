@@ -1,0 +1,5 @@
+#!/bin/sh
+prj=${1:-openSUSE:Slowroll:Base}
+osc meta prj $prj | perl -pe 's/(openSUSE:Slowroll:Base:)([12])/$1.(3-$2)/ge' > .tmp
+osc meta prj -F .tmp $prj
+rm .tmp

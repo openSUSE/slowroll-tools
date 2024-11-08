@@ -86,8 +86,8 @@ newsnapshot4: # with new $slobuild
 	#https://download.opensuse.org/download/update/slowroll/repo/oss/x86_64/ => "repo" link => "Clear cached info about mirrors" # also mirrorcache-us,br,au ; or find other solution for replaced rpms
 	#ask Andrii to add DVD iso .torrent to tracker.o.o
 newsnapshot8: # on day of bump
-	echo "update https://build.opensuse.org/projects/openSUSE:Slowroll/meta Build:N refs"
-	echo "update https://build.opensuse.org/projects/openSUSE:Slowroll:Base/meta Build:N refs"
+	tools/switchbase openSUSE:Slowroll # update https://build.opensuse.org/projects/openSUSE:Slowroll/meta Build:N refs
+	tools/switchbase # update https://build.opensuse.org/projects/openSUSE:Slowroll:Base/meta Build:N refs
 	osc release --no-delay openSUSE:Slowroll:Base:Next -r standard
 	tools/releasemulti ${slo}:Base:Next ${slo} 000release-packages
 	##echo "edit tools/diffdistro and tools/selectupdates.pl with slowroll/next as baseurl; make daily" # does not work: slowroll/next does not exist on stage3 to fetch changelogs
