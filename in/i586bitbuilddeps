@@ -69,3 +69,7 @@ libmad
 xbitmaps
 unzip
 hicolor-icon-theme
+maven-plugin-plugin-bootstrap
+maven-surefire-plugin-bootstrap
+libXxf86dga
+allegro44
