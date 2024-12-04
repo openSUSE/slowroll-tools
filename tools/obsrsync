@@ -80,6 +80,7 @@ if($ENV{DELETE}//0 eq "1") {
         die if $pkg =~ m/[^a-zA-Z0-9,.+_-]/;
         next if $srcpkg{$pkg};
         diag "deleting $dest $pkg";
+        system("$dry osc wipebinaries --all $dest $pkg"); # workaround OBS issue with frozenlink that still references long-deleted pkgs
         system("$dry osc rdelete --force -m obsrsync $dest $pkg")
     }
 }
