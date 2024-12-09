@@ -53,7 +53,8 @@ newsnapshot2:
 newsnapshot3: # with old $slobuild
 	tools/syncslo-pre
 	tools/getrepoviews
-	echo "disable cron jobs"
+	#echo "disable cron jobs"
+	touch .blockcron
 	echo "adapt tools/syncslo-postbump files"
 newsnapshot4: # with new $slobuild
 	cp -a ~/.slorc.next ~/.slorc
@@ -98,6 +99,8 @@ newsnapshot9:
 	echo 'on mirror@pontifex: dry=" " /usr/local/bin/slowroll-snapshot-2'
 	echo "re-scan mirrors login for https://download.opensuse.org/slowroll/repo/oss/ noarch + x86_64"
 	echo "on stage3.o.o : edit /etc/munin/plugins/slowrollstats to update build prj"
+	#echo "enable cron jobs"
+	rm -f .blockcron
 
 cache/ring0:
 	osc ls openSUSE:Factory:Rings:0-Bootstrap > $@
