@@ -1,4 +1,7 @@
+curl
+go
 gpp
+hostapd
 kubo
 matrix-synapse
 mozilla-nss
@@ -10,7 +13,12 @@ nodejs-electron
 perl-Mojolicious
 pgadmin4
 picard
+postgresql12
+postgresql13
 postgresql14
+postgresql15
+postgresql16
+postgresql17
 python-gevent
 redis
 squid
