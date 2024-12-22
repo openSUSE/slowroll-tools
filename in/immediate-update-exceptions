@@ -1,3 +1,20 @@
 # some toolchain packages we want to keep updated to not have our builds deviate too much from openSUSE:Factory
 binutils
 gcc13
+
+aquamarine
+hyprcursor
+hyprgraphics
+hypridle
+hyprland
+hyprland-protocols
+hyprlang
+hyprlock
+hyprpaper
+hyprpicker
+hyprshot
+hyprutils
+hyprwayland-scanner
+lxqt-wayland-session
+nwg-dock-hyprland
+xdg-desktop-portal-hyprland
