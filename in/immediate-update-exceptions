@@ -1,6 +1,7 @@
 # some toolchain packages we want to keep updated to not have our builds deviate too much from openSUSE:Factory
 binutils
 gcc13
+gcc14
 
 aquamarine
 hyprcursor
@@ -8,6 +9,7 @@ hyprgraphics
 hypridle
 hyprland
 hyprland-protocols
+hyprland-qtutils
 hyprlang
 hyprlock
 hyprpaper
