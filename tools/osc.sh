@@ -1,4 +1,4 @@
-# to be sources into a shell script:
+# to be sourced into a shell script:
 # refer to osc --debug or https://api.opensuse.org/apidocs/
 
 #dry=echo
