@@ -14,6 +14,9 @@ my @packages = split("\n", $packages);
 foreach my $p (@packages) {
     next if $keeplist->{$p} and not $ENV{FORCE};
     diag("osc rdelete --force -m cleanuprepo $repo $p");
-    system(qw(osc rdelete --force -m cleanuprepo), $repo, $p);
+    $ENV{prj}=$repo;
+    $ENV{pkg}=$p;
+    system('. tools/osc.sh; time osc_delete "/source/$prj/$pkg?force=1&comment=cleanuprepo"');
+    #system(qw(osc rdelete --force -m cleanuprepo), $repo, $p);
 }
 
