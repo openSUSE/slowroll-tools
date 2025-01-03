@@ -32,7 +32,7 @@ sub readheaders($)
 sub parseheaders(@)
 {
     my %header = ();
-    foreach(@_) {m/^([^:]+):(.*)/ and $header{lc($1)}=$2}
+    foreach(@_) {m/^([^:]+): ([^\r\n]*)/ and $header{lc($1)}=$2}
     return \%header;
 }
 
@@ -64,6 +64,20 @@ while(my $sock=$listensock->accept) {
     my $respdata="";
     if(defined $respheader->{"content-length"}) {
         read($apisock, $respdata, $respheader->{"content-length"});
+    } elsif($respheader->{"transfer-encoding"} eq "chunked") {
+        my $bytes;
+        while(1) {
+            $bytes = <$apisock>;
+            $respdata.=$bytes;
+            $bytes =~ s/\r\n//;
+            diag("reading 0x$bytes response body");
+            read($apisock, $respdata, hex($bytes), length($respdata)) if hex($bytes);
+            diag("respdata=$respdata");
+            my $crlf = <$apisock>;
+            $respdata.=$crlf;
+            last if(hex($bytes) <= 0);
+        }
+        diag("done reading response");
     }
     # forward response
     print $sock @respheaders,$respdata
