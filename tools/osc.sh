@@ -3,10 +3,11 @@
 
 #dry=echo
 : ${apiurl:=https://api.opensuse.org}
-: ${accelerate:=false}
+: ${accelerate:=0}
 : ${verbose:=}
 curl="curl $verbose -n --cookie $HOME/.local/state/osc/cookiejarcurl --cookie-jar $HOME/.local/state/osc/cookiejarcurl"
-if $accelerate ; then
+if [[ $accelerate = 1 ]] ; then
+    sed -i -e 's,TRUE\t/\tTRUE,TRUE\t/\tFALSE,' $HOME/.local/state/osc/cookiejarcurl
     curl+=" --connect-to ::127.0.0.1:40080 -H Connection:Keep-Alive"
     apiurl=http://api.opensuse.org
 fi
