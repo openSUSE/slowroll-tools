@@ -3,7 +3,13 @@
 
 #dry=echo
 : ${apiurl:=https://api.opensuse.org}
-curl="curl -n --cookie $HOME/.local/state/osc/cookiejarcurl --cookie-jar $HOME/.local/state/osc/cookiejarcurl"
+: ${accelerate:=false}
+: ${verbose:=}
+curl="curl $verbose -n --cookie $HOME/.local/state/osc/cookiejarcurl --cookie-jar $HOME/.local/state/osc/cookiejarcurl"
+if $accelerate ; then
+    curl+=" --connect-to ::127.0.0.1:40080 -H Connection:Keep-Alive"
+    apiurl=http://api.opensuse.org
+fi
 
 function osc_api
 {
