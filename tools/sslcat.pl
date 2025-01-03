@@ -29,10 +29,13 @@ sub readheaders($)
     }
     return @req;
 }
-sub parseheaders(@)
+sub parseheaders($)
 {
     my %header = ();
-    foreach(@_) {m/^([^:]+): ([^\r\n]*)/ and $header{lc($1)}=$2}
+    foreach(@{$_[0]}) {
+        m/^([^:]+): ([^\r\n]*)/ and $header{lc($1)}=$2;
+        if($1//0 eq "Set-Cookie") { s/Secure;// }
+    }
     return \%header;
 }
 
@@ -41,7 +44,7 @@ my $lasttime = 0;
 while(my $sock=$listensock->accept) {
     # read request
     my @req = readheaders($sock);
-    my $reqheader = parseheaders(@req);
+    my $reqheader = parseheaders(\@req);
     my $reqdata = "";
     if(defined $reqheader->{"content-length"}) {
         read($sock, $reqdata, $reqheader->{"content-length"});
@@ -60,7 +63,7 @@ while(my $sock=$listensock->accept) {
     }
     diag "API headers: ".scalar(@respheaders);
     $lasttime = time;
-    my $respheader = parseheaders(@respheaders);
+    my $respheader = parseheaders(\@respheaders);
     my $respdata="";
     if(defined $respheader->{"content-length"}) {
         read($apisock, $respdata, $respheader->{"content-length"});
