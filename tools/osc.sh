@@ -25,6 +25,13 @@ function osc_delete
 }
 
 # untested
+function osc_post
+{
+    local path=$1; shift
+    local data=$2; shift
+    osc_api "$path" -X POST --data "$data" "$@"
+}
+
 function osc_put
 {
     local path=$1; shift

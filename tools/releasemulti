@@ -19,7 +19,9 @@ if(!$pkg) {
 sub release_one($)
 { my($pkg) = @_;
     diag("release $srcprj $pkg $dstprj");
-    system('osc', 'release', '--no-delay', $srcprj, '--target-project', $dstprj, $pkg, '--target-repository=standard', '-r', 'standard') unless $dryrun;
+    foreach($srcprj, $dstprj, $pkg) { die 'invalid char in sanity check' if m/[^a-zA-Z0-9:._+-]/ }
+    system(qq!. tools/osc.sh ; osc_post '/source/$srcprj/$pkg?cmd=release&repository=standard&target_project=$dstprj&target_repository=standard&nodelay=1' ''!) unless $dryrun;
+    #system('osc', 'release', '--no-delay', $srcprj, '--target-project', $dstprj, $pkg, '--target-repository=standard', '-r', 'standard') unless $dryrun;
     if($dstprj eq $ENV{slo}) { # this is a maintenance project and we need to update links
         my $tag=`tools/findlastrelease`; chomp($tag);
         # link released packages to standard name
@@ -27,6 +29,8 @@ sub release_one($)
     }
 }
 
-my $ls = `osc ls -e $srcprj $pkg | grep \\\\.spec\$`;
-diag($ls);
+if(0) { # detect files in symlink that would cause trouble
+    my $ls = `osc ls -e $srcprj $pkg | grep \\\\.spec\$`;
+    diag($ls);
+}
 release_one($pkg);
