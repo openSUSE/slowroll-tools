@@ -31,7 +31,7 @@ newsnapshot1: # on day of TW snapshot (~6d ahead of bump)
 	##tools/syncslob > cache/slobrsync
 	osc ls ${slobase} > cache/basenext.ls
 	DELETE=1 DRYRUN=0 tools/obsrsync $$(cat in/missing-dvd-rpms* cache/slobrsync cache/basenext.ls)
-	#for p in `grep -v : /dev/shm/slobase` ; do echo $p ; PAGER="wc -l" osc rdiff $slobase $p openSUSE:Factory ; done 2>&1 | tee /dev/shm/syncslob3
+	#for p in `grep -v : /dev/shm/slobase` ; do echo $p ; PAGER="wc -l" osc rdiff ${slobase} $p openSUSE:Factory ; done 2>&1 | tee /dev/shm/syncslob3
 	find cache -mtime +3 -name factory-i586.xml -delete
 	#rm -f buildinfo/*
 	FORCE=1 ./collectbuildinfo
@@ -39,18 +39,19 @@ newsnapshot1: # on day of TW snapshot (~6d ahead of bump)
 	go run cmd/processbuildinfo.go
 
 	##tools/syncslob
-	#osc ls -vb $slobase|grep "Apr.*debugsource" > /tmp/slob ; tools/obsrsync $(perl -ne 'm/.* (.*)-debugsource.rpm/ && print "$1\n"' < /tmp/slob)
+	#osc ls -vb ${slobase}|grep "Apr.*debugsource" > /tmp/slob ; tools/obsrsync $(perl -ne 'm/.* (.*)-debugsource.rpm/ && print "$1\n"' < /tmp/slob)
 	osc linkpac openSUSE:Slowroll:Build:Overlay 000release-packages ${slobuild}
 	echo "update _link in ${slobuild} 000release-packages with new vrev= to match the TW snapshot on bernhard@adrian:~/code/osc/maint/openSUSE:Slowroll:Build:1/000release-packages with ./.up.sh && osc ci --noservice -m update"
-	tools/releasemulti openSUSE:Slowroll:Build:Overlay $$slo:Base:Next branding-openSUSE
+	tools/releasemulti openSUSE:Slowroll:Build:Overlay ${slo}:Base:Next branding-openSUSE
 newsnapshot2:
 	# on pontifex2 run /usr/local/bin/slowroll-snapshot as 'mirror' user
 	# TODO keep backup of old /update/slowroll for analysis ; on stage3 /srv/ftp/pub/opensuse-old/
 	echo update Release: line in osc meta -e prjconf ${slobuild}
 	echo osc wipebinaries --all ${slobuild}
 	echo 'on bernhard@adrian: cd ~/code/osc/maint/openSUSE:Slowroll:Build:Overlay/000release-packages && ./update.sh && osc ci'
-	tools/cleanuprepo ${slobuild}
-	# tools/releasemulti openSUSE:Slowroll:Build:Overlay $slo:Base:Next branding-openSUSE ; tools/releasemulti openSUSE:Slowroll:Build:1 $slo:Base:Next 000release-packages
+	tools/cleanuprepo ${slobuild} # with next config
+	# tools/releasemulti openSUSE:Slowroll:Build:Overlay ${slo}:Base:Next branding-openSUSE ; tools/releasemulti ${slobuild} ${slo}:Base:Next 000release-packages
+	echo 'on bernhard@adrian:~/code/osc/maint/openSUSE:Slowroll:Build:iso/000product && ./update.sh && osc ci --noservice'
 	# build+test DVD in openSUSE:Slowroll:Build:iso
 newsnapshot3: # with old $slobuild
 	tools/syncslo-pre
@@ -62,15 +63,14 @@ newsnapshot4: # with new $slobuild
 	cp -a ~/.slorc.next ~/.slorc
 	echo "review in/never-update-exceptions"
 	tools/syncslo-pre
-	##for p in `cat in/javabuilddeps |grep -v '#'` ; do tools/releasemulti openSUSE:Factory $$slobase "$$p" ; done # replaced by obsrsync
+	##for p in `cat in/javabuilddeps |grep -v '#'` ; do tools/releasemulti openSUSE:Factory ${slobase} "$$p" ; done # replaced by obsrsync
 	set -x ; for p in `grep -h -v '#' in/i586bitbuilddeps1 in/kmps` ; do FORCE=1 tools/submitpackageupdate "$$p" ; done
 	echo "notify https://www.reddit.com/r/openSUSE_Slowroll/ about version bump in progress"
-	##tools/cleanuprepo $$slo:Staging
-	##tools/cleanuprepo $$slo
+	##tools/cleanuprepo ${slo}
 	##rm -f out/pending/*
-	#for p in $(osc ls $slo|grep -v :|sort -r) ; do echo "$p"; tools/syncslo-postbump "$p" ; done | tee out/log/syncslo-postbump-$(date -I)
+	#for p in $(osc ls ${slo}|grep -v :|sort -r) ; do echo "$p"; tools/syncslo-postbump "$p" ; done | tee out/log/syncslo-postbump-$(date -I)
 	#grep ^osc.rdelete out/log/syncslo-postbump-$(date -I)| time parallel --jobs 20 --pipe --block 4k sh
-	#for p in $(osc ls $slo|grep -v :|sort -r) ; do echo "$p"; dry=" " tools/syncslo-postbump "$p" ; done | tee out/log/syncslo-postbump-$(date -I)b
+	#for p in $(osc ls ${slo}|grep -v :|sort -r) ; do echo "$p"; dry=" " tools/syncslo-postbump "$p" ; done | tee out/log/syncslo-postbump-$(date -I)b
 	##tools/syncslos-postbump
 	##for p in `cat in/i586bitbuilddeps` ; do touch out/pending/$p ; done
 	##touch out/pending/000release-packages # and update the version numbers in there
@@ -81,9 +81,7 @@ newsnapshot4: # with new $slobuild
 	find out/pending/ -mtime +1 -delete
 	rm -f cache/changelog/* cache/changelogdiff/* cache/triggeronurlchange/http*
 	##echo "enable keepobsolete Flag in https://build.opensuse.org/projects/openSUSE:Slowroll/prjconf" # leave enabled. When publishing is enabled, it does not matter.
-	# osc copypac openSUSE:Factory kiwi-templates-Minimal $slobuild # for openQA # needs adaptation
-	##for p in $(osc ls $slo:Staging) ; do echo "$p"; tools/syncslos-postbump "$p" ; done | tee out/log/syncslos-postbump-$(date -I)
-	##tools/syncslo-postbump2 | tee out/log/syncslo-postbump2-$(date -I)
+	# osc copypac openSUSE:Factory kiwi-templates-Minimal ${slobuild} # for openQA # needs adaptation
 newsnapshot8: # on day of bump
 	tools/switchbase openSUSE:Slowroll # update https://build.opensuse.org/projects/openSUSE:Slowroll/meta Build:N refs
 	tools/switchbase # update https://build.opensuse.org/projects/openSUSE:Slowroll:Base/meta Build:N refs
@@ -98,7 +96,6 @@ newsnapshot8: # on day of bump
 	echo "wait for Packman to finish building https://pmbs.links2linux.de/project/show/Essentials"
 newsnapshot9:
 	tools/syncslo-post2 # enable publishing of update repo
-	tools/switchbase ${slo}:Base:Next
 	echo 'on screen mirror@pontifex: dry=" " /usr/local/bin/slowroll-snapshot-2'
 	#https://download.opensuse.org/download/update/slowroll/repo/oss/x86_64/ => "repo" link => "Clear cached info about mirrors" # also mirrorcache-us,br,au ; or find other solution for replaced rpms
 	echo "re-scan mirrors login for https://download.opensuse.org/slowroll/repo/oss/ noarch + x86_64"
@@ -106,6 +103,8 @@ newsnapshot9:
 	#echo "enable cron jobs"
 	rm -f .blockcron
 	echo "switch slowroll-next/slowroll in https://build.opensuse.org/projects/openSUSE:Slowroll:Base:1+2/meta"
+	tools/switchbase ${slo}:Base:Next
+	echo "ensure ${slobuild} builds for ${slo} and not just ${slobase}"
 	echo "notify reddit of completion"
 
 cache/ring0:
