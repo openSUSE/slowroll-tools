@@ -280,7 +280,6 @@ ldacBT
 ldb
 leptonica
 leveldb
-libFS
 libGLw
 libICE
 libSM
@@ -737,7 +736,6 @@ python-setuptools
 python310
 python311
 python312
-python38
 python39
 qrencode
 qtcurve

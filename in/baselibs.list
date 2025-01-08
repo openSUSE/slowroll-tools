@@ -290,7 +290,6 @@ libfabric
 libffi
 libfontenc
 libfprint
-libFS
 libgcrypt
 libgdata
 libgee
@@ -661,7 +660,6 @@ pulseaudio
 python310
 python311
 python312
-python38
 python39
 python
 qrencode
