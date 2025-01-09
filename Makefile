@@ -38,7 +38,6 @@ newsnapshot1: # on day of TW snapshot (~6d ahead of bump)
 	./processbuildinfo
 	go run cmd/processbuildinfo.go
 
-	##tools/syncslob
 	#osc ls -vb ${slobase}|grep "Apr.*debugsource" > /tmp/slob ; tools/obsrsync $(perl -ne 'm/.* (.*)-debugsource.rpm/ && print "$1\n"' < /tmp/slob)
 	osc linkpac openSUSE:Slowroll:Build:Overlay 000release-packages ${slobuild}
 	echo "update _link in ${slobuild} 000release-packages with new vrev= to match the TW snapshot on bernhard@adrian:~/code/osc/maint/openSUSE:Slowroll:Build:1/000release-packages with ./.up.sh && osc ci --noservice -m update"
@@ -59,26 +58,16 @@ newsnapshot3: # with old $slobuild
 	#echo "disable cron jobs"
 	touch .blockcron
 	curl https://downloadcontent.opensuse.org/repositories/openSUSE:/ALP:/Experimental:/Slowroll/base-next-full/repo/src-oss/src/.slowroll > cache/slowroll-base.disturls
-	##echo "adapt tools/syncslo-postbump files"
 newsnapshot4: # with new $slobuild
 	cp -a ~/.slorc.next ~/.slorc
 	echo "review in/never-update-exceptions"
 	tools/syncslo-pre
-	##for p in `cat in/javabuilddeps |grep -v '#'` ; do tools/releasemulti openSUSE:Factory ${slobase} "$$p" ; done # replaced by obsrsync
 	set -x ; for p in `grep -h -v '#' in/i586bitbuilddeps1 in/kmps` ; do FORCE=1 tools/submitpackageupdate "$$p" ; done
 	echo "notify https://www.reddit.com/r/openSUSE_Slowroll/ about version bump in progress"
-	##tools/cleanuprepo ${slo}
-	##rm -f out/pending/*
 	#for p in $(osc ls ${slo}|grep -v :|sort -r) ; do echo "$p"; tools/syncslo-postbump "$p" ; done | tee out/log/syncslo-postbump-$(date -I)
-	#grep ^osc.rdelete out/log/syncslo-postbump-$(date -I)| time parallel --jobs 20 --pipe --block 4k sh
-	#for p in $(osc ls ${slo}|grep -v :|sort -r) ; do echo "$p"; dry=" " tools/syncslo-postbump "$p" ; done | tee out/log/syncslo-postbump-$(date -I)b
-	##tools/syncslos-postbump
-	##for p in `cat in/i586bitbuilddeps` ; do touch out/pending/$p ; done
-	##touch out/pending/000release-packages # and update the version numbers in there
+	#for p in $(osc ls ${slo}|grep -v :|sort -r) ; do echo "$p"; dry=" " tools/syncslo-postbump "$p" ; done 2>&1 | tee out/log/syncslo-postbump-$(date -I)b
 	tools/releasemulti ${slo}:Base:Next ${slo}:Base 000release-packages # for NET iso
-	touch out/pending/000release-packages
 
-	##echo "adapt and run tools/syncbase | bash -x"
 	find out/pending/ -mtime +1 -delete
 	rm -f cache/changelog/* cache/changelogdiff/* cache/triggeronurlchange/http*
 	##echo "enable keepobsolete Flag in https://build.opensuse.org/projects/openSUSE:Slowroll/prjconf" # leave enabled. When publishing is enabled, it does not matter.
