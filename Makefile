@@ -20,7 +20,7 @@ select:
 release:
 	tools/releasestaging 2>&1 | tee out/log/release-$$(date -Iseconds)
 
-newsnapshot1: # on day of TW snapshot (~6d ahead of bump)
+newsnapshot1: # on day of TW snapshot (~6d ahead of bump) # source slorc.next
 	osc api -X DELETE /source/${slobase}/_project/_frozenlinks\?meta=1
 	osc api -X POST /source/${slobase}?cmd=freezelink
 	# sync prjconf from Factory to Base
@@ -94,6 +94,7 @@ newsnapshot9:
 	rm -f .blockcron
 	echo "switch slowroll-next/slowroll in https://build.opensuse.org/projects/openSUSE:Slowroll:Base:1+2/meta"
 	tools/switchbase ${slo}:Base:Next
+	tr 12 21 <~/.slorc >~/.slorc.next
 	echo "ensure ${slobuild} builds for ${slo} and not just ${slobase}"
 	echo "notify reddit of completion"
 
