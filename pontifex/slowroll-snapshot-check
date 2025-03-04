@@ -1,0 +1,11 @@
+#!/bin/sh
+newver=$(perl -pe 's/.* (20\d{6})-./$1/' /srv/ftp-stage/pub/opensuse/tumbleweed/repo/oss/media.1/products)
+havever=$(perl -pe 's/.* (20\d{6})-./$1/' /srv/ftp-stage/pub/opensuse/slowroll/next/repo/oss/media.1/products)
+wantver=$(curl -s https://www.zq1.de/slowroll/nextsnapshot)
+
+#echo "wantver=$wantver newver=$newver havever=$havever"
+
+if [ "$wantver" != "$havever" -a "$newver" = "$wantver" ] ; then
+        echo "Taking snapshot"
+        /usr/local/bin/slowroll-snapshot
+fi
