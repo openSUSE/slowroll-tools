@@ -1,0 +1,58 @@
+#!/usr/bin/perl -w
+# usage: tools/generate-rbos-conflicts > cache/RBOS-conflicts.spec
+use strict;
+
+#system("cd cache ; wget -N https://rb.zq1.de/compare.factory/differed-builds-nachbau.txt");
+
+# packages in ring0+1 are excluded, because RBOS covers them in a reproducible version
+#system("cd cache ; wget -N https://rb.zq1.de/RBOS/ring{0,1}.ls");
+
+my $ring01=`cat cache/ring0.ls cache/ring1.ls`;
+my %ring01;
+foreach(split(/\n/,$ring01)) {
+    $ring01{$_} = 1;
+}
+
+my $header =
+'#
+# spec file for package RBOS-conflicts
+#
+# Copyright (c) 2025 SUSE LLC.
+#
+# All modifications and additions to the file contributed by third parties
+# remain the property of their copyright owners, unless otherwise agreed
+# upon. The license for this file, and modifications and additions to the
+# file, is the same license as for the pristine package itself (unless the
+# license for the pristine package is not an Open Source License, in which
+# case the license is the MIT License). An "Open Source License" is a
+# license that conforms to the Open Source Definition (Version 1.9)
+# published by the Open Source Initiative.
+
+Name:           RBOS-conflicts
+Version:        1
+Release:        0
+License:        MIT
+Summary:        Prevent installation of unreproducible packages
+';
+my $footer =
+'
+%description
+based on https://rb.zq1.de/compare.factory/differed-builds-nachbau.txt
+
+%build
+echo Prevent installation of unreproducible packages for RBOS > README
+
+%files
+%defattr(-,root,root)
+%doc README
+';
+
+open(my $f, "<", "cache/differed-builds-nachbau.txt") or die $!;
+
+print $header;
+while(<$f>) {
+    chomp($_);
+    next if $ring01{$_};
+    print "Conflicts: $_\n";
+}
+print $footer;
