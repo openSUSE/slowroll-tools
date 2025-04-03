@@ -1,6 +1,7 @@
 #!/bin/sh
 newver=$(perl -pe 's/.* (20\d{6})-./$1/' /srv/ftp-stage/pub/opensuse/tumbleweed/repo/oss/media.1/products)
 havever=$(perl -pe 's/.* (20\d{6})-./$1/' /srv/ftp-stage/pub/opensuse/slowroll/next/repo/oss/media.1/products)
+haveoldver=$(perl -pe 's/.* (20\d{6})-./$1/' /srv/ftp-stage/pub/opensuse/slowroll/repo/oss/media.1/products)
 wantver=$(curl -s https://www.zq1.de/slowroll/nextsnapshot)
 
 #echo "wantver=$wantver newver=$newver havever=$havever"
@@ -8,4 +9,9 @@ wantver=$(curl -s https://www.zq1.de/slowroll/nextsnapshot)
 if [ "$wantver" != "$havever" -a "$newver" = "$wantver" ] ; then
         echo "Taking snapshot"
         /usr/local/bin/slowroll-snapshot
+fi
+
+# check /srv/ftp/pub/opensuse/update/slowroll/repo/oss/x86_64/openSUSE-release-$wantver-* for new version that matches $next
+if [ "$wantver" != "$haveoldver" -a -e /srv/ftp/pub/opensuse/update/slowroll/repo/oss/x86_64/openSUSE-release-$wantver-* ] ; then
+        echo "TODO: running /usr/local/bin/slowroll-snapshot-2"
 fi
