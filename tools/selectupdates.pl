@@ -120,11 +120,11 @@ foreach my $pkg (sort keys (%{$versionclass})) {
         diag "openSUSE patch update in $pkg $deps";
         # patch-updates should remain compatible
         $delay *= 0.7;
-    } elsif ($vercmp == 63) {
-        diag "upstream patchlevel update in $pkg $deps";
+    } elsif ($vercmp == 63 && !$exceptions{nopatchlevel}{$pkg}) {
+        diag "upstream patchlevel update a in $pkg $deps";
         # patchlevel-updates should remain compatible
-    } elsif ($vercmp >= 3) {
-        diag "upstream patchlevel update in $pkg $deps";
+    } elsif ($vercmp >= 3 && !$exceptions{nopatchlevel}{$pkg}) {
+        diag "upstream patchlevel update b in $pkg $deps";
         # TODO patchlevel update
     } elsif ($vercmp == 2 && $exceptions{minor}{$pkg}) {
         diag "upstream minor update exception for $pkg"
