@@ -118,7 +118,7 @@ cache/factory-i586-binaries:
 	osc ls -vb --arch i586 openSUSE:Factory > $@
 
 branchrb0: cache/ring0
-	for p in $$(grep -v -e : -e '^rpm$$' cache/ring0) ; do \
+	for p in $$(grep -v -e : -e '^rpm$$' cache/ring0) rpm ; do \
 	  slobuild=${RBOS}:ring0 bash -x tools/submitpackageupdate $$p ;\
 	done
 	osc copypac home:bmwiedemann:reproducible:distribution:ring0/000pbuildconf ${RBOS}:ring0

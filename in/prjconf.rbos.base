@@ -8,3 +8,6 @@ Macros:
 %_buildhost reproducible
 %no_store_expanded_spec 1
 :Macros
+
+Prefer: perl-rpm-packaging
+Prefer: python313-packaging
