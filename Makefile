@@ -119,18 +119,19 @@ cache/factory-i586-binaries:
 
 branchrb0: cache/ring0
 	for p in $$(grep -v -e : -e '^rpm$$' cache/ring0) ; do \
-	  slobuild=$(RBOS):ring0 bash -x tools/submitpackageupdate $$p ;\
+	  slobuild=${RBOS}:ring0 bash -x tools/submitpackageupdate $$p ;\
 	done
+	osc copypac home:bmwiedemann:reproducible:distribution:ring0/000pbuildconf ${RBOS}:ring0
 
 branchrb1: cache/ring1
 	for p in $$(grep -v -e : -e '^rpm$$' cache/ring1) ; do \
-	  slobuild=$(RBOS):ring1 bash -x tools/submitpackageupdate $$p ;\
+	  slobuild=${RBOS}:ring1 bash -x tools/submitpackageupdate $$p ;\
 	done
 
 rbosbaseprjconf:
 	osc meta prjconf openSUSE:Factory > .tmp
 	cat in/prjconf.rbos.base >> .tmp
-	osc meta prjconf -F .tmp $(RBOS):base
+	osc meta prjconf -F .tmp ${RBOS}:base
 
 cache/minimalvm.srpms: in/minimalvm.rpms
 	tools/bin2src `cat $<` | cut -d: -f1 | sort -u > $@
