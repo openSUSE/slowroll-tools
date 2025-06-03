@@ -127,5 +127,10 @@ branchrb1: cache/ring1
 	  slobuild=$(RBOS):ring1 bash -x tools/submitpackageupdate $$p ;\
 	done
 
+rbosbaseprjconf:
+	osc meta prjconf openSUSE:Factory > .tmp
+	cat in/prjconf.rbos.base >> .tmp
+	osc meta prjconf -F .tmp $(RBOS):base
+
 cache/minimalvm.srpms: in/minimalvm.rpms
 	tools/bin2src `cat $<` | cut -d: -f1 | sort -u > $@

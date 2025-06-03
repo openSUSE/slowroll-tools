@@ -1,0 +1,10 @@
+#Preinstall: rpm-config-SUSE-reproducible-builds
+
+Macros:
+%source_date_epoch_from_changelog Y
+%set_mtime_to_source_date_epoch Y
+%build_mtime_policy clamp_to_buildtime
+%_buildtime %{getenv:SOURCE_DATE_EPOCH_MTIME}
+%_buildhost reproducible
+%no_store_expanded_spec 1
+:Macros
