@@ -11,12 +11,15 @@ basedisturls=cache/slowroll-base.disturls
 factoryjson=cache/view/factory.json
 : ${dry:=echo}
 
-xpkg=$(echo "$pkg" | perl -pe 's/\.2024\d{10}//') # handle maintenance release naming FIXME update in 2025
+. tools/osc.sh
+
+xpkg=$(echo "$pkg" | perl -pe 's/\.202[45]\d{10}//') # handle maintenance release naming FIXME update in 2026
 
 if [ "$xpkg" = "$pkg" ] ; then
-    osc ls $prj "$pkg" 2>&1 | grep -q "cannot be expanded:" &&
-        echo "drop dangling link" $prj "$pkg" &&
-        $dry osc rdelete --force -m "drop-dangling-link" $prj "$pkg"
+    osc_api "source/$prj/$pkg" 2>&1 | grep -q '<linkinfo .*error=.*does not exist' &&
+        echo "drop dangling link $prj/$pkg" &&
+        $dry osc_delete "source/$prj/$pkg?force=1&comment=drop-dangling-link"
+        #$dry osc rdelete --force -m "drop-dangling-link" $prj "$pkg"
     exit 0
 fi
 
@@ -33,16 +36,19 @@ if ! grep -q "^$xpkg$" in/dont-delete in/i586bitbuilddeps1 in/kmps ; then
 
 #if [ $isfactory = 0 ] ; then
     echo "dropping $pkg"
-    $dry osc rdelete --force -m "rebased" $prj "$pkg"
+    $dry osc_delete "source/$prj/$pkg?force=1&comment=rebased"
+    #$dry osc rdelete --force -m "rebased" $prj "$pkg"
     exit 0 # done
 #fi
 fi
 
 latest=$(tools/followlink $xpkg)
 if [ "$pkg" != "$latest" ] ; then
-    grep -q "^$xpkg$" in/dont-delete in/kmps && exit 0
+    #grep -q "^$xpkg$" in/dont-delete in/kmps && exit 0
+    grep -q "^$xpkg$" in/dont-delete2 in/kmps && exit 0
     echo "drop old version" "$prj" "$pkg"
-    $dry osc rdelete --force -m "drop-old-version" "$prj" "$pkg"
+    $dry osc_delete "source/$prj/$pkg?force=1&comment=drop-old-version"
+    #$dry osc rdelete --force -m "drop-old-version" "$prj" "$pkg"
     exit 0
 fi
 
@@ -55,8 +61,9 @@ if [[ $rev = $frev ]] ; then
     grep -q "^$xpkg$" in/i586bitbuilddeps1 && exit 0
     $dry tools/releasemulti $srcprj $prj "$xpkg"
     grep -q "^$xpkg$" in/dont-delete in/kmps && exit 0
-    $dry osc rdelete --force -m "updated-from-Factory" "$prj" "$pkg"
+    $dry osc_delete "source/$prj/$pkg?force=1&comment=updated-from-Factory"
+    #$dry osc rdelete --force -m "updated-from-Factory" "$prj" "$pkg"
 else
-    echo "XX mismatch in $pkg $rev vs $frev"
+    echo "XX mismatch in $pkg $rev vs $frev => submitting as update"
     $dry tools/submitpackageupdate "$xpkg" "$rev"
 fi

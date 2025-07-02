@@ -9,21 +9,4 @@ branding-openSUSE
 
 # temp rb:
 
-
-# keep secure-boot sig
-kernel-64kb
-kernel-debug
-kernel-default
-kernel-default-base
-kernel-docs
-kernel-kvmsmall
-kernel-lpae
-kernel-obs-build
-kernel-obs-qa
-kernel-pae
-kernel-source
-kernel-syms
-kernel-vanilla
-kernel-zfcpdump
-
 # i586

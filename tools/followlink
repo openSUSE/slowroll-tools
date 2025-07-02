@@ -3,4 +3,6 @@
 # so to find the actual latest version, we have to follow the _link
 : ${prj:=$slo}
 pkg=$1
-osc cat -u "$prj" "$pkg" _link | perl -ne 'if(m/<link +package="([^"]+)"/) {print "$1\n"; exit 0}'
+. tools/osc.sh
+osc_api "source/$prj/$pkg/_link" |
+  perl -ne 'if(m/<link +package="([^"]+)"/) {print "$1\n"; exit 0}'

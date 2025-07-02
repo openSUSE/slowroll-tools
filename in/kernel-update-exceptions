@@ -1,8 +1,0 @@
-# unreproducible - take from Factory to keep signatures for secure-boot
-kernel-default-base
-kernel-source
-kernel-source-longterm
-
-grub2
-systemd
-xen

@@ -13,6 +13,7 @@ mbedtls
 miniupnpc
 pam_wrapper
 pcsc-acr38
+perl-rpm-packaging
 rust-cbindgen
 trousers
 txt2man
@@ -35,6 +36,8 @@ nasm
 rust-bindgen
 rust
 rust1.73
+rust1.82
+rust1.83
 spirv-llvm-translator
 xorg-cf-files
 fftw3

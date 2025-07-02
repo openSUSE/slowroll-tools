@@ -1,2 +1,3 @@
 #!/bin/sh
-for p in kernel-source kernel-firmware kernel-default-base "$@" $(grep -v '#' in/kmps) ; do tools/releasemulti openSUSE:Factory $slo "$p" ; done
+#$(grep -v '#' in/kmps)
+for p in kernel-source kernel-firmware kernel-default-base "$@" ; do tools/releasemulti openSUSE:Factory $slo "$p" ; done

@@ -11,7 +11,6 @@ use XML::Bare;
 use lib 'lib';
 use common;
 
-
 my $src = $ENV{syncsource} || "openSUSE:Factory";
 my $dest = $ENV{slobase};
 my $maxmtime = $ENV{maxmtime};
@@ -54,6 +53,7 @@ process_binaryversions($destref);
 
 my %submitted;
 for my $pkg (@pkgs) {
+    diag("pkg:$pkg");
     next if $submitted{$pkg}++;
     my $allsynced = 1;
     foreach my $bin (@{$allbins{$pkg}}) {

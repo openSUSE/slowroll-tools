@@ -1,3 +1,4 @@
+crun
 curl
 go
 gpp
@@ -6,10 +7,15 @@ kubo
 matrix-synapse
 mozilla-nss
 mozjs115
+mozjs128
 nghttp2
 nvidia-open-driver-G06-signed
 nodejs20
+nodejs22
+nodejs23
+nodejs24
 nodejs-electron
+openssh
 perl-Mojolicious
 pgadmin4
 picard
@@ -22,5 +28,7 @@ postgresql17
 python-gevent
 redis
 squid
+trivy
 wireshark
 yt-dlp
+rsync

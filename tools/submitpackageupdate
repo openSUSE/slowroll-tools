@@ -5,6 +5,8 @@ rev=${2:-latest}
 srcprj=openSUSE:Factory
 dstprj=$slobuild
 
+. tools/osc.sh
+
 if [ -z "$pkg" ] ; then
     echo "Usage: $0 PKG"
     echo "submits a package named PKG from Tumbleweed to Slowroll"
@@ -12,9 +14,8 @@ if [ -z "$pkg" ] ; then
 fi
 
 if [ $rev = latest ] ; then
-    rev=$(osc log $srcprj "$pkg" |
-        head -2 |tail -1 |
-	grep -E -o ' [a-f0-9]{32} ' | sed 's/ //g')
+    rev=$(osc_api "source/$srcprj/$pkg/_history?limit=1" |
+          perl -ne 'm/<srcmd5>([0-9a-f]+)</ and print "$1"')
 fi
 
 # find out if it has any diff:
