@@ -22,7 +22,7 @@ release:
 	tools/releasestaging 2>&1 | tee out/log/release-$$(date -Iseconds)
 
 newsnapshot1: # before or on day of TW snapshot (~6d ahead of bump) # source slorc.next
-	osc api -X DELETE /source/${slobase}/_project/_frozenlinks\?meta=1
+	osc api -X DELETE /source/${slobase}/_project/_frozenlinks\?meta=1 ; sleep 5
 	osc api -X POST /source/${slobase}?cmd=freezelink
 	# sync prjconf from Factory to Base
 	echo "sync meta prjconf from Factory to Slowroll:Base:N"
@@ -44,7 +44,7 @@ newsnapshot1: # before or on day of TW snapshot (~6d ahead of bump) # source slo
 	tools/releasemulti openSUSE:Slowroll:Build:Overlay ${slo}:Base:Next branding-openSUSE
 newsnapshot2:
 	tools/triggernextsnapshot
-	# alternatively on pontifex2 run /usr/local/bin/slowroll-snapshot as 'mirror' user or update vm12:/srv/www/slowroll/nextsnapshot
+	# alternatively on mirror@pontifex run /usr/local/bin/slowroll-snapshot as 'mirror' user or update vm12:/srv/www/slowroll/nextsnapshot
 	# TODO keep backup of old /update/slowroll for analysis ; on stage3 /srv/ftp/pub/opensuse-old/
 	echo update Release: line in osc meta -e prjconf ${slobuild}
 	osc wipebinaries --all ${slobuild}
@@ -55,6 +55,7 @@ newsnapshot2:
 	# tools/releasemulti openSUSE:Slowroll:Build:Overlay ${slo}:Base:Next branding-openSUSE ; tools/releasemulti ${slobuild} ${slo}:Base:Next 000release-packages
 	echo 'cd ~/code/osc/openSUSE:Slowroll:Build:iso/000product && ./update.sh && osc ci --noservice -m update'
 	echo 'sync skelcd-control-openSUSE-Slowroll yast2-installation-control installation-images' # https://github.com/yast/skelcd-control-openSUSE-Slowroll/pull/6
+	cd ~/code/osc/openSUSE:Slowroll:Build:iso/installation-images && sh ./update.sh && osc ci --noservice -m update
 	# build+test DVD in openSUSE:Slowroll:Build:iso
 newsnapshot2b:
 	osc rbl openSUSE:Slowroll:Build:iso/000product:openSUSE-dvd5-dvd-x86_64 images x86_64 | perl -ne 'if(/\[W\]   (\S+) not available for /){print "$$1\n"}' | sort -u >> in/missing-dvd-rpms-${DATE}
@@ -79,12 +80,12 @@ newsnapshot4: # with new $slobuild
 	##echo "enable keepobsolete Flag in https://build.opensuse.org/projects/openSUSE:Slowroll/prjconf" # leave enabled. When publishing is enabled, it does not matter.
 	# osc copypac openSUSE:Factory kiwi-templates-Minimal ${slobuild} # for openQA # needs adaptation
 	for p in $$(osc ls ${slo}|grep -v :|sort -r) ; do echo "$$p"; tools/syncslo-postbump "$$p" ; done | tee out/log/syncslo-postbump-${DATE}
+	tools/switchbase openSUSE:Slowroll # update https://build.opensuse.org/projects/openSUSE:Slowroll/meta Build:N refs
+	tools/switchbase # update https://build.opensuse.org/projects/openSUSE:Slowroll:Base/meta Build:N refs
 	echo make newsnapshot4b
 newsnapshot4b:
 	for p in $$(osc ls ${slo}|grep -v :|sort -r) ; do echo "$$p"; dry=' ' tools/syncslo-postbump "$$p" ; done | tee out/log/syncslo-postbump-${DATE}b
 newsnapshot8: # on day of bump
-	tools/switchbase openSUSE:Slowroll # update https://build.opensuse.org/projects/openSUSE:Slowroll/meta Build:N refs
-	tools/switchbase # update https://build.opensuse.org/projects/openSUSE:Slowroll:Base/meta Build:N refs
 	osc release --no-delay openSUSE:Slowroll:Base:Next -r standard
 	tools/releasemulti ${slo}:Base:Next ${slo} 000release-packages
 	##echo "edit tools/diffdistro and tools/selectupdates.pl with slowroll/next as baseurl; make daily" # does not work: slowroll/next does not exist on stage3 to fetch changelogs
