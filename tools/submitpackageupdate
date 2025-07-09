@@ -23,7 +23,8 @@ if [[ $FORCE ]] || [[ -n `PAGER="wc -c" osc rdiff --missingok -r $rev $srcprj "$
     export rev
     vrev=`tools/findcireleasecounter $srcprj $pkg`
     echo "submitting $pkg $vrev ..."
-    osc branch -f -r $rev --nodevelproject $srcprj "$pkg" $dstprj
+    osc branch -f -r $rev --nodevelproject $srcprj "$pkg" $dstprj ||
+        osc linkpac -f -r $rev $srcprj "$pkg" $dstprj
     if [[ -n "$vrev" ]] ; then
         osc setlinkrev --vrev "$vrev.0" -r $rev $dstprj "$pkg"
     fi
