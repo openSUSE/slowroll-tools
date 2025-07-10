@@ -45,6 +45,8 @@ echo Prevent installation of unreproducible packages for RBOS > README
 %files
 %defattr(-,root,root)
 %doc README
+
+%changelog
 ';
 
 open(my $f, "<", "cache/differed-builds-nachbau.txt") or die $!;
