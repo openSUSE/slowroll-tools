@@ -4,7 +4,7 @@
 # usage: dry=" " slowroll-snapshot-2
 b=/srv/ftp/pub/opensuse
 : ${dry:=echo}
-nversion=$(cut -c 12-19 $b/repositories/openSUSE\:/ALP\:/Experimental\:/Slowroll/base-next/media.1/products)
+nversion=$(cat $b/repositories/openSUSE\:/ALP\:/Experimental\:/Slowroll/base-next/media.1/products | cut -d" " -f3|cut -c1-8 )
 d1=$b/repositories/openSUSE\:/ALP\:/Experimental\:/Slowroll/base."$nversion"
 
 # wait for publish of update repo:

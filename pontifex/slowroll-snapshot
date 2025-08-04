@@ -3,8 +3,8 @@
 # but are deployed on pontifex to create snapshots of Tumbleweed in an efficient manner
 b=/srv/ftp-stage/pub/opensuse
 b2=/srv/ftp/pub/opensuse
-oversion=$(cut -c 12-19 $b/slowroll/repo/oss/media.1/products)
-nversion=$(cut -c 12-19 $b/tumbleweed/repo/oss/media.1/products)
+oversion=$(cat $b/slowroll/repo/oss/media.1/products | cut -d" " -f3|cut -c1-8 )
+nversion=$(cat $b/tumbleweed/repo/oss/media.1/products | cut -d" " -f3|cut -c1-8)
 d1=/srv/ftp-stage/pub/opensuse/repositories/openSUSE\:/ALP\:/Experimental\:/Slowroll/
 d2=/srv/ftp/pub/opensuse/repositories/openSUSE\:/ALP\:/Experimental\:/Slowroll/
 rsync -a --delete $d1/base."$oversion"/repo/ $b/slowroll/repo/
