@@ -74,5 +74,6 @@ unzip
 hicolor-icon-theme
 maven-plugin-plugin-bootstrap
 maven-surefire-plugin-bootstrap
+maven-surefire
 libXxf86dga
 allegro44

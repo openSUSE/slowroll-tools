@@ -48,8 +48,9 @@ newsnapshot2:
 	# TODO keep backup of old /update/slowroll for analysis ; on stage3 /srv/ftp/pub/opensuse-old/
 	echo update Release: line in osc meta -e prjconf ${slobuild}
 	osc wipebinaries --all ${slobuild}
-	echo 'on slowrollbot@opensusevm: cd ~/code/osc/openSUSE:Slowroll:Build:Overlay/000release-packages && ./update.sh && osc ci --noservice'
-	echo "update _link in ${slobuild} 000release-packages with new vrev= to match the TW snapshot on bernhard@adrian:~/code/osc/maint/openSUSE:Slowroll:Build:1/000release-packages or ~/code/osc/${slobuild}/000release-packages with sh ./updatevrev.sh"
+	#echo 'on slowrollbot@opensusevm: cd ~/code/osc/openSUSE:Slowroll:Build:Overlay/000release-packages && ./update.sh && osc ci --noservice'
+	(cd ~/code/osc/openSUSE:Slowroll:Build:Overlay/000release-packages && osc up && ./update.sh && osc ci --noservice -m update)
+	#echo "update _link in ${slobuild} 000release-packages with new vrev= to match the TW snapshot on bernhard@adrian:~/code/osc/maint/openSUSE:Slowroll:Build:1/000release-packages or ~/code/osc/${slobuild}/000release-packages with sh ./updatevrev.sh"
 	(cd ~/code/osc/${slobuild}/000release-packages && osc up && sh updatevrev.sh)
 	tools/cleanuprepo ${slobuild} # with next config
 	# tools/releasemulti openSUSE:Slowroll:Build:Overlay ${slo}:Base:Next branding-openSUSE ; tools/releasemulti ${slobuild} ${slo}:Base:Next 000release-packages
@@ -64,7 +65,7 @@ newsnapshot2b:
 newsnapshot3: # with old $slobuild
 	tools/syncslo-pre
 	tools/getrepoviews
-	#echo "disable cron jobs"
+	#echo "disabling cron jobs..."
 	touch .blockcron
 	curl https://downloadcontent.opensuse.org/repositories/openSUSE:/ALP:/Experimental:/Slowroll/base-next-full/repo/src-oss/src/.slowroll > cache/slowroll-base.disturls
 newsnapshot4: # with new $slobuild
@@ -91,8 +92,9 @@ newsnapshot8: # on day of bump
 	##echo "edit tools/diffdistro and tools/selectupdates.pl with slowroll/next as baseurl; make daily" # does not work: slowroll/next does not exist on stage3 to fetch changelogs
 	osc release ${slo}:Build:iso --target-project=${slo} 000product --target-repository=images -r images
 	tools/syncslo-post # let it build
-	sleep 90m && DRYRUN=0 make release && make newsnapshot8b
+	sleep 90m && make newsnapshot8b
 newsnapshot8b: # on day of bump
+	DRYRUN=0 make release
 	tools/releasemulti ${slobuild} ${slo}:Base AMF # for Packman
 	osc wipebinaries -a x86_64 ${slo}:Base AMF
 	echo "wait for Packman to finish building https://pmbs.links2linux.de/project/show/Essentials"
@@ -108,9 +110,9 @@ newsnapshot9:
 	echo "switch slowroll-next/slowroll in https://build.opensuse.org/projects/openSUSE:Slowroll:Base:1+2/meta"
 	tools/switchbase ${slo}:Base:Next
 	tr 12 21 <~/.slorc >~/.slorc.next
-	tools/newsnapshot9
 	echo "ensure ${slobuild} builds for ${slo} and not just ${slobase}"
 	echo "notify reddit of completion"
+	tools/newsnapshot9
 
 cache/ring0:
 	osc ls openSUSE:Factory:Rings:0-Bootstrap > $@

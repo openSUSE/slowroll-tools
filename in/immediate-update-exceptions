@@ -2,6 +2,11 @@
 binutils
 gcc13
 gcc14
+gcc15
+gcc16
+llvm19
+llvm20
+llvm21
 
 aquamarine
 hyprcursor

@@ -7,7 +7,7 @@ if [[ $? != 0 ]] ; then
     exit 12
 fi
 while sleep 60 ; do
-    nextver=$(curl -s https://download.opensuse.org/slowroll/next/repo/oss/media.1/products | cut -c 12-19)
+    nextver=$(curl -s https://download.opensuse.org/slowroll/next/repo/oss/media.1/products | perl -pe 's/.* (20\d{6})-./$1/' )
     if [[ $nextver = $ver ]] ; then
         break
     fi
