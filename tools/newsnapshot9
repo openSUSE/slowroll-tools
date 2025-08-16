@@ -1,0 +1,4 @@
+#!/bin/sh
+: ${slon:=$1}
+echo "$slon" |
+  ssh slowroll@vm12cg.zq1.de. dd of=/srv/www/slowroll/n

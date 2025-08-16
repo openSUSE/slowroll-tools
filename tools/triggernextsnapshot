@@ -1,7 +1,7 @@
 #!/bin/sh
 ver=$(curl -s https://api.opensuse.org/public/source/openSUSE:Slowroll:Base:Next/000product/openSUSE.product|grep '<version>2'|grep -o '[0-9]*')
 echo "preparing to take snapshot of version $ver... can take some hours until pontifex picks it up"
-echo "$ver" | ssh bernhard@vm12cg.zq1.de. dd of=/srv/www/slowroll/nextsnapshot
+echo "$ver" | ssh slowroll@vm12cg.zq1.de. dd of=/srv/www/slowroll/nextsnapshot
 if [[ $? != 0 ]] ; then
     echo "failed - please check + retry"
     exit 12
