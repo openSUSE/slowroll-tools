@@ -1,5 +1,6 @@
 crun
 curl
+fractal
 go
 gpp
 hostapd
@@ -9,7 +10,6 @@ mozilla-nss
 mozjs115
 mozjs128
 nghttp2
-nvidia-open-driver-G06-signed
 nodejs20
 nodejs22
 nodejs23

@@ -1,12 +1,19 @@
 # some toolchain packages we want to keep updated to not have our builds deviate too much from openSUSE:Factory
 binutils
+cmake
 gcc13
 gcc14
 gcc15
 gcc16
+gcc17
+gcc18
+llvm15
+llvm18
 llvm19
 llvm20
 llvm21
+llvm22
+llvm23
 
 aquamarine
 hyprcursor

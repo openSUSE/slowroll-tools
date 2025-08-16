@@ -5,6 +5,7 @@ cargo-audit-advisory-db
 chromium
 firefox-esr
 kernel-firmware
+nvidia-open-driver-G06-signed
 python-awkward-cpp
 spirv-tools
 stb
