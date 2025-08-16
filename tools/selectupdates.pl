@@ -126,7 +126,7 @@ foreach my $pkg (sort keys (%{$versionclass})) {
     } elsif ($vercmp >= 3 && !$exceptions{nopatchlevel}{$pkg}) {
         diag "upstream patchlevel update b in $pkg $deps";
         # TODO patchlevel update
-    } elsif ($vercmp == 2 && $exceptions{minor}{$pkg}) {
+    } elsif ($vercmp == 2 && ($exceptions{minor}{$pkg} || $exceptions{major}{$pkg})) {
         diag "upstream minor update exception for $pkg"
     } elsif ($exceptions{major}{$pkg}) {
         diag "upstream major update exception for $pkg"
