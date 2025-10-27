@@ -1,0 +1,15 @@
+adwaita-fonts
+cpuinfo
+exfat-utils
+fuse-exfat
+java-binfmt-misc
+gcc14
+gcc15
+llvm20
+lzlib
+perl-DB_File
+python3-curses
+python313
+sdl2-compat
+SDL3
+webp-pixbuf-loader
