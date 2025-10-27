@@ -67,7 +67,7 @@ newsnapshot3: # with old $slobuild
 	tools/getrepoviews
 	#echo "disabling cron jobs..."
 	touch .blockcron
-	curl https://downloadcontent.opensuse.org/repositories/openSUSE:/ALP:/Experimental:/Slowroll/base-next-full/repo/src-oss/src/.slowroll > cache/slowroll-base.disturls
+	curl https://downloadcontent.opensuse.org/slowroll/next-full/base-next-full/repo/src-oss/src/.slowroll > cache/slowroll-base.disturls
 newsnapshot4: # with new $slobuild
 	cp -a ~/.slorc.next ~/.slorc
 	echo "review in/never-update-exceptions"
