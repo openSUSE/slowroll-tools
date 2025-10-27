@@ -15,17 +15,21 @@ llvm21
 llvm22
 llvm23
 
+# Hyprland is still in early development and we just use Factory versions to remain consistent
 aquamarine
 hyprcursor
 hyprgraphics
 hypridle
 hyprland
+hyprland-plugins
 hyprland-protocols
+hyprland-qt-support
 hyprland-qtutils
 hyprlang
 hyprlock
 hyprpaper
 hyprpicker
+hyprpolkitagent
 hyprshot
 hyprutils
 hyprwayland-scanner
