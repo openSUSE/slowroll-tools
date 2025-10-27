@@ -94,12 +94,12 @@ newsnapshot8: # on day of bump
 	tools/syncslo-post # let it build
 	make newsnapshot8b
 newsnapshot8b: # on day of bump
-	osc r -w --xml ${slobuild} >/dev/null
+	( cd / ; osc r -w --xml ${slobuild} >/dev/null )
 	DRYRUN=0 make release
 	tools/releasemulti ${slobuild} ${slo}:Base AMF # for Packman
 	osc wipebinaries -a x86_64 ${slo}:Base AMF
 	echo "wait for Packman to finish building https://pmbs.links2linux.de/project/show/Essentials"
-	osc -A https://pmbs.links2linux.de r -r openSUSE_Slowroll -w --xml Essentials > /dev/null
+	cd / ; osc -A https://pmbs.links2linux.de r -r openSUSE_Slowroll -w --xml Essentials > /dev/null
 newsnapshot9:
 	tools/syncslo-post2 # enable publishing of update repo
 	echo 'on screen mirror@pontifex: dry=" " /usr/local/bin/slowroll-snapshot-2'
