@@ -53,7 +53,12 @@ if [ "$pkg" != "$latest" ] ; then
 fi
 
 echo "updating $pkg"
-rev=$(basename $(grep ^$xpkg\  $basedisturls|cut -d" " -f4) |cut -d- -f1)
+disturl=$(grep ^$xpkg\  $basedisturls|cut -d" " -f4)
+if [ -z "$disturl" ] ; then
+    $dry osc_delete "source/$prj/$pkg?force=1&comment=deleted-in-Factory"
+    exit 0
+fi
+rev=$(basename $disturl |cut -d- -f1)
 frev=$(jq ".[\"$xpkg\"][\"md5\"]" $factoryjson | sed 's/"//g')
 if [[ $rev = $frev ]] ; then
 #if PAGER="wc -c" osc rdiff --missingok -r "$rev" $srcprj "$pkg" $prj | grep -q . ; then # check if there is any diff
