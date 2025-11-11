@@ -626,6 +626,7 @@ mate-menus
 mate-panel
 mate-sensors-applet
 maven-plugin-tools
+maven-surefire
 mbedtls
 mbedtls-2
 miniupnpc
