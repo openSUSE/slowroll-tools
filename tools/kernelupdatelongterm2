@@ -1,0 +1,6 @@
+#!/bin/sh
+cd cache/force-submit
+touch kernel-source-longterm
+for p in $(grep -v '#' ../../in/kmps) ; do
+    touch "$p"
+done
