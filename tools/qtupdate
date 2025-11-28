@@ -1,0 +1,8 @@
+#!/bin/sh
+for p in qt6-3d qt6-base qt6-charts qt6-coap qt6-connectivity qt6-datavis3d qt6-declarative qt6-graphs qt6-grpc qt6-httpserver qt6-imageformats qt6-languageserver qt6-location qt6-lottie qt6-macros qt6-mqtt qt6-multimedia qt6-networkauth qt6-opcua qt6-positioning qt6-qt5compat qt6-quick3d qt6-quick3dphysics qt6-quickeffectmaker qt6-quicktimeline qt6-remoteobjects qt6-scxml qt6-sensors qt6-serialbus qt6-serialport qt6-shadertools qt6-speech qt6-svg qt6-tools qt6-translations qt6-virtualkeyboard qt6-wayland qt6-webchannel qt6-webengine qt6-websockets qt6-webview qmlpluginexports qtdeclarative-imports-provides qt6ct qt6gtk2 qcoro libfm-qt lximage-qt lxqt-archiver python-PyQt6
+do
+    tools/submitpackageupdate "$p"
+done
+
+# rebuild all packages with Qt PRIVATE_API:
+for p in $(cat in/qtprivaterpms) ; do if osc ls $slobuild "$p" >/dev/null ; then touch "out/pending/$p" ; else tools/submitpackageupdate "$p" ; fi ; done
