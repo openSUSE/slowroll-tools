@@ -1,0 +1,2 @@
+#!/bin/sh
+touch "cache/force-submit/$1"

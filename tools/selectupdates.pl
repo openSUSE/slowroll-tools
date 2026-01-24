@@ -141,7 +141,7 @@ foreach my $pkg (sort keys (%{$versionclass})) {
         if($vercmp >=3 or $delay<10*DAY) {
             $delay = 1;
         } else {
-            print "Warning: CVE $diff waiting $delay - manual action might be needed\n";
+            print "Warning: CVE $diff waiting $delay - manual action might be needed:\ntools/submitpackageupdate $pkg\ntools/submitpackageupdatedelayed $pkg\n";
 	}
     }
     if($diff =~ /fix[e ]/i or $diff =~ /bug/i) { $delay *= 0.8125 }
