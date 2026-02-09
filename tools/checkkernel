@@ -1,5 +1,9 @@
 #!/bin/sh
 
 for p in kernel-source kernel-source-longterm ; do
-  osc cat openSUSE:Factory $p $p.spec | grep ^Version
+  echo -n sr: ; osc cat openSUSE:Slowroll $p $p.spec | grep ^Version
+  echo -n tw: ; osc cat openSUSE:Factory $p $p.spec | grep ^Version
 done
+
+# check upstream versions:
+w3m -dump https://kernel.org/ | grep -e stable -e longterm | cut -c1-37|head -3
