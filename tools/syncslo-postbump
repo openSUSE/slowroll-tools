@@ -13,7 +13,7 @@ factoryjson=cache/view/factory.json
 
 . tools/osc.sh
 
-xpkg=$(echo "$pkg" | perl -pe 's/\.202[45]\d{10}//') # handle maintenance release naming FIXME update in 2026
+xpkg=$(echo "$pkg" | perl -pe 's/\.202[4567]\d{10}//') # handle maintenance release naming FIXME update in 2027
 
 if [ "$xpkg" = "$pkg" ] ; then
     osc_api "source/$prj/$pkg" 2>&1 | grep -q '<linkinfo .*error=.*does not exist' &&
