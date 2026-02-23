@@ -1,18 +1,23 @@
 # autodetected from rb: grep -l -- -kmp-default- */RPMS/checksums | cut -d/ -f1
 CoreFreq
 avfs
+ayaneo-platform
 bbswitch
+bcachefs-tools
 crash
 dpdk
 drbd
 evdi
 facetimehd
+framework-laptop
 gasket-driver
 hdjmod
 hid-tmff2
+leancrypto
 mhvtl
 msr-safe
 nvidia-open-driver-G06-signed
+nvidia-open-driver-G07-signed
 ovpn-dco
 rtl8188gu
 rtl88x2bu
@@ -21,5 +26,7 @@ v4l2loopback
 vendor-reset
 vhba-kmp
 virtualbox
+xone
+xpad-noone
 xpadneo
 xtables-addons
