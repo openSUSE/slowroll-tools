@@ -1,5 +1,5 @@
 #!/bin/sh
-ver=$(curl -s https://api.opensuse.org/public/source/openSUSE:Slowroll:Base:Next/000product/openSUSE.product|grep '<version>2'|grep -o '[0-9]*')
+ver=$(tools/slowrollverobsnext)
 echo "preparing to take snapshot of version $ver... can take some hours until pontifex picks it up"
 echo "$ver" | ssh slowroll@vm12cg.zq1.de. dd of=/srv/www/slowroll/nextsnapshot
 if [[ $? != 0 ]] ; then
@@ -7,7 +7,7 @@ if [[ $? != 0 ]] ; then
     exit 12
 fi
 while sleep 60 ; do
-    nextver=$(curl -s https://download.opensuse.org/slowroll/next/repo/oss/media.1/products | perl -pe 's/.* (20\d{6})-./$1/' )
+    nextver=$(tools/slowrollvernext)
     if [[ $nextver = $ver ]] ; then
         break
     fi

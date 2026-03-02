@@ -1,0 +1,2 @@
+#!/bin/sh
+curl -s https://api.opensuse.org/public/source/openSUSE:Slowroll:Base:Next/000product/openSUSE.product|grep '<version>2'|grep -o '[0-9]*'

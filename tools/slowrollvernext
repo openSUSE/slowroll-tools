@@ -1,0 +1,2 @@
+#!/bin/sh
+curl -s https://download.opensuse.org/slowroll/next/repo/oss/media.1/products | perl -pe 's/.* (20\d{6})-./$1/'
