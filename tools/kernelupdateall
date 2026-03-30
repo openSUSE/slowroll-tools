@@ -1,0 +1,4 @@
+#!/bin/sh
+tools/publishdisable
+tools/kernelupdate kernel-source-longterm $(grep -v '#' in/kmps)
+tools/publishnormal

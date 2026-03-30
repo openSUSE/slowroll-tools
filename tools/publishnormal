@@ -1,0 +1,3 @@
+#!/bin/sh
+: ${prj:=$slo}
+osc api -X POST "/source/$prj?cmd=remove_flag&flag=publish"
