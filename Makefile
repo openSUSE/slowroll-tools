@@ -34,6 +34,9 @@ newsnapshot1: # before or on day of TW snapshot (~6d ahead of bump) # source slo
 	DELETE=1 DRYRUN=0 tools/obsrsync $$(cat in/missing-dvd-rpms* cache/slobrsync cache/basenext.ls)
 	echo "updating Release: line in osc meta -e prjconf ${slobuild}"
 	tools/updateprjconfrelease
+	(cd ~/code/osc/openSUSE:Slowroll:Build:Overlay/000release-packages && osc up && ./update2.sh && osc ci --noservice -m update)
+	osc linkpac -f openSUSE:Slowroll:Build:Overlay 000release-packages ${slobuild}
+	(cd ~/code/osc/openSUSE:Slowroll:Build:iso/000product && ./update.sh && osc ci --noservice -m update)
 	#for p in `grep -v : /dev/shm/slobase` ; do echo $p ; PAGER="wc -l" osc rdiff ${slobase} $p openSUSE:Factory ; done 2>&1 | tee /dev/shm/syncslob3
 	find cache -mtime +3 -name factory-i586.xml -delete
 	#rm -f buildinfo/*
@@ -42,8 +45,9 @@ newsnapshot1: # before or on day of TW snapshot (~6d ahead of bump) # source slo
 	go run cmd/processbuildinfo.go
 
 	#osc ls -vb ${slobase}|grep "Apr.*debugsource" > /tmp/slob ; tools/obsrsync $(perl -ne 'm/.* (.*)-debugsource.rpm/ && print "$1\n"' < /tmp/slob)
-	osc linkpac -f openSUSE:Slowroll:Build:Overlay 000release-packages ${slobuild}
 	tools/releasemulti openSUSE:Slowroll:Build:Overlay ${slo}:Base:Next branding-openSUSE
+	echo "temp drop Slowroll repo from osc meta prj -r ${slobuild}"
+	osc r -a x86_64 -r standard ${slobuild} 000release-packages:openSUSE-release # check unresolvables
 newsnapshot2:
 	tools/triggernextsnapshot
 	# alternatively on mirror@pontifex run /usr/local/bin/slowroll-snapshot as 'mirror' user or update vm12:/srv/www/slowroll/nextsnapshot
@@ -55,14 +59,22 @@ newsnapshot2:
 	(cd ~/code/osc/${slobuild}/000release-packages && osc up && sh updatevrev.sh)
 	tools/cleanuprepo ${slobuild} # with next config
 	# tools/releasemulti openSUSE:Slowroll:Build:Overlay ${slo}:Base:Next branding-openSUSE ; tools/releasemulti ${slobuild} ${slo}:Base:Next 000release-packages
-	echo 'cd ~/code/osc/openSUSE:Slowroll:Build:iso/000product && ./update.sh && osc ci --noservice -m update'
+	echo 'maybe: cd ~/code/osc/openSUSE:Slowroll:Build:iso/000product && ./update.sh && osc ci --noservice -m update'
 	echo 'sync skelcd-control-openSUSE-Slowroll yast2-installation-control installation-images' # https://github.com/yast/skelcd-control-openSUSE-Slowroll/pull/6
 	cd ~/code/osc/openSUSE:Slowroll:Build:iso/installation-images && sh ./update.sh && osc ci --noservice -m update
+	osc r -w ${slobuild} 000release-packages ; osc ls -vb ${slobuild} 000release-packages:openSUSE-release ;tools/releasemulti ${slobuild} ${slo}:Base:Next 000release-packages
 	# build+test DVD in openSUSE:Slowroll:Build:iso
 newsnapshot2b:
 	osc rbl openSUSE:Slowroll:Build:iso/000product:openSUSE-dvd5-dvd-x86_64 images x86_64 | perl -ne 'if(/\[W\]   (\S+) not available for /){print "$$1\n"}' | sort -u >> in/missing-dvd-rpms-${DATE}
 	DRYRUN=0 tools/obsrsync `cat in/missing-dvd-rpms-${DATE}`
 # on day of version bump:
+newsnapshot2c:
+	cd / ; osc r -w ${slobuild} 000release-packages
+	tools/releasemulti ${slobuild} ${slo}:Base:Next 000release-packages
+newsnapshot3ff:
+	(. ~/.slorc && make newsnapshot3)
+	(. ~/.slorc.next && make newsnapshot4 newsnapshot4b )
+	(. ~/.slorc.next && make newsnapshot8 )
 newsnapshot3: # with old $slobuild
 	tools/syncslo-pre
 	tools/getrepoviews
@@ -81,12 +93,13 @@ newsnapshot4: # with new $slobuild
 	rm -f cache/changelog/* cache/changelogdiff/* cache/triggeronurlchange/http*
 	##echo "enable keepobsolete Flag in https://build.opensuse.org/projects/openSUSE:Slowroll/prjconf" # leave enabled. When publishing is enabled, it does not matter.
 	# osc copypac openSUSE:Factory kiwi-templates-Minimal ${slobuild} # for openQA # needs adaptation
-	for p in $$(osc ls ${slo}|grep -v :|sort -r) ; do echo "$$p"; tools/syncslo-postbump "$$p" ; done | tee out/log/syncslo-postbump-${DATE}
+	#for p in $$(osc ls ${slo}|grep -v :|sort -r) ; do echo "$$p"; tools/syncslo-postbump "$$p" ; done | tee out/log/syncslo-postbump-${DATE}
 	tools/switchbase openSUSE:Slowroll # update https://build.opensuse.org/projects/openSUSE:Slowroll/meta Build:N refs
 	tools/switchbase # update https://build.opensuse.org/projects/openSUSE:Slowroll:Base/meta Build:N refs
 	echo make newsnapshot4b
 newsnapshot4b:
 	for p in $$(osc ls ${slo}|grep -v :|sort -r) ; do echo "$$p"; dry=' ' tools/syncslo-postbump "$$p" ; done | tee out/log/syncslo-postbump-${DATE}b
+	tools/kernelupdatelongterm2 ; tools/submitpackageupdatedelayed kernel-source
 newsnapshot8: # on day of bump
 	osc release --no-delay openSUSE:Slowroll:Base:Next -r standard
 	tools/releasemulti ${slo}:Base:Next ${slo} 000release-packages

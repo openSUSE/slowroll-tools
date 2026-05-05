@@ -682,7 +682,7 @@ sane-backends
 sbc
 schroedinger
 scim
-sdl12_compat
+sdl12-compat
 SDL2
 SDL2_gfx
 SDL2_net

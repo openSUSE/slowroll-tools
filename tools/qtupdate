@@ -5,4 +5,4 @@ do
 done
 
 # rebuild all packages with Qt PRIVATE_API:
-for p in $(cat in/qtprivaterpms) ; do if osc ls $slobuild "$p" >/dev/null ; then touch "out/pending/$p" ; else tools/submitpackageupdate "$p" ; fi ; done
+for p in $(grep -v '#' in/qtprivaterpms) ; do touch "out/pending/$p" ; if ! osc ls $slobuild "$p" >/dev/null ; then tools/submitpackageupdate "$p" ; fi ; done

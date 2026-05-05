@@ -49,6 +49,7 @@ shared-mime-info
 rhash
 libalternatives
 gccmakedep
+perl-Clone-PP
 protobuf-c
 python-MarkupSafe
 python-setuptools
@@ -77,3 +78,6 @@ maven-surefire-plugin-bootstrap
 maven-surefire
 libXxf86dga
 allegro44
+cpp-httplib
+ccache
+Mesa

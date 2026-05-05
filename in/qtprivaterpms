@@ -1,3 +1,4 @@
+# for p in */RPMS/*.rpm ; do rpm -qp --requires "$p" |grep Qt_6.*PRIVATE_API && echo $p ; done | tee ~/.qt6-private ; echo `grep rpm$ ~/.qt6-private | cut -d/ -f1|sort -u`
 akonadi
 alligator
 amarok

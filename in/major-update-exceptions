@@ -1,11 +1,13 @@
 abseil-cpp
-MozillaFirefox
-MozillaThunderbird
 cargo-audit-advisory-db
 chromium
+emacs-vterm
 firefox-esr
 kernel-firmware
+MozillaFirefox
+MozillaThunderbird
 nvidia-open-driver-G06-signed
+nvidia-open-driver-G07-signed
 python-awkward-cpp
 spirv-tools
 stb

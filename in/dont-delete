@@ -760,6 +760,11 @@ rubygem-faraday
 rust
 rust-bindgen
 rust1.73
+rust1.91
+rust1.92
+rust1.93
+rust1.94
+rust1.95
 samba
 sane-backends
 sassist
@@ -767,7 +772,7 @@ sbc
 schroedinger
 scim
 scite
-sdl12_compat
+sdl12-compat
 sensors
 serd
 sfml2
@@ -965,3 +970,4 @@ python-charset-normalizer
 python-idna
 python-sphinxcontrib-jquery
 xkeyboard-config
+cpp-httplib

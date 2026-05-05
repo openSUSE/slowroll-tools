@@ -5,6 +5,7 @@ go
 gpp
 hostapd
 kubo
+libcap
 matrix-synapse
 mozilla-nss
 mozjs115

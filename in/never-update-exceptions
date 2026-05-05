@@ -7,6 +7,7 @@ growpart-rootgrow
 build-compare
 branding-openSUSE
 
-# temp rb:
-
+# temp:
+nfs-client
+nfs-kernel-server
 # i586

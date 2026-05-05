@@ -31,10 +31,15 @@ hyprpaper
 hyprpicker
 hyprpolkitagent
 hyprshot
+hyprsunset
+hyprtoolkit
 hyprutils
 hyprwayland-scanner
+hyprwire
 lxqt-wayland-session
 nwg-dock-hyprland
 xdg-desktop-portal-hyprland
 
 nvidia-open-driver-G06-signed
+kernel-firmware-mediatek
+#kernel-source

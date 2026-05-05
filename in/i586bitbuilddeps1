@@ -29,3 +29,8 @@ opencv3
 posix_cc
 projectM
 
+#for wine (via Mesa-dri/rust/ccache)
+cpp-httplib
+rust1.93
+rust1.94
+rust1.95
