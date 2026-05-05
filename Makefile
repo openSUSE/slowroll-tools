@@ -32,6 +32,8 @@ newsnapshot1: # before or on day of TW snapshot (~6d ahead of bump) # source slo
 	##tools/syncslob > cache/slobrsync
 	osc ls ${slobase} > cache/basenext.ls
 	DELETE=1 DRYRUN=0 tools/obsrsync $$(cat in/missing-dvd-rpms* cache/slobrsync cache/basenext.ls)
+	echo "updating Release: line in osc meta -e prjconf ${slobuild}"
+	tools/updateprjconfrelease
 	#for p in `grep -v : /dev/shm/slobase` ; do echo $p ; PAGER="wc -l" osc rdiff ${slobase} $p openSUSE:Factory ; done 2>&1 | tee /dev/shm/syncslob3
 	find cache -mtime +3 -name factory-i586.xml -delete
 	#rm -f buildinfo/*
@@ -46,7 +48,6 @@ newsnapshot2:
 	tools/triggernextsnapshot
 	# alternatively on mirror@pontifex run /usr/local/bin/slowroll-snapshot as 'mirror' user or update vm12:/srv/www/slowroll/nextsnapshot
 	# TODO keep backup of old /update/slowroll for analysis ; on stage3 /srv/ftp/pub/opensuse-old/
-	echo update Release: line in osc meta -e prjconf ${slobuild}
 	osc wipebinaries --all ${slobuild}
 	#echo 'on slowrollbot@opensusevm: cd ~/code/osc/openSUSE:Slowroll:Build:Overlay/000release-packages && ./update.sh && osc ci --noservice'
 	(cd ~/code/osc/openSUSE:Slowroll:Build:Overlay/000release-packages && osc up && ./update.sh && osc ci --noservice -m update)

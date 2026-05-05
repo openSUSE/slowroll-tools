@@ -1,0 +1,3 @@
+#!/bin/sh
+(v=$(tools/slowrollverobsbase) ; osc meta prjconf ${slobuild} | sed "s/^Release:.*/Release: <CI_CNT>.<B_CNT>.sr${v} spec:<CI_CNT>.<B_CNT>.sr${v}/" > cache/meta/slobuild-prjconf )
+osc meta prjconf -F cache/meta/slobuild-prjconf ${slobuild}
