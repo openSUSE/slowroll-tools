@@ -48,6 +48,7 @@ newsnapshot1: # before or on day of TW snapshot (~6d ahead of bump) # source slo
 	tools/releasemulti openSUSE:Slowroll:Build:Overlay ${slo}:Base:Next branding-openSUSE
 	echo "temp drop Slowroll repo from osc meta prj -r ${slobuild}"
 	osc r -a x86_64 -r standard ${slobuild} 000release-packages:openSUSE-release # check unresolvables
+	tools/releasemulti ${slobuild} ${slo}:Base:Next 000release-packages
 newsnapshot2:
 	tools/triggernextsnapshot
 	# alternatively on mirror@pontifex run /usr/local/bin/slowroll-snapshot as 'mirror' user or update vm12:/srv/www/slowroll/nextsnapshot
