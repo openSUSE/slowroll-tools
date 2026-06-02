@@ -5,8 +5,8 @@ srcprj=openSUSE:Factory
 prj=openSUSE:Slowroll
 pkg=${1:-qt6-webview}
 # from pontifex2 cd /srv/ftp/pub/opensuse/repositories/openSUSE:/ALP:/Experimental:/Slowroll/base.20240405/repo/src-oss/src && for p in * ; do rpm -qp --qf '%{name} %{version} %{release} %{disturl}\n' $p ; done > .slowroll
-# from curl https://downloadcontent.opensuse.org/repositories/openSUSE:/ALP:/Experimental:/Slowroll/base-next-full/repo/src-oss/src/.slowroll > cache/slowroll-base.disturls
-basedisturls=cache/slowroll-base.disturls
+# from curl https://downloadcontent.opensuse.org/repositories/openSUSE:/ALP:/Experimental:/Slowroll/base-next-full/repo/src-oss/src/.slowroll > cache/slowroll-base${slon}.disturls
+basedisturls=cache/slowroll-base${slon}.disturls
 # needs to be the info on current binaries to not get too new versions
 factoryjson=cache/view/factory.json
 : ${dry:=echo}

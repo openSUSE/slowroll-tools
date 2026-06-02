@@ -81,9 +81,9 @@ newsnapshot3: # with old $slobuild
 	tools/getrepoviews
 	#echo "disabling cron jobs..."
 	touch .blockcron
-	curl https://downloadcontent.opensuse.org/slowroll/next-full/base-next-full/repo/src-oss/src/.slowroll > cache/slowroll-base.disturls
 newsnapshot4: # with new $slobuild
 	cp -a ~/.slorc.next ~/.slorc
+	curl https://downloadcontent.opensuse.org/slowroll/next-full/base-next-full/repo/src-oss/src/.slowroll > cache/slowroll-base${slon}.disturls
 	echo "review in/never-update-exceptions"
 	tools/syncslo-pre
 	set -x ; for p in `grep -h -v '#' in/i586bitbuilddeps1 in/kmps|sort -u` ; do FORCE=1 tools/submitpackageupdate "$$p" ; done

@@ -4,7 +4,7 @@
 srcprj=openSUSE:Factory
 prj=openSUSE:Slowroll:Staging
 pkg=${1:-qt6-webview}
-basedisturls=cache/slowroll-base.disturls
+basedisturls=cache/slowroll-base${slon}.disturls
 
 grep "^$pkg$" in/never-update-exceptions && exit 0
 
