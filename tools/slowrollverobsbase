@@ -1,0 +1,2 @@
+#!/bin/sh
+curl -s https://api.opensuse.org/public/source/${slobase}/000release-packages/openSUSE-release.spec?expand=1|grep '^Version:'|grep -o '[0-9]*'

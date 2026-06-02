@@ -1,3 +1,3 @@
 #!/bin/sh
-for f in tools/slowrollver* ; do echo $f ; $f ; done
+for f in tools/slowrollver* tools/tumbleweedver ; do echo $f ; $f ; done
 
