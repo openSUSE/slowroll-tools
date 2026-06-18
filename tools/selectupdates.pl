@@ -17,6 +17,8 @@ our @baseurl = ('/source/tumbleweed/repo/oss/', # needs trailing slash
 our $changelogdir = "cache/changelog";
 our $submitted = 0;
 our %exceptions;
+our $slobuild=$ENV{slobuild};
+our $builddisabled = 0;
 for my $t ("major", "minor", "never", "immediate") {
     $exceptions{$t} = load_list_map "in/$t-update-exceptions";
 }
@@ -86,6 +88,10 @@ sub submit($$)
 { my ($pkg, $rev) = @_;
     print "submitting $pkg $rev\n";
     if(!$dryrun) {
+        if(!$builddisabled) {
+            system(qw{osc api -X POST}, "/source/$slobuild?cmd=set_flag&flag=build&status=disable");
+            $builddisabled = 1;
+        }
         system("tools/submitpackageupdate", $pkg, $rev);
         # TODO store $pkgs[0]->{$pkg}{diff} for consumption by users - e.g. RSS feed
         $submitted++ if $?==0;
@@ -157,6 +163,9 @@ foreach my $pkg (sort keys (%{$versionclass})) {
     diag "Diff for $pkg: $diff\n----";
     diag "submit $pkg $rev now after $delay s delay";
     submit($pkg, $rev);
+}
+if($builddisabled) {
+    system(qw{osc api -X POST}, "/source/$slobuild?cmd=remove_flag&flag=build");
 }
 print "Submitted: $submitted\n";
 print "Total pending: ";
