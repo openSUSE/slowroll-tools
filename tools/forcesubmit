@@ -1,0 +1,2 @@
+#!/bin/sh
+for p in $(find cache/force-submit/ -type f|sort) ; do FORCE=1 tools/submitpackageupdate $(basename $p) ; rm $p ; done
