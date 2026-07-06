@@ -2,4 +2,4 @@
 osc api -X POST "/source/$slobuild?cmd=remove_flag&flag=build"
 osc api -X POST "/source/$slobuild?cmd=remove_flag&flag=publish"
 
-#echo later: osc api -X POST "/source/$slo?cmd=remove_flag&flag=publish" # moved to post2
+#echo later: osc api -X POST "/source/$slou?cmd=remove_flag&flag=publish" # moved to post2

@@ -10,6 +10,7 @@ use common;
 
 $|=1;
 our $dryrun = $ENV{DRYRUN}//1;
+our $slon = $ENV{slon};
 our @delay = (8*DAY, 80*DAY, 150*DAY);
 our $changelogurl = 'http://stage3.opensuse.org:18080/cgi-bin/getchangelog?path=';
 our @baseurl = ('/source/tumbleweed/repo/oss/', # needs trailing slash
@@ -30,7 +31,7 @@ sub haddelay($$)
 }
 
 my %repo;
-for my $repo (qw(factory slo slos)) {
+for my $repo ("factory", "slos$slon", "slo$slon") {
     $repo{$repo} = load_json("cache/view/$repo.json");
 }
 my $unreproducible = load_list_map("in/build-compare-differed-builds.txt");

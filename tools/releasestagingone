@@ -47,7 +47,7 @@ fi
 
     osc_getbinaries $slobuild        $pkg tmp/slos
     slopkg=$(tools/followlink $pkg); [ -n "$slopkg" ] || slopkg=$pkg
-    osc_getbinaries $slo             $slopkg tmp/slo ||
+    osc_getbinaries $slou            $slopkg tmp/slo ||
     osc_getbinaries $slobase         $pkg tmp/slo
     mkdir tmp/slos.s
     mv tmp/slos/*.src.rpm tmp/slos.s

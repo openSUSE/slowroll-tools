@@ -22,8 +22,8 @@ build-compare/same-build-result.sh cache/bin.fac cache/bin.slos
 ret=$?
 rm -r cache/bin.{fac,slos}
 if [ $ret = 0 ] ; then
-    echo "submitting $fac to $slo $pkg"
-    $dry tools/releasemulti $fac $slo $pkg
+    echo "submitting $fac to $slou $pkg"
+    $dry tools/releasemulti $fac $slou $pkg
 else
     echo "different $pkg binaries - do nothing"
 fi

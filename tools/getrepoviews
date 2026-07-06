@@ -3,14 +3,14 @@ slo=openSUSE:Slowroll
 v=cache/view
 mkdir -p $v
 osc api /source/openSUSE:Factory?view=info > $v/factory.xml
-osc api /source/$slo?view=info > $v/slo.xml
+osc api /source/$slou?view=info > $v/slo$slon.xml
 osc api /source/$slobase?view=info > $v/slob.xml
 osc api /source/$slo:Base:1?view=info > $v/slob1.xml
 osc api /source/$slo:Base:2?view=info > $v/slob2.xml
-osc api /source/$slobuild?view=info > $v/slos.xml
+osc api /source/$slobuild?view=info > $v/slos$slon.xml
 # TODO
 # osc api /build/openSUSE:Slowroll:Base:2/standard/i586/_repository?view=binaryversions
-for view in factory slo slob slob1 slob2 slos ; do
+for view in factory slo$slon slob slob1 slob2 slos$slon ; do
     tools/parseview.pl $v/$view.xml > $v/$view.json
 done
 cp -a $v $v.$(date -I)

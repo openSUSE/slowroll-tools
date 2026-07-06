@@ -3,7 +3,7 @@
 # so we search for them
 # usage: tools/findhiddenbin | tee out/log/findhiddenbin-$(date -I)
 
-pkgs=$(osc ls $slo | grep -v '\.')
+pkgs=$(osc ls $slou | grep -v '\.')
 for p in $pkgs ; do
-    osc ls -vb $slo "$p" |grep '^ *[0-9]' && echo $p
+    osc ls -vb $slou "$p" |grep '^ *[0-9]' && echo $p
 done

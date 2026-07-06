@@ -1,7 +1,7 @@
 #!/bin/sh
 # openSUSE:Slowroll uses release tags to have multiple versions in parallel
 # so to find the actual latest version, we have to follow the _link
-: ${prj:=$slo}
+: ${prj:=$slou}
 pkg=$1
 . tools/osc.sh
 osc_api "source/$prj/$pkg/_link" |

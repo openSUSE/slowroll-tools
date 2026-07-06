@@ -1,2 +1,2 @@
 #!/bin/sh
-osc api -X POST "/source/$slo?cmd=remove_flag&flag=publish"
+osc api -X POST "/source/$slou?cmd=remove_flag&flag=publish"

@@ -94,18 +94,18 @@ newsnapshot4: # with new $slobuild
 	rm -f cache/changelog/* cache/changelogdiff/* cache/triggeronurlchange/http*
 	##echo "enable keepobsolete Flag in https://build.opensuse.org/projects/openSUSE:Slowroll/prjconf" # leave enabled. When publishing is enabled, it does not matter.
 	# osc copypac openSUSE:Factory kiwi-templates-Minimal ${slobuild} # for openQA # needs adaptation
-	#for p in $$(osc ls ${slo}|grep -v :|sort -r) ; do echo "$$p"; tools/syncslo-postbump "$$p" ; done | tee out/log/syncslo-postbump-${DATE}
+	#for p in $$(osc ls ${slou}|grep -v :|sort -r) ; do echo "$$p"; tools/syncslo-postbump "$$p" ; done | tee out/log/syncslo-postbump-${DATE}
 	tools/switchbase openSUSE:Slowroll # update https://build.opensuse.org/projects/openSUSE:Slowroll/meta Build:N refs
 	tools/switchbase # update https://build.opensuse.org/projects/openSUSE:Slowroll:Base/meta Build:N refs
 	echo make newsnapshot4b
 newsnapshot4b:
-	for p in $$(osc ls ${slo}|grep -v :|sort -r) ; do echo "$$p"; dry=' ' tools/syncslo-postbump "$$p" ; done | tee out/log/syncslo-postbump-${DATE}b
+	for p in $$(osc ls ${slou}|grep -v :|sort -r) ; do echo "$$p"; dry=' ' tools/syncslo-postbump "$$p" ; done | tee out/log/syncslo-postbump-${DATE}b
 	tools/kernelupdatelongterm2 ; tools/submitpackageupdatedelayed kernel-source
 newsnapshot8: # on day of bump
 	osc release --no-delay openSUSE:Slowroll:Base:Next -r standard
-	tools/releasemulti ${slo}:Base:Next ${slo} 000release-packages
+	tools/releasemulti ${slo}:Base:Next ${slou} 000release-packages
 	##echo "edit tools/diffdistro and tools/selectupdates.pl with slowroll/next as baseurl; make daily" # does not work: slowroll/next does not exist on stage3 to fetch changelogs
-	osc release ${slo}:Build:iso --target-project=${slo} 000product --target-repository=images -r images
+	osc release ${slo}:Build:iso --target-project=${slou} 000product --target-repository=images -r images
 	tools/syncslo-post # let it build
 	make newsnapshot8b
 newsnapshot8b: # on day of bump
@@ -127,7 +127,7 @@ newsnapshot9:
 	echo "switch slowroll-next/slowroll in https://build.opensuse.org/projects/openSUSE:Slowroll:Base:1+2/meta"
 	tools/switchbase ${slo}:Base:Next
 	tr 12 21 <~/.slorc >~/.slorc.next
-	echo "ensure ${slobuild} builds for ${slo} and not just ${slobase}"
+	echo "ensure ${slobuild} builds for ${slou} and not just ${slobase}"
 	echo "notify reddit of completion"
 	tools/newsnapshot9
 

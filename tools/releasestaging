@@ -28,7 +28,7 @@ if [ -z "$dry" -a -n "$releasedpkgs" ] ; then
     for pkg in $releasedpkgs ; do
         pkg=$(basename "$pkg")
         releasedpkgs2="$releasedpkgs2 $pkg"
-        osc linkpac -f "$slo" "$pkg.$tag" "$slo" "$pkg"
+        osc linkpac -f "$slou" "$pkg.$tag" "$slou" "$pkg"
     done
     n=$(echo $releasedpkgs2 | wc -w)
     (echo -e "A collection of maintenance updates was released for Slowroll.\nReleased $n packages: "
