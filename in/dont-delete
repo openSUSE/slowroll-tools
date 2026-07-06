@@ -760,11 +760,13 @@ rubygem-faraday
 rust
 rust-bindgen
 rust1.73
-rust1.91
 rust1.92
 rust1.93
 rust1.94
 rust1.95
+rust1.96
+rust1.97
+rust1.98
 samba
 sane-backends
 sassist

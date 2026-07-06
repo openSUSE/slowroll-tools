@@ -8,6 +8,4 @@ build-compare
 branding-openSUSE
 
 # temp:
-nfs-client
-nfs-kernel-server
 # i586

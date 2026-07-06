@@ -25,7 +25,7 @@ libmtp
 libplacebo5
 libupnp
 live555
-opencv3
+opencv
 posix_cc
 projectM
 
@@ -34,3 +34,6 @@ cpp-httplib
 rust1.93
 rust1.94
 rust1.95
+rust1.96
+rust1.97
+rust1.98

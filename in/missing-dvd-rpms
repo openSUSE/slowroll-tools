@@ -2696,7 +2696,6 @@ yast2-packager
 yast2-pam
 yast2-perl-bindings
 yast2-pkg-bindings
-yast2-printer
 yast2-proxy
 yast2-python3-bindings
 yast2-ruby-bindings
