@@ -1,0 +1,4 @@
+# packages that tools/installcheckrelease must never withhold from a release,
+# even when installcheck says they are not installable.
+# Use this for known false positives - real breakage should be fixed by
+# submitting the missing dependency instead.
