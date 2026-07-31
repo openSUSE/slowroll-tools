@@ -2,7 +2,8 @@
 use strict;
 # help in pulling in trees of packages to resolve something
 # usage:
-#  osc buildinfo $slo:Staging python-importlib-metadata standard i586 | tools/autogather | bash -x
+#  osc buildinfo $slobuild python-importlib-metadata standard x86_64 | tools/autogather | bash -x
+#  or: tools/autogather2 python-importlib-metadata   (arch=i586 to override)
 
 while (<>) {
   my @m = (m/nothing provides (\S+)/g);
@@ -10,8 +11,7 @@ while (<>) {
   foreach my $m (@m) {
     $m=~s!</error>!!;
     $m=~s!,$!!;
-    $m=~s/python39/python/;
-    $m=~s/python31[0-3]/python/;
+    $m=~s/python3\d+/python/; # python39, python313, python315, ...
     $m=~s/python3/python/;
     $m=~s/(rubygem)\((\S+)\)/$1-$2/;
     $m=~s/pkgconfig\((\S+)\)/$1/;
