@@ -1,3 +1,3 @@
 #!/bin/sh
 tools/submitpackageupdate "$1"
-osc buildinfo $slo:Staging "$1" standard i586 | tools/autogather | bash -x
+osc buildinfo $slobuild "$1" standard ${arch:-x86_64} | tools/autogather | bash -x
