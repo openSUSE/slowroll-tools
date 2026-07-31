@@ -1,7 +1,0 @@
-#!/bin/sh
-grep XX out/log/syncslo-postbump-2024-12-09b | cut -d\  -f4-5 | perl -ne '
-  m/(\S+) ([0-9a-f]+)/ or next;
-  my ($pkg, $md5) = ($1, $2);
-  $pkg =~ s/\.202[0-9]*// or next;
-  print "tools/submitpackageupdate $pkg $md5 ; touch out/pending/$pkg\n";
-'
