@@ -1,0 +1,242 @@
+#!/usr/bin/perl -w
+# Check that the packages staged for release are installable against what
+# Slowroll users actually have, before they get promoted out of $sloreleasing.
+#
+# Candidates come from cache/installcheck/pending/*.solv, written by
+# tools/releasestagingone while it still has the binaries downloaded.
+#
+# usage: tools/installcheckrelease [refresh|merge|check|report|run]
+#   refresh  download/convert the base+update environment solvs, then stop
+#   merge    merge cache/installcheck/pending/*.solv into new.solv, then stop
+#   check    refresh + merge, then dump raw installcheck output
+#   report   check + parse, print offenders - no side effects
+#   run      (default) report, then act according to $INSTALLCHECK
+#
+# env: INSTALLCHECK=warn|enforce|off (default warn), DRYRUN=0 to really act,
+#      DEBUG=1 to echo every command that gets run
+# needs: libsolv-tools (installcheck rpms2solv mergesolv rpmmd2solv dumpsolv)
+
+use strict;
+use lib 'lib';
+use common;
+
+our $mode = $ENV{INSTALLCHECK} || 'warn'; # warn | enforce | off
+our $dryrun = ($ENV{DRYRUN}//1) != 0;
+our $arch = $ENV{arch} || 'x86_64';
+our $maxrounds = 5;
+
+our $cachedir = 'cache/installcheck';
+our $pendingdir = "$cachedir/pending";
+our $newsolv = "$cachedir/new.solv";
+
+our %repo = (
+    base   => 'https://download.opensuse.org/slowroll/repo/oss/',
+    update => 'https://download.opensuse.org/update/slowroll/repo/oss/',
+);
+
+sub run($)
+{ my $cmd = shift;
+    diag("+ $cmd");
+    return system($cmd);
+}
+
+# tools/getprimary only re-downloads when repomd.xml changed, but it keeps
+# every hashed primary it ever fetched. Drop the ones we no longer link to.
+sub prune_old_primaries($$)
+{ my ($dir, $current) = @_;
+    my $keep = (stat($current))[1] or return;
+    for my $f (glob("$dir/*-primary.xml.*")) {
+        next if (stat($f))[1] == $keep;
+        diag("pruning stale $f");
+        unlink($f);
+    }
+}
+
+sub refresh()
+{
+    for my $name (sort keys %repo) {
+        my $dir = "$cachedir/$name";
+        system('mkdir', '-p', $dir) == 0 or die "cannot create $dir\n";
+        # same idiom as tools/diffdistro. getprimary is sh -x and wget is
+        # chatty, so keep that out of the release log unless we want it.
+        my $quiet = $ENV{DEBUG} ? '' : ' 2>/dev/null';
+        run("d=\$(pwd) ; cd $dir && \$d/tools/getprimary $repo{$name}$quiet") == 0
+            or die "getprimary failed for $name\n";
+        my ($primary) = glob("$dir/primary.xml.*");
+        die "no primary.xml.* in $dir\n" unless $primary && -e $primary;
+        prune_old_primaries($dir, $primary);
+        my $solv = "$dir/repo.solv";
+        next if -e $solv && (stat($solv))[9] >= (stat($primary))[9];
+        # decompressor from the extension, as tools/parsexml.pl does
+        my $decompressor = ($primary =~ m/\.gz$/) ? 'gzip' : 'zstd';
+        run("$decompressor -dc $primary | rpmmd2solv > $solv.new") == 0
+            or die "converting $primary failed\n";
+        rename("$solv.new", $solv) or die "error writing $solv : $!";
+    }
+}
+
+sub pending_solvs()
+{
+    my @solvs = sort glob("$pendingdir/*.solv");
+    return @solvs; # in scalar context this is the count, unlike a bare sort
+}
+
+sub merge()
+{
+    my @solvs = pending_solvs();
+    return 0 unless @solvs;
+    diag("+ mergesolv @solvs > $newsolv");
+    open(my $mh, '-|', 'mergesolv', @solvs) or die "mergesolv: $!";
+    binmode $mh;
+    local $/=undef;
+    my $data = <$mh>;
+    close($mh) or die "mergesolv failed\n";
+    open(my $out, '>', $newsolv) or die "error writing $newsolv : $!";
+    binmode $out;
+    print $out $data;
+    close($out);
+    return scalar @solvs;
+}
+
+sub check()
+{
+    my @cmd = ('installcheck', $arch, $newsolv, '--nocheck',
+               map { "$cachedir/$_/repo.solv" } sort keys %repo);
+    diag("+ @cmd");
+    open(my $fh, '-|', @cmd) or die "installcheck: $!";
+    local $/=undef;
+    my $out = <$fh>;
+    close($fh); # exits non-zero whenever it found something, so do not check
+    return $out//'';
+}
+
+# binary name -> source package, recorded from %{disturl} by releasestagingone.
+# Never derive this from the binary name or %{sourcerpm}: for multibuild
+# packages neither is the OBS package name (adwaita-qt6 and adwaita-qt6-src
+# both come from OBS package adwaita-qt).
+sub disturl2pkg($)
+{ my $disturl = shift;
+    return undef unless $disturl =~ m,/[0-9a-f]{32}-([^/]+)$,;
+    my $pkg = $1;
+    $pkg =~ s/:.*//; # multibuild flavor: adwaita-qt:qt6 -> adwaita-qt
+    return $pkg;
+}
+
+sub load_map()
+{
+    my %bin2src;
+    for my $f (glob("$pendingdir/*.map")) {
+        for my $line (split("\n", load_file($f))) {
+            my ($bin, $disturl) = split(' ', $line, 2);
+            next unless defined($bin) && defined($disturl);
+            my $pkg = disturl2pkg($disturl);
+            if(!defined($pkg)) {
+                diag("unparsable disturl for $bin: $disturl");
+                next;
+            }
+            $bin2src{$bin} = $pkg;
+        }
+    }
+    return \%bin2src;
+}
+
+sub load_exceptions()
+{
+    my $f = 'in/installcheck-exceptions';
+    return {} unless -e $f;
+    my $m = load_list_map($f);
+    for my $k (keys %$m) {
+        delete $m->{$k} if $k =~ m/^#/ || $k =~ m/^\s*$/;
+    }
+    return $m;
+}
+
+# installcheck reports binary NVRAs; resolve them by longest-prefix match
+# against the binary names we know, so no assumption is needed about what
+# version and release strings may contain.
+sub parse_problems($$)
+{ my ($out, $bin2src) = @_;
+    my @names = sort { length($b) <=> length($a) } keys %$bin2src;
+    my %problem;
+    my $cur;
+    for my $line (split("\n", $out)) {
+        if($line =~ m/^can't install (\S+):$/) {
+            my $nvra = $1;
+            $cur = undef;
+            my ($bin) = grep { $nvra eq $_ || index($nvra, "$_-") == 0 } @names;
+            if(!defined($bin)) {
+                diag("installcheck reported unknown binary $nvra");
+                next;
+            }
+            $cur = $bin2src->{$bin};
+            $problem{$cur} = '' unless exists $problem{$cur};
+        } elsif(defined($cur) && $line =~ m/^\s+(\S.*)$/) {
+            $problem{$cur} ||= $1;
+        }
+    }
+    return \%problem;
+}
+
+sub report()
+{
+    my $problems = parse_problems(check(), load_map());
+    my $exc = load_exceptions();
+    my @bad;
+    for my $pkg (sort keys %$problems) {
+        if($exc->{$pkg}) {
+            diag("ignoring $pkg (in in/installcheck-exceptions)");
+            next;
+        }
+        # stderr: releasestaging reads our stdout, and make release tees 2>&1
+        print STDERR "XX installcheck rejected $pkg: ".($problems->{$pkg} || 'not installable')."\n";
+        push @bad, $pkg;
+    }
+    return @bad;
+}
+
+sub reject($)
+{ my $pkg = shift;
+    my $prj = $ENV{sloreleasing} or die "sloreleasing is not set\n";
+    foreach($prj, $pkg) { die 'invalid char in sanity check' if m/[^a-zA-Z0-9:._+-]/ }
+    if($dryrun) {
+        print STDERR "echo osc_delete /source/$prj/$pkg\n";
+    } else {
+        run(qq!. tools/osc.sh ; osc_delete "/source/$prj/$pkg?force=1&comment=installcheck"!);
+        # put it back in the queue - it will be retried once the missing
+        # dependency has been submitted too
+        open(my $t, '>>', "out/pending/$pkg") or die "error writing out/pending/$pkg : $!";
+        close($t);
+    }
+    # drop it from the candidate set either way, so the loop below terminates
+    unlink("$pendingdir/$pkg.solv");
+    unlink("$pendingdir/$pkg.map");
+}
+
+my $cmd = shift || 'run';
+exit 0 if $mode eq 'off';
+
+if($cmd eq 'refresh') { refresh(); exit 0 }
+if($cmd eq 'merge') { merge(); exit 0 }
+
+exit 0 unless pending_solvs(); # nothing staged, nothing to check
+
+if($cmd eq 'check') { refresh(); merge(); print check(); exit 0 }
+if($cmd eq 'report') { refresh(); merge(); report(); exit 0 }
+if($cmd ne 'run') {
+    print "usage: $0 [refresh|merge|check|report|run]\n";
+    exit 1;
+}
+
+refresh();
+for my $round (1..$maxrounds) {
+    last unless merge();
+    my @bad = report();
+    last unless @bad;
+    last unless $mode eq 'enforce';
+    for my $pkg (@bad) {
+        reject($pkg);
+        print "$pkg\n"; # releasestaging drops these from $releasedpkgs
+    }
+    # removing a package can break another one in the same batch, so re-check
+    diag("round $round rejected ".scalar(@bad)." package(s), re-checking");
+}

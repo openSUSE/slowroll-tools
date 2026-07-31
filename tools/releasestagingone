@@ -70,5 +70,21 @@ fi
   fi
   echo "XX releasing $src $pkg"
   $dry tools/releasemulti "$src" "$sloreleasing" "$pkg"
+
+  # candidate set for tools/installcheckrelease - the binaries are still here,
+  # so this costs no extra download. x86_64+noarch only: the i586 ones fetched
+  # above would just show up as "has inferior architecture".
+  # The map is keyed on %{disturl} because for multibuild packages neither the
+  # binary name nor %{sourcerpm} is the OBS package name.
+  mkdir -p cache/installcheck/pending
+  ( shopt -s nullglob
+    set -- tmp/slos/*.x86_64.rpm tmp/slos/*.noarch.rpm
+    if [ $# -gt 0 ] ; then
+        rpms2solv "$@" > cache/installcheck/pending/$pkg.solv
+        rpm -qp --qf '%{name} %{disturl}\n' "$@" > cache/installcheck/pending/$pkg.map
+    else
+        echo "XX installcheck: no x86_64/noarch binaries for $pkg - not checked"
+    fi )
+
   #$dry osc rdelete -m "released" $slobuild $pkg &&
   $dry rm out/pending/$pkg

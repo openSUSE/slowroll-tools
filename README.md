@@ -23,3 +23,14 @@ https://www.zq1.de/~bernhard/linux/opensuse/slowroll/ has zstd-compressed data d
     go run cmd/processbuildinfo.go
     DEBUG=1 DRYRUN=0 make daily
     DEBUG=1 make release # later after builds finished and QA succeeded
+
+Before promoting a release, `tools/releasestaging` runs `tools/installcheckrelease`,
+which uses `installcheck` from `libsolv-tools` to detect staged packages that would
+not be installable for our users - e.g. because a needed newer runtime dependency
+was not submitted along with them.
+
+`INSTALLCHECK=warn` (the default) only logs such packages as
+`XX installcheck rejected <pkg>`. `INSTALLCHECK=enforce` additionally drops them from
+`$sloreleasing` and puts them back into `out/pending/` to be retried once the missing
+dependency has landed. `INSTALLCHECK=off` skips the check. Packages that should never
+be withheld go into `in/installcheck-exceptions`.

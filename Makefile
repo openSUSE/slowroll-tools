@@ -1,6 +1,6 @@
 DATE=$(shell date -I)
 install:
-	zypper -n in wget perl-JSON-XS perl-XML-Bare jq gnu_parallel time
+	zypper -n in wget perl-JSON-XS perl-XML-Bare jq gnu_parallel time libsolv-tools zstd
 
 daily: fetch select
 fetch:
@@ -110,7 +110,9 @@ newsnapshot8: # on day of bump
 	make newsnapshot8b
 newsnapshot8b: # on day of bump
 	( cd / ; osc r -w --xml ${slobuild} >/dev/null )
-	DRYRUN=0 make release
+	# no installcheck: ${slou} is already on the new base, while
+	# slowroll/repo/oss still publishes the old one
+	INSTALLCHECK=off DRYRUN=0 make release
 	tools/releasemulti ${slobuild} ${slo}:Base AMF # for Packman
 	osc wipebinaries -a x86_64 ${slo}:Base AMF
 	echo "wait for Packman to finish building https://pmbs.links2linux.de/project/show/Essentials"
