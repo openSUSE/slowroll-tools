@@ -211,29 +211,39 @@ sub reject($)
     unlink("$pendingdir/$pkg.map");
 }
 
+sub gate()
+{
+    refresh();
+    for my $round (1..$maxrounds) {
+        last unless pending_solvs();
+        my @bad = report();
+        last unless @bad;
+        last unless $mode eq 'enforce';
+        for my $pkg (@bad) {
+            reject($pkg);
+            print "$pkg\n"; # releasestaging drops these from $releasedpkgs
+        }
+        # removing a package can break another one in the same batch, so
+        # check what is left again
+        diag("round $round rejected ".scalar(@bad)." package(s), re-checking");
+    }
+}
+
+our %commands = (
+    refresh => \&refresh,
+    check   => sub { refresh(); print check() },
+    report  => sub { refresh(); report() },
+    run     => \&gate,
+);
+
 my $cmd = shift || 'run';
-exit 0 if $mode eq 'off';
-
-if($cmd eq 'refresh') { refresh(); exit 0 }
-exit 0 unless pending_solvs(); # nothing staged, nothing to check
-
-if($cmd eq 'check') { refresh(); print check(); exit 0 }
-if($cmd eq 'report') { refresh(); report(); exit 0 }
-if($cmd ne 'run') {
-    print "usage: $0 [refresh|check|report|run]\n";
+my $handler = $commands{$cmd};
+if(!$handler) {
+    # stderr, so a typo cannot end up being read as a package name
+    print STDERR "usage: $0 [".join('|', sort keys %commands)."]\n";
     exit 1;
 }
-
-refresh();
-for my $round (1..$maxrounds) {
-    last unless pending_solvs();
-    my @bad = report();
-    last unless @bad;
-    last unless $mode eq 'enforce';
-    for my $pkg (@bad) {
-        reject($pkg);
-        print "$pkg\n"; # releasestaging drops these from $releasedpkgs
-    }
-    # removing a package can break another one in the same batch, so re-check
-    diag("round $round rejected ".scalar(@bad)." package(s), re-checking");
-}
+exit 0 if $mode eq 'off';
+# refresh is the only one that is useful without anything staged
+exit 0 if $cmd ne 'refresh' && !pending_solvs();
+$handler->();
