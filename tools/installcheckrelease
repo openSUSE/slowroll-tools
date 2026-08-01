@@ -27,6 +27,7 @@ our $maxrounds = 5;
 
 our $cachedir = 'cache/installcheck';
 our $pendingdir = "$cachedir/pending";
+our $checkstatus = 0; # wait status of the last installcheck run
 
 our %repo = (
     base   => 'https://download.opensuse.org/slowroll/repo/oss/',
@@ -78,6 +79,13 @@ sub pending_solvs()
     return @solvs; # in scalar context this is the count, unlike a bare sort
 }
 
+sub status2str($)
+{ my $s = shift;
+    return "could not be run" if $s == -1;
+    return "killed by signal ".($s & 127) if $s & 127;
+    return "exit ".($s >> 8);
+}
+
 sub check()
 {
     # installcheck takes any number of repos to check before --nocheck, so we
@@ -85,10 +93,19 @@ sub check()
     my @cmd = ('installcheck', $arch, pending_solvs(), '--nocheck',
                map { "$cachedir/$_/repo.solv" } sort keys %repo);
     diag("+ @cmd");
-    open(my $fh, '-|', @cmd) or die "installcheck: $!";
+    # fork by hand so we get stderr too - a solv it cannot read is reported
+    # there, and we want that in the complaint below rather than lost
+    my $pid = open(my $fh, '-|');
+    die "fork: $!" unless defined($pid);
+    if(!$pid) {
+        open(STDERR, '>&', \*STDOUT);
+        exec(@cmd);
+        die "installcheck: $!";
+    }
     local $/=undef;
     my $out = <$fh>;
-    close($fh); # exits non-zero whenever it found something, so do not check
+    close($fh);
+    $checkstatus = $?;
     return $out//'';
 }
 
@@ -146,7 +163,22 @@ sub parse_problems($$)
 
 sub report()
 {
-    my $problems = parse_problems(check(), load_map());
+    my $out = check();
+    my $problems = parse_problems($out, load_map());
+
+    # installcheck says non-zero whenever it found something. If it did and we
+    # recognised none of it, our parsing is wrong or a solv was unreadable -
+    # either way we cannot vouch for this release, so make it impossible to
+    # miss instead of quietly reporting nothing.
+    if($checkstatus && !%$problems) {
+        print STDERR "XX installcheck ".status2str($checkstatus).
+            " but no problem was recognised - installcheckrelease needs a look.\n".
+            "XX its output was:\n$out";
+    } elsif(!$checkstatus && %$problems) {
+        print STDERR "XX installcheck exited 0 yet we parsed ".
+            scalar(keys %$problems)." problem(s) - installcheckrelease needs a look.\n";
+    }
+
     my $exc = load_exceptions();
     my @bad;
     for my $pkg (sort keys %$problems) {
