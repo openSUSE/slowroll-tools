@@ -5,16 +5,15 @@
 # Candidates come from cache/installcheck/pending/*.solv, written by
 # tools/releasestagingone while it still has the binaries downloaded.
 #
-# usage: tools/installcheckrelease [refresh|merge|check|report|run]
+# usage: tools/installcheckrelease [refresh|check|report|run]
 #   refresh  download/convert the base+update environment solvs, then stop
-#   merge    merge cache/installcheck/pending/*.solv into new.solv, then stop
-#   check    refresh + merge, then dump raw installcheck output
+#   check    refresh, then dump raw installcheck output
 #   report   check + parse, print offenders - no side effects
 #   run      (default) report, then act according to $INSTALLCHECK
 #
 # env: INSTALLCHECK=warn|enforce|off (default warn), DRYRUN=0 to really act,
 #      DEBUG=1 to echo every command that gets run
-# needs: libsolv-tools (installcheck rpms2solv mergesolv rpmmd2solv dumpsolv)
+# needs: libsolv-tools (installcheck rpms2solv rpmmd2solv dumpsolv)
 
 use strict;
 use lib 'lib';
@@ -28,7 +27,6 @@ our $maxrounds = 5;
 
 our $cachedir = 'cache/installcheck';
 our $pendingdir = "$cachedir/pending";
-our $newsolv = "$cachedir/new.solv";
 
 our %repo = (
     base   => 'https://download.opensuse.org/slowroll/repo/oss/',
@@ -80,26 +78,11 @@ sub pending_solvs()
     return @solvs; # in scalar context this is the count, unlike a bare sort
 }
 
-sub merge()
-{
-    my @solvs = pending_solvs();
-    return 0 unless @solvs;
-    diag("+ mergesolv @solvs > $newsolv");
-    open(my $mh, '-|', 'mergesolv', @solvs) or die "mergesolv: $!";
-    binmode $mh;
-    local $/=undef;
-    my $data = <$mh>;
-    close($mh) or die "mergesolv failed\n";
-    open(my $out, '>', $newsolv) or die "error writing $newsolv : $!";
-    binmode $out;
-    print $out $data;
-    close($out);
-    return scalar @solvs;
-}
-
 sub check()
 {
-    my @cmd = ('installcheck', $arch, $newsolv, '--nocheck',
+    # installcheck takes any number of repos to check before --nocheck, so we
+    # can hand it the candidates directly instead of mergesolv'ing them first
+    my @cmd = ('installcheck', $arch, pending_solvs(), '--nocheck',
                map { "$cachedir/$_/repo.solv" } sort keys %repo);
     diag("+ @cmd");
     open(my $fh, '-|', @cmd) or die "installcheck: $!";
@@ -200,20 +183,18 @@ my $cmd = shift || 'run';
 exit 0 if $mode eq 'off';
 
 if($cmd eq 'refresh') { refresh(); exit 0 }
-if($cmd eq 'merge') { merge(); exit 0 }
-
 exit 0 unless pending_solvs(); # nothing staged, nothing to check
 
-if($cmd eq 'check') { refresh(); merge(); print check(); exit 0 }
-if($cmd eq 'report') { refresh(); merge(); report(); exit 0 }
+if($cmd eq 'check') { refresh(); print check(); exit 0 }
+if($cmd eq 'report') { refresh(); report(); exit 0 }
 if($cmd ne 'run') {
-    print "usage: $0 [refresh|merge|check|report|run]\n";
+    print "usage: $0 [refresh|check|report|run]\n";
     exit 1;
 }
 
 refresh();
 for my $round (1..$maxrounds) {
-    last unless merge();
+    last unless pending_solvs();
     my @bad = report();
     last unless @bad;
     last unless $mode eq 'enforce';
