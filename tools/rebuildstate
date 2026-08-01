@@ -1,0 +1,72 @@
+#!/usr/bin/perl -w
+# Reconstruct state/<project>/ from what that project has actually published.
+#
+# usage: tools/rebuildstate [PRJ [URL]]
+#   PRJ  project whose state directory to rebuild, default $slou
+#   URL  its published repo,    default $slouurl or the Slowroll update repo
+#
+# Run this to seed the state directory the first time, or whenever the records
+# are suspected to have drifted. Everything it writes describes SOURCE packages:
+# the update repo indexes its sources next to its binaries, so we read the
+# source names and versions straight out of the repodata rather than guessing
+# them back from binaries via %{sourcerpm}, which lies for multibuild packages
+# (adwaita-qt builds a src.rpm called adwaita-qt6-src).
+#
+# Its blind spot is a generation that has not been published yet - those
+# records only exist because submitpackageupdate wrote them.
+
+use strict;
+use lib 'lib';
+use common;
+use rpm;
+use state;
+
+$|=1;
+our $dryrun = ($ENV{DRYRUN}//1) != 0;
+our $origin = $ENV{sloorigin} || 'https://download.opensuse.org';
+
+my $prj = shift || $ENV{slou} || die "usage: $0 PRJ [URL]\n";
+my $url = shift || $ENV{slouurl} || "$origin/update/slowroll/repo/oss/";
+my $dir = "cache/rebuildstate";
+
+system('mkdir', '-p', $dir) == 0 or die "cannot create $dir\n";
+# same conditional download tools/diffdistro uses: repomd first, then the
+# hashed primary only when it changed
+my $quiet = $ENV{DEBUG} ? '' : ' 2>/dev/null';
+diag("+ getprimary $url");
+system("d=\$(pwd) ; cd $dir && \$d/tools/getprimary $url$quiet") == 0
+    or die "getprimary failed for $url\n";
+my ($primary) = glob("$dir/primary.xml.*");
+die "no primary.xml.* in $dir\n" unless $primary && -e $primary;
+
+my $pkgsfile = "$dir/primary.pkgs";
+system("tools/parsexml.pl $primary src > $pkgsfile") == 0
+    or die "parsing $primary failed\n";
+my $pkgs = load_json($pkgsfile);
+
+my ($written, $skipped) = (0, 0);
+for my $pkg (sort keys %$pkgs) {
+    my $v = $pkgs->{$pkg}{version};
+    if(!defined($v) || !defined($v->{ver}) || !defined($v->{rel})) {
+        diag("no version for $pkg - skipping");
+        $skipped++;
+        next;
+    }
+    my %h = (
+        ver   => $v->{ver},
+        rel   => $v->{rel},
+        epoch => $v->{epoch} // '0',
+    );
+    # keep whatever we already knew - rev, disturl and the timestamps are not
+    # in the repodata and must not be lost by a rebuild
+    $h{released} = $pkgs->{$pkg}{time} unless state_load($prj, $pkg)->{released};
+    if($dryrun) {
+        print "would record $prj/$pkg $h{ver}-$h{rel}\n";
+    } else {
+        state_update($prj, $pkg, \%h);
+    }
+    $written++;
+}
+print "$written package(s)".($dryrun ? " would be recorded" : " recorded")." in state/$prj";
+print ", $skipped skipped" if $skipped;
+print "\n";
