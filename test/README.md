@@ -4,6 +4,21 @@ A disposable copy of the release pipeline under `home:bmwiedemannai:Slowroll`,
 so changes to the tools can be exercised somewhere that is not the distribution
 people are running.
 
+## Prerequisites
+
+- An `osc` config for `api.opensuse.org` (`~/.config/osc/oscrc`), for the direct
+  `osc` calls.
+- **A `~/.netrc` entry for `api.opensuse.org`.** `tools/osc.sh` authenticates
+  with `curl -n`, not through `osc`, so an osc config on its own is not enough:
+  without a netrc, curl exits 26 and every REST helper returns nothing. That is
+  quiet enough to look like an empty API response - `tools/submitpackageupdate`
+  simply fails to resolve `latest` to a revision - so check this first if a run
+  behaves oddly.
+
+  ```
+  machine api.opensuse.org login YOURUSER password YOURPASS
+  ```
+
 ## Running it
 
 ```sh

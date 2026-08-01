@@ -43,11 +43,18 @@ function osc_guard
 }
 
 # e.g. source/home:rb-checker
+# Needs ~/.netrc for api.opensuse.org: we authenticate with curl -n, not
+# through osc, so an osc config alone is not enough. Without it curl exits 26
+# and every helper here returns nothing.
 function osc_api
 {
     local path=$1; shift
     osc_guard "$path" "$@" || return 9
+    local ret
     $dry $curl "$apiurl/$path" "$@"
+    ret=$?
+    [ $ret = 0 ] || echo "osc_api: curl failed ($ret) for $path" >&2
+    return $ret
 }
 
 # e.g. source/home:rb-checker:rebuild:xx?force=1
