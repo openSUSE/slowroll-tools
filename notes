@@ -1,0 +1,3 @@
+Note: the shell osc implementation uses curl -n and with AppArmor 5.0.1 that got a silent deny. Workaround:
+echo 'priority=1 owner file r @{HOME}/.netrc,' | sudo tee -a /etc/apparmor.d/local/curl
+sudo apparmor_parser -r /etc/apparmor.d/curl

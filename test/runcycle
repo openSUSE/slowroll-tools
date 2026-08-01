@@ -9,6 +9,9 @@ mkdir -p out/log
 : > "${MAILMOCK_OUT:-out/log/mailmock}"
 
 test/setupplayground
+# populate cache/tumbleweed/primary.pkgs before submitting, or the state
+# records get no version - production does this in `make daily` first
+tools/diffdistro
 test/seedpackages
 test/waitbuilds "$slobuild"
 

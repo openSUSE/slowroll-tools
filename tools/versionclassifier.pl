@@ -1,10 +1,10 @@
 #!/usr/bin/perl -w
 # SPDX-License-Identifier: GPL-2.0-only
-# usage: tools/versionclassifier.pl [--state PRJ] TUMBLEWEED.pkgs SLOWROLL.pkgs [MORE.pkgs ...]
+# usage: tools/versionclassifier.pl [--state PRJ ...] TUMBLEWEED.pkgs SLOWROLL.pkgs [MORE.pkgs ...]
 #
 # Classifies how far each Tumbleweed package is from what Slowroll has.
-# The first file is Tumbleweed; every other file, plus the optional state
-# directory of a project, is somewhere Slowroll might already have the package.
+# The first file is Tumbleweed; every other file, plus the state directory of
+# each --state project, is somewhere Slowroll might already have the package.
 # We report the *closest* of them to Tumbleweed, because a package that was
 # updated out of band is no longer at the base snapshot version and should not
 # keep being classified as a major update forever.
@@ -16,13 +16,16 @@ use common;
 use cmpver;
 use state;
 
-my $stateprj;
+my @stateprjs;
 my @files;
 while(defined(my $a = shift @ARGV)) {
-    if($a eq '--state') { $stateprj = shift @ARGV }
+    if($a eq '--state') { push(@stateprjs, shift @ARGV) }
     else { push(@files, $a) }
 }
-die "usage: $0 [--state PRJ] TW.pkgs SLO.pkgs [...]\n" unless @files >= 2;
+# one file plus a state directory is a legitimate combination: a generation
+# that has not published anything yet only exists in state/
+die "usage: $0 [--state PRJ ...] TW.pkgs [SLO.pkgs ...]\n"
+    unless @files >= 2 || (@files == 1 && @stateprjs);
 
 my $tw = load_json(shift @files);
 my @slo = map { load_json($_) } @files;
@@ -46,7 +49,7 @@ foreach my $pkg (sort keys (%$tw)) {
         my $v = cmpversion($tw->{$pkg}{version}, $j->{$pkg}{version});
         $vercmp = $v if rank($v) > rank($vercmp);
     }
-    if(defined $stateprj) {
+    for my $stateprj (@stateprjs) {
         if(my $sv = state_version($stateprj, $pkg)) {
             my $v = cmpversion($tw->{$pkg}{version}, $sv);
             diag("$pkg: state says $sv->{ver}-$sv->{rel} -> vercmp $v") if $v != $vercmp;

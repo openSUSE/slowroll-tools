@@ -15,6 +15,23 @@ for p in $pkgs ; do
     FORCE=1 tools/submitpackageupdate "$p" || echo "XX submit failed for $p"
 done
 
+# Kernel module packages need i586 kernel-syms. Production builds them against
+# the real Slowroll base, which carries those; the playground base comes from
+# Tumbleweed via DoD and does not, so they come out unresolvable on i586 and
+# would fail test/waitbuilds for a reason that has nothing to do with the tools.
+for p in $pkgs ; do
+    grep -qx "$p" in/kmps 2>/dev/null || continue
+    echo "== $p: disabling i586 (no kernel-syms in the playground base)"
+    # -0777 so the "is it already there" guard sees the whole document - the
+    # disable element is on its own line, not on the </package> line, so a
+    # per-line guard would insert a duplicate <build> on every rerun
+    osc api "/source/$slobuild/$p/_meta" |
+        perl -0777 -pe 's{</package>}{  <build><disable arch="i586"/></build>\n</package>} unless m{<disable arch="i586"}' \
+        > cache/meta/pkgmeta.tmp
+    osc api -X PUT "/source/$slobuild/$p/_meta" --file cache/meta/pkgmeta.tmp >/dev/null
+done
+rm -f cache/meta/pkgmeta.tmp
+
 # a package that can never be installable, so the installcheck gate has
 # something deterministic to reject
 canary=slowroll-canary

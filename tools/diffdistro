@@ -13,20 +13,38 @@ d=`pwd`
 : ${slouurl:=$sloorigin/update/slowroll/repo/oss/}
 
 mkdir -p cache/tumbleweed cache/slowroll cache/slowroll-update
-( cd cache/tumbleweed && $d/tools/getprimary $twsrcurl && $d/tools/parsexml.pl primary.xml.zst > primary.pkgs )
-( cd cache/slowroll && $d/tools/getprimary $slobasesrcurl && $d/tools/parsexml.pl primary.xml.zst > primary.pkgs )
-# The update repo indexes binaries and sources together, so pick the sources:
-# they carry the source package name, with no %{sourcerpm} guesswork.
-# Not fatal if it is missing - a freshly bumped generation has published
-# nothing yet, and neither has a new playground. We just fall back to the base
-# snapshot plus whatever state/ recorded, which is what we had before.
-updpkgs=
-if ( cd cache/slowroll-update && $d/tools/getprimary $slouurl ) &&
-   ( cd cache/slowroll-update && $d/tools/parsexml.pl primary.xml.zst src > primary.pkgs ) ; then
-    updpkgs=cache/slowroll-update/primary.pkgs
-else
-    echo "XX no published update repo at $slouurl - classifying without it" >&2
-fi
 
-tools/versionclassifier.pl ${slou:+--state state/$slou} \
-    cache/tumbleweed/primary.pkgs cache/slowroll/primary.pkgs $updpkgs | tee out/versionclass.json
+# fetch a repo's package list into cache/$1; $3 limits it to one arch.
+# Only Tumbleweed is required: a freshly bumped generation has published
+# nothing yet, and neither has a new playground, so a missing Slowroll-side
+# repo just means we lean on the others plus whatever state/ recorded.
+getpkgs() {
+    local dir=$1 url=$2 arch=$3
+    if ( cd cache/$dir && $d/tools/getprimary $url &&
+         $d/tools/parsexml.pl primary.xml.zst $arch > primary.pkgs.new ) ; then
+        mv cache/$dir/primary.pkgs.new cache/$dir/primary.pkgs
+    else
+        # a transient fetch failure must not shrink the list to nothing -
+        # every package only in this repo would classify as absent, and for
+        # the base snapshot that makes selectupdates submit all of them.
+        # Lean on the previous download instead, like the pre-getpkgs code did.
+        rm -f cache/$dir/primary.pkgs.new
+        [ -s cache/$dir/primary.pkgs ] || return 1
+        echo "XX cannot refresh $url - using the previous download" >&2
+    fi
+    echo cache/$dir/primary.pkgs
+}
+
+getpkgs tumbleweed "$twsrcurl" >/dev/null || { echo "cannot read $twsrcurl" >&2 ; exit 1 ; }
+slopkgs=$(getpkgs slowroll "$slobasesrcurl" 2>/dev/null) ||
+    echo "XX no base snapshot repo at $slobasesrcurl - classifying without it" >&2
+# the update repo indexes binaries and sources together, so pick the sources:
+# they carry the source package name, with no %{sourcerpm} guesswork
+updpkgs=$(getpkgs slowroll-update "$slouurl" src 2>/dev/null) ||
+    echo "XX no published update repo at $slouurl - classifying without it" >&2
+
+# state.pm prepends the state/ directory itself, so pass bare project names:
+# $slou is what already reached users, $slobuild what we submitted but have
+# not released yet - both mean "no longer at the base snapshot version"
+tools/versionclassifier.pl ${slou:+--state $slou} ${slobuild:+--state $slobuild} \
+    cache/tumbleweed/primary.pkgs $slopkgs $updpkgs | tee out/versionclass.json
