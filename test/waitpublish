@@ -1,0 +1,28 @@
+#!/bin/sh
+# Block until a project's published repodata changes.
+# usage: test/waitpublish PRJ [PREVIOUS_REVISION]
+#        rev=$(test/waitpublish "$slou")          # returns the current one
+#        test/waitpublish "$slou" "$rev"          # waits for it to move on
+#
+# Polls $sloorigin rather than download.opensuse.org: that is MirrorCache and
+# caches repodata for a couple of minutes, which makes a test flaky for no
+# reason.
+. test/guard.sh
+prj=$1
+prev=$2
+[ -n "$prj" ] || { echo "usage: $0 PRJ [PREV]" >&2 ; exit 1 ; }
+
+url="$sloorigin/repositories/$(echo "$prj" | sed 's,:,:/,g')/standard/repodata/repomd.xml"
+end=$(( $(date +%s) + ${PUBLISHTIMEOUT:-1200} ))
+while : ; do
+    cur=$(curl -s "$url" | sed -n 's:.*<revision>\([0-9]*\)</revision>.*:\1:p' | head -1)
+    if [ -n "$cur" ] && [ "$cur" != "$prev" ] ; then
+        echo "$cur"
+        exit 0
+    fi
+    if [ "$(date +%s)" -ge "$end" ] ; then
+        echo "XX timed out waiting for $url to change from '$prev'" >&2
+        exit 1
+    fi
+    sleep 20
+done

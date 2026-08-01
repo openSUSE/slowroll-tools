@@ -1,0 +1,26 @@
+#!/bin/sh
+# One full submit -> build -> release -> promote cycle against the playground.
+# usage: set -a ; . test/slorc.test ; set +a ; test/runcycle
+. test/guard.sh
+set -e
+
+log=out/log/test-$(date -Iseconds)
+mkdir -p out/log
+: > "${MAILMOCK_OUT:-out/log/mailmock}"
+
+test/setupplayground
+test/seedpackages
+test/waitbuilds "$slobuild"
+
+# note what $slou has published so far (nothing on a fresh playground), so
+# waitpublish below really waits for the new publish instead of returning
+# the previous cycle's revision immediately. Timeout 0 = one probe, no wait.
+prev=$(PUBLISHTIMEOUT=0 test/waitpublish "$slou" 2>/dev/null) || prev=
+
+echo "== releasing"
+DRYRUN=0 DEBUG=1 INSTALLCHECK=enforce tools/releasestaging 2>&1 | tee "$log"
+
+echo "== waiting for $slou to publish"
+test/waitpublish "$slou" "$prev" >/dev/null || echo "XX publish did not land in time - later assertions may be stale"
+
+test/assertions

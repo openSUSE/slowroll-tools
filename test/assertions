@@ -1,0 +1,139 @@
+#!/bin/sh
+# Checks that do not need OBS run always; the ones that inspect the playground
+# run only when it has been through test/runcycle.
+#
+# usage: set -a ; . test/slorc.test ; set +a ; test/assertions [--offline]
+. test/guard.sh
+
+pass=0 fail=0 xfail=0
+ok()    { pass=$((pass+1)); echo "ok       - $1" ; }
+notok() { fail=$((fail+1)); echo "NOT OK   - $1" ; }
+xfailed(){ xfail=$((xfail+1)); echo "xfail    - $1" ; }
+check()  { if [ "$2" = "$3" ] ; then ok "$1"; else notok "$1 (got '$2', wanted '$3')"; fi ; }
+
+echo "# offline"
+
+# --- the generation flip -----------------------------------------------------
+n=$(tools/nextslorc < test/slorc.test)
+check "nextslorc flips slon" "$(echo "$n" | sed -n 's/^slon=//p')" "2"
+check "nextslorc flips slou" "$(echo "$n" | sed -n 's/^slou=//p')" "home:bmwiedemannai:Slowroll:2"
+check "nextslorc flips sloreleasing" "$(echo "$n" | sed -n 's/^sloreleasing=//p')" \
+      "home:bmwiedemannai:Slowroll:Build:Releasing:2"
+check "nextslorc flips the digit inside a URL" \
+      "$(echo "$n" | sed -n 's/^slouurl=//p')" \
+      "\$sloorigin/repositories/home:/bmwiedemannai:/Slowroll:/2/standard/"
+check "nextslorc leaves other digits alone" "$(echo "$n" | sed -n 's/^RELEASE_SETTLE=//p')" "5s"
+# and the property that matters, on adversarial input
+adv='export slon=1
+url=http://stage3.opensuse.org:18080/x
+# bumped 2026-01-02
+t=1m'
+check "nextslorc keeps a port number" \
+      "$(printf '%s\n' "$adv" | tools/nextslorc | sed -n 's/^url=//p')" \
+      "http://stage3.opensuse.org:18080/x"
+check "nextslorc keeps a date in a comment" \
+      "$(printf '%s\n' "$adv" | tools/nextslorc | grep '^# bumped')" "# bumped 2026-01-02"
+
+# --- the state store ---------------------------------------------------------
+sd=$(mktemp -d)
+for bad in '1.0; touch /tmp/pwned' '1.0$(id)' '1.0`id`' '1.0|x' ; do
+    if statedir=$sd tools/pkgstate set p pkg ver "$bad" 2>/dev/null ; then
+        notok "state store refuses '$bad'"
+    else
+        ok "state store refuses '$bad'"
+    fi
+done
+statedir=$sd tools/pkgstate set p pkg ver '1.4.2+git20260101~beta' 2>/dev/null &&
+    ok "state store accepts a real rpm version" ||
+    notok "state store accepts a real rpm version"
+mkdir -p "$sd/p"
+printf 'ver=1.0\nreleased=$(touch /tmp/pwned)\n' > "$sd/p/evil"
+check "state store drops a line it cannot parse" \
+      "$(statedir=$sd tools/pkgstate get p evil released 2>/dev/null; echo rc=$?)" "rc=1"
+check "state store still reads the good line" "$(statedir=$sd tools/pkgstate get p evil ver)" "1.0"
+[ -e /tmp/pwned ] && notok "no side effects from a corrupted state file" ||
+    ok "no side effects from a corrupted state file"
+rm -rf "$sd"
+
+# --- the classifier ----------------------------------------------------------
+w=$(mktemp -d)
+cat > "$w/tw" <<'EOF'
+{"foo":{"time":"1785600000","version":{"epoch":"0","ver":"3.0.6","rel":"1.1"}}}
+EOF
+cat > "$w/base" <<'EOF'
+{"foo":{"time":"1780000000","version":{"epoch":"0","ver":"1.0.0","rel":"1.1"}}}
+EOF
+cat > "$w/upd" <<'EOF'
+{"foo":{"time":"1785000000","version":{"epoch":"0","ver":"3.0.4","rel":"1.2"}}}
+EOF
+v() { python3 -c 'import json,sys; print(json.load(sys.stdin)["foo"]["vercmp"])' ; }
+check "base snapshot alone still says major" "$(tools/versionclassifier.pl "$w/tw" "$w/base" | v)" "1"
+check "the update repo demotes it to a patchlevel" \
+      "$(tools/versionclassifier.pl "$w/tw" "$w/base" "$w/upd" | v)" "3"
+mkdir -p "$w/state/prj"
+printf 'epoch=0\nver=3.0.4\nrel=1.2\n' > "$w/state/prj/foo"
+check "a state record demotes it too" \
+      "$(statedir=$w/state tools/versionclassifier.pl --state prj "$w/tw" "$w/base" | v)" "3"
+check "vercmp stays a JSON number" \
+      "$(statedir=$w/state tools/versionclassifier.pl --state prj "$w/tw" "$w/base" |
+         python3 -c 'import json,sys; print(type(json.load(sys.stdin)["foo"]["vercmp"]).__name__)')" "int"
+rm -rf "$w"
+
+[ "$1" = "--offline" ] && { echo ; echo "$pass passed, $fail failed, $xfail expected failures" ; exit $((fail>0)) ; }
+
+echo
+echo "# playground"
+
+# --- what reached the update project ----------------------------------------
+released=$(osc ls "$slou" 2>/dev/null | grep -v ':' | grep '\.' || true)
+if [ -z "$released" ] ; then
+    notok "something was released into $slou"
+else
+    ok "something was released into $slou ($(echo "$released" | wc -l) tagged package(s))"
+    tag=$(tools/findlastrelease)
+    [ -n "$tag" ] && ok "findlastrelease resolves the release tag ($tag)" ||
+        notok "findlastrelease resolves the release tag"
+fi
+
+# --- the gate withheld the canary -------------------------------------------
+if osc ls "$slou" 2>/dev/null | grep -q '^slowroll-canary' ; then
+    notok "the installcheck gate withheld slowroll-canary"
+else
+    ok "the installcheck gate withheld slowroll-canary"
+fi
+[ -e out/pending/slowroll-canary ] &&
+    ok "slowroll-canary was re-queued for a later run" ||
+    notok "slowroll-canary was re-queued for a later run"
+
+# --- the announcement went to the mock, not to a mailing list ----------------
+if [ -s "${MAILMOCK_OUT:-out/log/mailmock}" ] ; then
+    ok "the announcement reached the mail mock"
+    grep -q 'factory@lists.opensuse.org' "${MAILMOCK_OUT:-out/log/mailmock}" &&
+        notok "the announcement did not name the factory list" ||
+        ok "the announcement did not name the factory list"
+else
+    ok "no announcement was sent (SILENT)"
+fi
+
+# --- state records match what actually landed --------------------------------
+for p in fdupes txt2man ; do
+    ver=$(tools/pkgstate get "$slou" "$p" ver 2>/dev/null || true)
+    [ -n "$ver" ] && ok "state records $p at $ver in $slou" ||
+        notok "state records $p in $slou"
+done
+
+# --- the known multibuild gap ------------------------------------------------
+# osc getbinaries returns nothing for a package whose binaries all live under
+# pkg:flavor, so releasestagingone writes no candidate solv and neither
+# build-compare nor the installcheck gate looks at it. ~8% of what production
+# releases is in this shape. Expected to fail until releasestagingone learns to
+# enumerate _multibuild flavors.
+if [ -e cache/installcheck/pending/adwaita-qt.solv ] ; then
+    ok "adwaita-qt produced a candidate solv (the multibuild gap is fixed!)"
+else
+    xfailed "adwaita-qt produced no candidate solv - multibuild binaries are not fetched"
+fi
+
+echo
+echo "$pass passed, $fail failed, $xfail expected failures"
+exit $((fail>0))

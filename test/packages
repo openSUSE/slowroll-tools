@@ -1,0 +1,15 @@
+# Packages seeded into the playground, with the build_duration4 that
+# rb.zq1.de/compare.factory/reproducible.json reports for them, and what each
+# one is here to exercise. Keep this list short: every entry is a build.
+#
+# pkg                 s   exercises
+txt2man             # 13  plain noarch, fastest smoke test
+fdupes              # 17  plain x86_64; also the "same as base -> exit 13" path
+python-attrs        # 17  multibuild declared with <package>, not <flavor>
+adwaita-qt          # 57  multibuild with <flavor>; osc getbinaries returns
+                    #     NOTHING for it, which is the gap test/assertions
+                    #     records as an expected failure
+vid_stab            # 17  in in/i586bitbuilddeps1 -> i586 fetch in releasestagingone
+libdvbpsi           # 21  ditto
+bbswitch            # 24  in in/kmps -> kernel module package
+xpad-noone          # 23  ditto

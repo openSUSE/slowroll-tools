@@ -1,0 +1,14 @@
+#!/bin/sh
+# Delete every playground project. Reverse dependency order, because OBS
+# refuses to remove a project that another one still paths or links to.
+#
+# For the inner loop you usually want test/resetplayground instead - this one
+# throws away the prjconf and every built binary too.
+. test/guard.sh
+
+for p in Build:Releasing:1 Build:Releasing:2 Build:1 Build:2 1 2 Base:Next Base Base:1 Base:2 '' ; do
+    prj="$sloguard${p:+:$p}"
+    echo "deleting $prj"
+    osc api -X DELETE "/source/$prj?force=1&comment=playground-teardown" >/dev/null 2>&1 ||
+        echo "  (not there, or still referenced)"
+done

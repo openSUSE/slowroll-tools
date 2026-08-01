@@ -1,0 +1,11 @@
+#!/bin/sh
+# Empty the staging and releasing projects and the local queues, keeping the
+# projects and their build config. Seconds, rather than the minutes a full
+# teardown plus setup costs.
+. test/guard.sh
+
+FORCE=1 DRYRUN=0 tools/cleanuprepo "$sloreleasing"
+FORCE=1 DRYRUN=0 tools/cleanuprepo "$slobuild"
+rm -f out/pending/* cache/installcheck/pending/* cache/force-submit/*
+rm -rf "${statedir:-state}/$slobuild" "${statedir:-state}/$sloreleasing"
+echo "playground reset; $slou and the base projects were left alone"

@@ -1,0 +1,28 @@
+#!/bin/sh
+# Put the test packages into $slobuild the same way production does, so the
+# out/pending/ state releasestaging then sees is the real thing.
+#
+# usage: set -a ; . test/slorc.test ; set +a ; test/seedpackages
+. test/guard.sh
+set -e
+
+pkgs=$(grep -v '^ *#' test/packages | sed 's/#.*//' | tr -s ' \t' '\n' | grep .)
+
+for p in $pkgs ; do
+    echo "== $p"
+    # FORCE=1 skips the osc rdiff "is there a diff" probe, which is meaningless
+    # against a project that does not have the package yet
+    FORCE=1 tools/submitpackageupdate "$p" || echo "XX submit failed for $p"
+done
+
+# a package that can never be installable, so the installcheck gate has
+# something deterministic to reject
+canary=slowroll-canary
+osc api -X PUT "/source/$slobuild/$canary/_meta" --data \
+    "<package project=\"$slobuild\" name=\"$canary\"><title>installcheck canary</title><description/></package>" >/dev/null
+osc api -X PUT "/source/$slobuild/$canary/$canary.spec" --file test/pkg/$canary.spec >/dev/null
+touch "out/pending/$canary"
+echo "== $canary (synthetic, must be rejected by the gate)"
+
+echo
+echo "pending: $(ls out/pending/ | wc -l) package(s)"

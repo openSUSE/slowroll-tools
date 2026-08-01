@@ -1,0 +1,22 @@
+#!/bin/sh
+# Block until a project has finished building, then report anything that did
+# not come out succeeded.
+# usage: test/waitbuilds [PRJ]        # default $slobuild
+. test/guard.sh
+prj=${1:-$slobuild}
+
+# cd / because osc results behaves differently inside something that looks like
+# a working copy - same reason Makefile does it
+( cd / && timeout "${BUILDTIMEOUT:-1800}" osc r -w --xml "$prj" >/dev/null ) || {
+    echo "XX timed out waiting for builds in $prj" >&2
+    exit 1
+}
+
+bad=$(osc api "/build/$prj/_result" |
+      perl -ne 'print "$1 $2\n" if m/<status package="([^"]+)" code="(failed|unresolvable|broken)"/')
+if [ -n "$bad" ] ; then
+    echo "XX not everything built in $prj:"
+    echo "$bad" | sed 's/^/  /'
+    exit 1
+fi
+echo "all builds succeeded in $prj"
