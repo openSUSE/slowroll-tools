@@ -17,7 +17,15 @@ sub store_file($$)
 
 sub load_list_map($)
 {
-    return {map { $_ => 1} split("\n", load_file(shift))};
+    my %ret;
+    for my $line (split("\n", load_file(shift))) {
+        $line =~ s/#.*//; # our in/ lists document themselves in comments
+        $line =~ s/^\s+//;
+        $line =~ s/\s+$//;
+        next unless length($line);
+        $ret{$line} = 1;
+    }
+    return \%ret;
 }
 
 sub load_json($)

@@ -144,11 +144,7 @@ sub load_exceptions()
 {
     my $f = 'in/installcheck-exceptions';
     return {} unless -e $f;
-    my $m = load_list_map($f);
-    for my $k (keys %$m) {
-        delete $m->{$k} if $k =~ m/^#/ || $k =~ m/^\s*$/;
-    }
-    return $m;
+    return load_list_map($f);
 }
 
 # installcheck reports binary NVRAs; resolve them by longest-prefix match
