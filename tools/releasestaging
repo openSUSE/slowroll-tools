@@ -14,7 +14,7 @@ for pkg in "${pkgs[@]}"; do
 done
 
 [ -n "$releasedpkgs" ] || exit 0 # done
-sleep 2m # TODO wait for completion of deferred release jobs
+sleep ${RELEASE_SETTLE:-2m} # TODO wait for completion of deferred release jobs
 
 # do not promote packages that would not be installable for our users
 rejected=$(tools/installcheckrelease)
@@ -40,6 +40,6 @@ if [ -z "$dry" -a -n "$releasedpkgs" ] ; then
     n=$(echo $releasedpkgs2 | wc -w)
     (echo -e "A collection of maintenance updates was released for Slowroll.\nReleased $n packages: "
         perl -e 'foreach(@ARGV){print "* $_\n"}' $releasedpkgs2 ) |
-        SUBJECT="New Slowroll update $(date -u +%Y%m%dT%H%M) released!" TOADDR=factory@lists.opensuse.org tools/notifyML
+        SUBJECT="New Slowroll update $(date -u +%Y%m%dT%H%M) released!" TOADDR=${TOADDR:-factory@lists.opensuse.org} tools/notifyML
     echo "Released $n packages: $releasedpkgs2"
 fi
