@@ -12,10 +12,41 @@ if [[ $accelerate = 1 ]] ; then
     apiurl=http://api.opensuse.org
 fi
 
+# Refuse to modify anything outside $sloguard. Unset in production; the test
+# suite sets it to the playground prefix. Everything in the toolchain that
+# changes state in OBS goes through osc_api, so this one check covers all of it.
+function osc_guard
+{
+    [ -z "$sloguard" ] && return 0
+    local path=$1; shift
+    case " $* " in
+        *" -X POST "*|*" -X PUT "*|*" -X DELETE "*) ;;
+        *) return 0 ;; # a read, nothing to guard
+    esac
+    local prj
+    case "$path" in
+        *target_project=*)
+            # releasemulti posts to /source/openSUSE:Factory/PKG?cmd=release,
+            # so judge a release by where it lands rather than where it comes from
+            prj=${path##*target_project=}; prj=${prj%%&*}
+            ;;
+        *)
+            prj=${path#/}; prj=${prj#*/} # drop the leading source/ or build/
+            prj=${prj%%/*}; prj=${prj%%\?*}
+            ;;
+    esac
+    case "$prj" in
+        "$sloguard"|"$sloguard":*) return 0 ;;
+    esac
+    echo "GUARD: refusing to modify $prj (sloguard=$sloguard): $path" >&2
+    return 9
+}
+
 # e.g. source/home:rb-checker
 function osc_api
 {
     local path=$1; shift
+    osc_guard "$path" "$@" || return 9
     $dry $curl "$apiurl/$path" "$@"
 }
 
@@ -26,18 +57,17 @@ function osc_delete
     osc_api "$path" -X DELETE "$@"
 }
 
-# untested
 function osc_post
 {
     local path=$1; shift
-    local data=$2; shift
+    local data=$1; shift
     osc_api "$path" -X POST --data "$data" "$@"
 }
 
 function osc_put
 {
     local path=$1; shift
-    local data=$2; shift
+    local data=$1; shift
     osc_api "$path" -X PUT --data "$data" "$@"
 }
 

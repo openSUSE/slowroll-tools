@@ -12,7 +12,8 @@
 #   run      (default) report, then act according to $INSTALLCHECK
 #
 # env: INSTALLCHECK=warn|enforce|off (default warn), DRYRUN=0 to really act,
-#      DEBUG=1 to echo every command that gets run
+#      DEBUG=1 to echo every command that gets run,
+#      slobaseurl/slouurl to point the two environment repos elsewhere
 # needs: libsolv-tools (installcheck rpms2solv rpmmd2solv dumpsolv)
 
 use strict;
@@ -30,8 +31,8 @@ our $pendingdir = "$cachedir/pending";
 our $checkstatus = 0; # wait status of the last installcheck run
 
 our %repo = (
-    base   => 'https://download.opensuse.org/slowroll/repo/oss/',
-    update => 'https://download.opensuse.org/update/slowroll/repo/oss/',
+    base   => $ENV{slobaseurl} || 'https://download.opensuse.org/slowroll/repo/oss/',
+    update => $ENV{slouurl}    || 'https://download.opensuse.org/update/slowroll/repo/oss/',
 );
 
 sub run($)
