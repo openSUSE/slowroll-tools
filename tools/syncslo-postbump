@@ -1,8 +1,8 @@
 #!/bin/sh
 #usage:
 #for p in $(osc ls $slou|grep -v :|sort -r) ; do echo "$p"; dry=" " tools/syncslo-postbump "$p" ; done | tee out/log/syncslo-postbump-$(date -I)
-srcprj=openSUSE:Factory
-prj=openSUSE:Slowroll
+srcprj=${syncsource:-openSUSE:Factory}
+prj=${slou:-openSUSE:Slowroll}
 pkg=${1:-qt6-webview}
 # from pontifex2 cd /srv/ftp/pub/opensuse/repositories/openSUSE:/ALP:/Experimental:/Slowroll/base.20240405/repo/src-oss/src && for p in * ; do rpm -qp --qf '%{name} %{version} %{release} %{disturl}\n' $p ; done > .slowroll
 # from curl https://downloadcontent.opensuse.org/repositories/openSUSE:/ALP:/Experimental:/Slowroll/base-next-full/repo/src-oss/src/.slowroll > cache/slowroll-base${slon}.disturls

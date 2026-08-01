@@ -1,7 +1,8 @@
 #!/usr/bin/perl -w
 use strict;
 
-my $pkglist = `osc ls openSUSE:Slowroll`;
+our $prj = $ENV{slou} || 'openSUSE:Slowroll';
+my $pkglist = `osc ls $prj`;
 
 my %pkg=();
 my @cleanpkgs=qw(kernel-source kernel-source-longterm);
@@ -19,6 +20,6 @@ foreach my $p (@cleanpkgs) {
     foreach(@{$pkg{$p}}) {
         next if $n++ % 2;
         print "cleaning up $_\n";
-	system(qw"osc rdelete -m cleanup-kernel openSUSE:Slowroll", $_) unless $ENV{DEBUG};
+	system(qw"osc rdelete -m cleanup-kernel", $prj, $_) unless $ENV{DEBUG};
     }
 }

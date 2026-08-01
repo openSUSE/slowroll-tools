@@ -7,7 +7,7 @@ fetch:
 	#mkdir -p out/frozenlinks/ ; osc api /source/openSUSE:Slowroll:Next/_project/_frozenlinks?meta=1 > out/frozenlinks/${DATE}
 	tools/getrepoviews
 	tools/diffdistro
-	osc api /build/openSUSE:Slowroll/_result > out/result/slo/${DATE}
+	osc api /build/${slou}/_result > out/result/slo/${DATE}
 	#osc api /build/openSUSE:Slowroll:Staging/_result > out/result/slos/${DATE}
 	-osc api /build/${slobuild}/_result > out/result/slos/${DATE}
 	#osc api /build/${slobase}/_result > out/result/slob/${DATE}
