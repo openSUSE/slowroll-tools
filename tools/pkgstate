@@ -1,0 +1,53 @@
+#!/usr/bin/perl -w
+# shell accessor for the per-package version records in state/<project>/<package>
+#
+# usage:
+#   tools/pkgstate get  PRJ PKG KEY     # prints the bare value, exit 1 if unset
+#   tools/pkgstate set  PRJ PKG KEY VAL [KEY VAL ...]
+#   tools/pkgstate show PRJ PKG         # all key=value lines, for humans
+#   tools/pkgstate list PRJ             # package names, one per line
+#
+# get prints one value on stdout so callers can do
+#   ver=$(tools/pkgstate get "$slou" "$pkg" ver)
+# Quote the result. Never eval the output of show - it is for reading.
+
+use strict;
+use lib 'lib';
+use common;
+use state;
+
+my $cmd = shift // '';
+
+my %commands = (
+    get => sub {
+        my ($prj, $pkg, $key) = @_;
+        die "usage: $0 get PRJ PKG KEY\n" unless defined($key);
+        my $h = state_load($prj, $pkg);
+        exit 1 unless defined $h->{$key};
+        print $h->{$key}, "\n";
+    },
+    set => sub {
+        my ($prj, $pkg, @kv) = @_;
+        die "usage: $0 set PRJ PKG KEY VAL [KEY VAL ...]\n" unless @kv && !(@kv % 2);
+        my %h = @kv;
+        state_update($prj, $pkg, \%h);
+    },
+    show => sub {
+        my ($prj, $pkg) = @_;
+        die "usage: $0 show PRJ PKG\n" unless defined($pkg);
+        my $h = state_load($prj, $pkg);
+        print "$_=$h->{$_}\n" for sort keys %$h;
+    },
+    list => sub {
+        my ($prj) = @_;
+        die "usage: $0 list PRJ\n" unless defined($prj);
+        print "$_\n" for state_list($prj);
+    },
+);
+
+my $handler = $commands{$cmd};
+if(!$handler) {
+    print STDERR "usage: $0 [".join('|', sort keys %commands)."] ...\n";
+    exit 1;
+}
+$handler->(@ARGV);
