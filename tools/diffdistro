@@ -15,9 +15,18 @@ d=`pwd`
 mkdir -p cache/tumbleweed cache/slowroll cache/slowroll-update
 ( cd cache/tumbleweed && $d/tools/getprimary $twsrcurl && $d/tools/parsexml.pl primary.xml.zst > primary.pkgs )
 ( cd cache/slowroll && $d/tools/getprimary $slobasesrcurl && $d/tools/parsexml.pl primary.xml.zst > primary.pkgs )
-# the update repo indexes binaries and sources together, so pick the sources:
-# they carry the source package name, with no %{sourcerpm} guesswork
-( cd cache/slowroll-update && $d/tools/getprimary $slouurl && $d/tools/parsexml.pl primary.xml.zst src > primary.pkgs )
+# The update repo indexes binaries and sources together, so pick the sources:
+# they carry the source package name, with no %{sourcerpm} guesswork.
+# Not fatal if it is missing - a freshly bumped generation has published
+# nothing yet, and neither has a new playground. We just fall back to the base
+# snapshot plus whatever state/ recorded, which is what we had before.
+updpkgs=
+if ( cd cache/slowroll-update && $d/tools/getprimary $slouurl ) &&
+   ( cd cache/slowroll-update && $d/tools/parsexml.pl primary.xml.zst src > primary.pkgs ) ; then
+    updpkgs=cache/slowroll-update/primary.pkgs
+else
+    echo "XX no published update repo at $slouurl - classifying without it" >&2
+fi
 
 tools/versionclassifier.pl ${slou:+--state state/$slou} \
-    cache/{tumbleweed,slowroll,slowroll-update}/primary.pkgs | tee out/versionclass.json
+    cache/tumbleweed/primary.pkgs cache/slowroll/primary.pkgs $updpkgs | tee out/versionclass.json
