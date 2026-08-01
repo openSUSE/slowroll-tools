@@ -19,6 +19,7 @@
 use strict;
 use lib 'lib';
 use common;
+use rpm;
 
 our $mode = $ENV{INSTALLCHECK} || 'warn'; # warn | enforce | off
 our $dryrun = ($ENV{DRYRUN}//1) != 0;
@@ -67,9 +68,7 @@ sub refresh()
         prune_old_primaries($dir, $primary);
         my $solv = "$dir/repo.solv";
         next if -e $solv && (stat($solv))[9] >= (stat($primary))[9];
-        # decompressor from the extension, as tools/parsexml.pl does
-        my $decompressor = ($primary =~ m/\.gz$/) ? 'gzip' : 'zstd';
-        run("$decompressor -dc $primary | rpmmd2solv > $solv.new") == 0
+        run(decompressor($primary)." -dc $primary | rpmmd2solv > $solv.new") == 0
             or die "converting $primary failed\n";
         rename("$solv.new", $solv) or die "error writing $solv : $!";
     }
@@ -110,18 +109,7 @@ sub check()
     return $out//'';
 }
 
-# binary name -> source package, recorded from %{disturl} by releasestagingone.
-# Never derive this from the binary name or %{sourcerpm}: for multibuild
-# packages neither is the OBS package name (adwaita-qt6 and adwaita-qt6-src
-# both come from OBS package adwaita-qt).
-sub disturl2pkg($)
-{ my $disturl = shift;
-    return undef unless $disturl =~ m,/[0-9a-f]{32}-([^/]+)$,;
-    my $pkg = $1;
-    $pkg =~ s/:.*//; # multibuild flavor: adwaita-qt:qt6 -> adwaita-qt
-    return $pkg;
-}
-
+# binary name -> source package, recorded from %{disturl} by releasestagingone
 sub load_map()
 {
     my %bin2src;
