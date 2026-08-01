@@ -75,6 +75,41 @@ sub state_update($$$)
     return state_store($prj, $pkg, {%$old, %$h});
 }
 
+our $twpkgs; # lazily loaded
+
+# the Tumbleweed version we are submitting, from what tools/diffdistro fetched
+sub tw_version($)
+{ my $pkg = shift;
+    my $f = $ENV{twpkgs} || 'cache/tumbleweed/primary.pkgs';
+    return undef unless -e $f;
+    $twpkgs = load_json($f) unless defined $twpkgs;
+    my $p = $twpkgs->{$pkg} or return undef;
+    return $p->{version};
+}
+
+# record that we just put $pkg at Factory revision $rev into $prj
+sub state_record_submit($$;$)
+{ my ($prj, $pkg, $rev) = @_;
+    my %h = (submitted => time);
+    $h{rev} = $rev if defined($rev) && length($rev) && $rev ne 'latest';
+    if(my $v = tw_version($pkg)) {
+        $h{ver} = $v->{ver} if defined $v->{ver};
+        $h{rel} = $v->{rel} if defined $v->{rel};
+        $h{epoch} = $v->{epoch} // '0';
+    } else {
+        diag("no Tumbleweed version known for $pkg - recording without one");
+    }
+    return state_update($prj, $pkg, \%h);
+}
+
+# the recorded version as cmpversion() wants it, or undef if we have none
+sub state_version($$)
+{ my ($prj, $pkg) = @_;
+    my $h = state_load($prj, $pkg);
+    return undef unless defined($h->{ver}) && defined($h->{rel});
+    return { epoch => $h->{epoch} // '0', ver => $h->{ver}, rel => $h->{rel} };
+}
+
 sub state_list($)
 { my $prj = shift;
     my $dir = state_dir($prj);

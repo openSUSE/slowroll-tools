@@ -30,6 +30,11 @@ if [[ $FORCE ]] || [[ -n `PAGER="wc -c" osc rdiff --missingok -r $rev $srcprj "$
     fi
     #osc detachbranch -m "drop link" $dstprj "$pkg"
     touch out/pending/$pkg
+    # note which version we just put there, so the next classifier run knows
+    # this package is no longer at the base snapshot version. This is the
+    # manual path too - the whole point is that a hand-pushed major update
+    # stops looking like one to selectupdates.pl afterwards.
+    tools/pkgstate record "$dstprj" "$pkg" "$rev"
 else
     echo "no diff"
     exit 11

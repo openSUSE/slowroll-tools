@@ -2,10 +2,12 @@
 # shell accessor for the per-package version records in state/<project>/<package>
 #
 # usage:
-#   tools/pkgstate get  PRJ PKG KEY     # prints the bare value, exit 1 if unset
-#   tools/pkgstate set  PRJ PKG KEY VAL [KEY VAL ...]
-#   tools/pkgstate show PRJ PKG         # all key=value lines, for humans
-#   tools/pkgstate list PRJ             # package names, one per line
+#   tools/pkgstate get    PRJ PKG KEY   # prints the bare value, exit 1 if unset
+#   tools/pkgstate set    PRJ PKG KEY VAL [KEY VAL ...]
+#   tools/pkgstate record PRJ PKG [REV] # note a submit: ver/rel from Tumbleweed
+#   tools/pkgstate promote FROM TO PKG [KEY VAL ...]  # carry the record along
+#   tools/pkgstate show   PRJ PKG       # all key=value lines, for humans
+#   tools/pkgstate list   PRJ           # package names, one per line
 #
 # get prints one value on stdout so callers can do
 #   ver=$(tools/pkgstate get "$slou" "$pkg" ver)
@@ -31,6 +33,18 @@ my %commands = (
         die "usage: $0 set PRJ PKG KEY VAL [KEY VAL ...]\n" unless @kv && !(@kv % 2);
         my %h = @kv;
         state_update($prj, $pkg, \%h);
+    },
+    record => sub {
+        my ($prj, $pkg, $rev) = @_;
+        die "usage: $0 record PRJ PKG [REV]\n" unless defined($pkg);
+        state_record_submit($prj, $pkg, $rev);
+    },
+    promote => sub {
+        my ($from, $to, $pkg, @kv) = @_;
+        die "usage: $0 promote FROMPRJ TOPRJ PKG [KEY VAL ...]\n"
+            unless defined($pkg) && !(@kv % 2);
+        my $h = state_load($from, $pkg);
+        state_update($to, $pkg, {%$h, @kv});
     },
     show => sub {
         my ($prj, $pkg) = @_;

@@ -36,6 +36,8 @@ if [ -z "$dry" -a -n "$releasedpkgs" ] ; then
         pkg=$(basename "$pkg")
         releasedpkgs2="$releasedpkgs2 $pkg"
         osc linkpac -f "$slou" "$pkg.$tag" "$slou" "$pkg"
+        # now it really is what our users get
+        tools/pkgstate promote "$sloreleasing" "$slou" "$pkg" released "$(date +%s)"
     done
     n=$(echo $releasedpkgs2 | wc -w)
     (echo -e "A collection of maintenance updates was released for Slowroll.\nReleased $n packages: "

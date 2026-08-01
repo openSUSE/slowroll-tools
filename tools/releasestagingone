@@ -68,7 +68,12 @@ fi
     src=openSUSE:Factory
   fi
   echo "XX releasing $src $pkg"
-  $dry tools/releasemulti "$src" "$sloreleasing" "$pkg"
+  $dry tools/releasemulti "$src" "$sloreleasing" "$pkg" || {
+    # keep out/pending and the state record untouched: the record asserts the
+    # version is there, and the next run must retry the release
+    echo "XX release of $pkg from $src failed - keeping it pending" >&2
+    exit 15
+  }
 
   # candidate set for tools/installcheckrelease - the binaries are still here,
   # so this costs no extra download. x86_64+noarch only: the i586 ones fetched
@@ -84,6 +89,14 @@ fi
     else
         echo "XX installcheck: no x86_64/noarch binaries for $pkg - not checked"
     fi )
+
+  # carry the version record along to the releasing project. Only when we
+  # really released, since the record asserts that the version is there.
+  if [ -z "$dry" ] ; then
+      tools/pkgstate promote "$slobuild" "$sloreleasing" "$pkg" src "$src"
+      disturl=$(head -1 cache/installcheck/pending/$pkg.map 2>/dev/null | cut -d' ' -f2)
+      [ -n "$disturl" ] && tools/pkgstate set "$sloreleasing" "$pkg" disturl "$disturl"
+  fi
 
   #$dry osc rdelete -m "released" $slobuild $pkg &&
   $dry rm out/pending/$pkg
