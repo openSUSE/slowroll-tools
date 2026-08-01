@@ -30,9 +30,10 @@ our $cachedir = 'cache/installcheck';
 our $pendingdir = "$cachedir/pending";
 our $checkstatus = 0; # wait status of the last installcheck run
 
+our $origin = $ENV{sloorigin} || 'https://download.opensuse.org';
 our %repo = (
-    base   => $ENV{slobaseurl} || 'https://download.opensuse.org/slowroll/repo/oss/',
-    update => $ENV{slouurl}    || 'https://download.opensuse.org/update/slowroll/repo/oss/',
+    base   => $ENV{slobaseurl} || "$origin/slowroll/repo/oss/",
+    update => $ENV{slouurl}    || "$origin/update/slowroll/repo/oss/",
 );
 
 sub run($)

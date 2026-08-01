@@ -1,5 +1,9 @@
 #!/usr/bin/perl -w
-# shell accessor for the per-package version records in state/<project>/<package>
+# shell accessor for the version records in state/<project>/<source package>
+#
+# PKG is always an OBS SOURCE package name - what you would pass to
+# submitpackageupdate or see in out/pending/ - never a binary rpm name, and
+# never a multibuild flavor (adwaita-qt, not adwaita-qt6 and not adwaita-qt:qt6).
 #
 # usage:
 #   tools/pkgstate get    PRJ PKG KEY   # prints the bare value, exit 1 if unset

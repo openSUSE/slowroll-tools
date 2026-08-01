@@ -1,8 +1,23 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-2.0-only
+# Work out how far each Tumbleweed package is from what Slowroll ships.
+#
+# The Slowroll side is more than the base snapshot: packages released as
+# maintenance updates since the last bump are newer than the base, and
+# packages we submitted but have not published yet only exist in state/.
+# All three are handed to the classifier.
 d=`pwd`
-mkdir -p cache/tumbleweed cache/slowroll
-( cd cache/tumbleweed && $d/tools/getprimary https://download.opensuse.org/source/tumbleweed/repo/oss/ && $d/tools/parsexml.pl primary.xml.zst > primary.pkgs )
-( cd cache/slowroll && $d/tools/getprimary http://download.opensuse.org/slowroll/repo/src-oss/ && $d/tools/parsexml.pl primary.xml.zst > primary.pkgs )
-tools/versionclassifier.pl cache/{tumbleweed,slowroll}/primary.pkgs | tee out/versionclass.json
+: ${sloorigin:=https://download.opensuse.org}
+: ${twsrcurl:=$sloorigin/source/tumbleweed/repo/oss/}
+: ${slobasesrcurl:=$sloorigin/slowroll/repo/src-oss/}
+: ${slouurl:=$sloorigin/update/slowroll/repo/oss/}
 
+mkdir -p cache/tumbleweed cache/slowroll cache/slowroll-update
+( cd cache/tumbleweed && $d/tools/getprimary $twsrcurl && $d/tools/parsexml.pl primary.xml.zst > primary.pkgs )
+( cd cache/slowroll && $d/tools/getprimary $slobasesrcurl && $d/tools/parsexml.pl primary.xml.zst > primary.pkgs )
+# the update repo indexes binaries and sources together, so pick the sources:
+# they carry the source package name, with no %{sourcerpm} guesswork
+( cd cache/slowroll-update && $d/tools/getprimary $slouurl && $d/tools/parsexml.pl primary.xml.zst src > primary.pkgs )
+
+tools/versionclassifier.pl ${slou:+--state state/$slou} \
+    cache/{tumbleweed,slowroll,slowroll-update}/primary.pkgs | tee out/versionclass.json

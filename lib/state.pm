@@ -1,9 +1,24 @@
 use strict;
 use common;
 
-# Per-package record of which version we put into which project.
+# Record of which version we put into which project, keyed by SOURCE package.
 #
-#   state/<project>/<package>    one key=value per line
+#   state/<project>/<source package>    one key=value per line
+#
+# The filename is the OBS package name - the same string used in out/pending/,
+# in osc ls $slou, and as $pkg all through the tools. Never a binary rpm name:
+# 389-ds builds lib389, and adwaita-qt builds adwaita-qt6, but only 389-ds and
+# adwaita-qt appear here. Multibuild flavors are folded into their base package
+# too, so adwaita-qt:qt6 is recorded under adwaita-qt.
+#
+# The fields, all describing that source package:
+#   ver, rel, epoch  its version, as Tumbleweed had it when we submitted
+#   rev              the Factory srcmd5 we branched from
+#   disturl          disturl of one of its *binary* rpms - this is the only
+#                    field that can carry a :flavor suffix
+#   submitted        when we put it into the build project
+#   released         when it reached the update project users consume
+#   src              which project the released binaries actually came from
 #
 # One file per package on purpose: every writer touches exactly one package, so
 # a temp file plus rename is atomic and no locking is needed anywhere.
@@ -77,7 +92,8 @@ sub state_update($$$)
 
 our $twpkgs; # lazily loaded
 
-# the Tumbleweed version we are submitting, from what tools/diffdistro fetched
+# version of the Tumbleweed SOURCE package we are submitting, out of the
+# source-repo package list tools/diffdistro fetched
 sub tw_version($)
 { my $pkg = shift;
     my $f = $ENV{twpkgs} || 'cache/tumbleweed/primary.pkgs';
@@ -87,7 +103,7 @@ sub tw_version($)
     return $p->{version};
 }
 
-# record that we just put $pkg at Factory revision $rev into $prj
+# record that we just put source package $pkg, at Factory revision $rev, into $prj
 sub state_record_submit($$;$)
 { my ($prj, $pkg, $rev) = @_;
     my %h = (submitted => time);
@@ -102,7 +118,7 @@ sub state_record_submit($$;$)
     return state_update($prj, $pkg, \%h);
 }
 
-# the recorded version as cmpversion() wants it, or undef if we have none
+# the recorded source-package version as cmpversion() wants it, or undef
 sub state_version($$)
 { my ($prj, $pkg) = @_;
     my $h = state_load($prj, $pkg);
