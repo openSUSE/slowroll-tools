@@ -16,6 +16,13 @@ fi
 if [ $rev = latest ] ; then
     rev=$(osc_api "source/$srcprj/$pkg/_history?limit=1" |
           perl -ne 'm/<srcmd5>([0-9a-f]+)</ and print "$1"')
+    # Do not carry on with an empty one: unquoted, it disappears in word
+    # splitting and osc reads the next argument as the revision instead.
+    if [ -z "$rev" ] ; then
+        echo "$0: cannot resolve the latest revision of $pkg in $srcprj" >&2
+        echo "$0: (is there a ~/.netrc for the OBS API? see test/README.md)" >&2
+        exit 12
+    fi
 fi
 
 # find out if it has any diff:
@@ -24,7 +31,13 @@ if [[ $FORCE ]] || [[ -n `PAGER="wc -c" osc rdiff --missingok -r $rev $srcprj "$
     vrev=`tools/findcireleasecounter $srcprj $pkg`
     echo "submitting $pkg $vrev ..."
     osc branch -f -r $rev --nodevelproject $srcprj "$pkg" $dstprj ||
-        osc linkpac -f -r $rev $srcprj "$pkg" $dstprj
+        osc linkpac -f -r $rev $srcprj "$pkg" $dstprj || {
+            # without this we would still queue it in out/pending and
+            # releasestaging would later try to release a package that is not
+            # there
+            echo "$0: failed to put $pkg into $dstprj" >&2
+            exit 13
+        }
     if [[ -n "$vrev" ]] ; then
         osc setlinkrev --vrev "$vrev.0" -r $rev $dstprj "$pkg"
     fi
