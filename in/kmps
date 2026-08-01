@@ -3,7 +3,6 @@ CoreFreq
 avfs
 ayaneo-platform
 bbswitch
-bcachefs-tools
 crash
 dpdk
 drbd
@@ -19,7 +18,6 @@ msr-safe
 nvidia-open-driver-G06-signed
 nvidia-open-driver-G07-signed
 ovpn-dco
-rtl8188gu
 rtl88x2bu
 tp_smapi
 v4l2loopback
