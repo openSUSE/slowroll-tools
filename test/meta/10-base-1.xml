@@ -1,0 +1,13 @@
+<project name="home:bmwiedemannai:Slowroll:Base:1">
+  <title>test base snapshot, generation 1</title>
+  <description>Mirrors openSUSE:Slowroll:Base:1 - the frozen build target that
+also holds i586 binaries released from Factory. Build config is copied from
+Factory by test/setupplayground.</description>
+  <person userid="bmwiedemannai" role="maintainer"/>
+  <build><disable/></build>
+  <repository name="standard">
+    <path project="openSUSE:Tumbleweed" repository="standard"/>
+    <arch>x86_64</arch>
+    <arch>i586</arch>
+  </repository>
+</project>

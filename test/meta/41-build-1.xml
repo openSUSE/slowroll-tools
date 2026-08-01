@@ -1,0 +1,14 @@
+<project name="home:bmwiedemannai:Slowroll:Build:1">
+  <title>test staging area, generation 1</title>
+  <description>Mirrors openSUSE:Slowroll:Build:1 - packages branched from
+Factory build here. Path order matches production: already-released updates
+win over the frozen base.</description>
+  <person userid="bmwiedemannai" role="maintainer"/>
+  <debuginfo><enable/></debuginfo>
+  <repository name="standard" rebuild="direct">
+    <path project="home:bmwiedemannai:Slowroll:1" repository="standard"/>
+    <path project="home:bmwiedemannai:Slowroll:Base:1" repository="standard"/>
+    <arch>x86_64</arch>
+    <arch>i586</arch>
+  </repository>
+</project>

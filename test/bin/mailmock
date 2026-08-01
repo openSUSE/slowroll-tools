@@ -1,0 +1,12 @@
+#!/bin/sh
+# Stand-in for mailx. Records what would have been sent instead of sending it,
+# so test/assertions can check the announcement without any mail leaving.
+# tools/notifyML invokes us as: MAILER -r FROM -s SUBJECT TO
+out=${MAILMOCK_OUT:-out/log/mailmock}
+mkdir -p "$(dirname "$out")"
+{
+    echo "=== $(date -Iseconds) ==="
+    echo "args: $*"
+    echo "--- body ---"
+    cat
+} >> "$out"

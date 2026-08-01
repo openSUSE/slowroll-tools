@@ -1,0 +1,32 @@
+# Playground environment for the slowroll-tools test suite.
+# Source this INSTEAD of ~/.slorc:   set -a ; . test/slorc.test ; set +a
+#
+# The Makefile derives the next generation's slorc with tools/nextslorc, which
+# flips only whole colon- or slash-delimited generation digits. Other digits -
+# a port, a year, RELEASE_SETTLE=1m - are left alone. test/assertions checks
+# that on this very file.
+
+slo=home:bmwiedemannai:Slowroll
+slon=1
+slou=home:bmwiedemannai:Slowroll:1
+slobase=home:bmwiedemannai:Slowroll:Base:1
+slobuild=home:bmwiedemannai:Slowroll:Build:1
+sloreleasing=home:bmwiedemannai:Slowroll:Build:Releasing:1
+
+# where published repos are read from. gwdg is a full mirror - stage3 lacks
+# most of /repositories/, and download.opensuse.org is MirrorCache and caches
+# repodata for a couple of minutes.
+sloorigin=http://ftp.gwdg.de/pub/opensuse
+twsrcurl=$sloorigin/source/tumbleweed/repo/oss/
+slobasesrcurl=$sloorigin/repositories/home:/bmwiedemannai:/Slowroll:/Base:/1/standard/
+slobaseurl=$sloorigin/repositories/home:/bmwiedemannai:/Slowroll:/Base:/1/standard/
+slouurl=$sloorigin/repositories/home:/bmwiedemannai:/Slowroll:/1/standard/
+
+# safety - see test/guard.sh
+sloguard=home:bmwiedemannai:Slowroll
+SILENT=yes
+TOADDR=slowroll-test@example.invalid
+MAILER=$PWD/test/bin/mailmock
+
+# keep test runs quick
+RELEASE_SETTLE=5s

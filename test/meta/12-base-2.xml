@@ -1,0 +1,13 @@
+<project name="home:bmwiedemannai:Slowroll:Base:2">
+  <title>test base snapshot, generation 2</title>
+  <description>Mirrors openSUSE:Slowroll:Base:2 - the frozen build target that
+also holds i586 binaries released from Factory. Build config is copied from
+Factory by test/setupplayground.</description>
+  <person userid="bmwiedemannai" role="maintainer"/>
+  <build><disable/></build>
+  <repository name="standard">
+    <path project="openSUSE:Factory" repository="standard"/>
+    <arch>x86_64</arch>
+    <arch>i586</arch>
+  </repository>
+</project>

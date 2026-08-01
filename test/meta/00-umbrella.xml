@@ -1,0 +1,7 @@
+<project name="home:bmwiedemannai:Slowroll">
+  <title>Slowroll pipeline test playground</title>
+  <description>Disposable mirror of the openSUSE:Slowroll pipeline, used by the
+slowroll-tools test suite. Not a distribution - do not consume. Everything
+under this namespace may be deleted at any time by test/teardownplayground.</description>
+  <person userid="bmwiedemannai" role="maintainer"/>
+</project>

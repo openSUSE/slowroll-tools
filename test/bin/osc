@@ -1,0 +1,30 @@
+#!/bin/sh
+# Shim for the direct `osc` calls in the toolchain - branch, linkpac, copypac,
+# setlinkrev, rdelete, wipebinaries, rebuild, release, meta -F. Those bypass
+# tools/osc.sh, so osc_guard never sees them.
+#
+# Refuse any mutating subcommand that names a production Slowroll project. A
+# legitimate playground operation never does; openSUSE:Factory as a *source*
+# stays allowed, which is the whole point of the toolchain.
+
+realosc=$(PATH=$(echo "$PATH" | sed "s,$(dirname "$0"):,,g") command -v osc)
+[ -n "$realosc" ] || { echo "osc shim: cannot find the real osc" >&2 ; exit 127 ; }
+
+case "$1" in
+    branch|linkpac|copypac|setlinkrev|rdelete|wipebinaries|rebuild|release|api|meta|co|ci|commit|deleterequest|detachbranch)
+        for a in "$@" ; do
+            case "$a" in
+                *openSUSE:Slowroll*)
+                    # anywhere in any argument: also embedded in an `osc api`
+                    # URL like /source/openSUSE:Slowroll:1?force=1, which an
+                    # enumeration of arg shapes kept missing. Erring towards
+                    # refusing is fine here.
+                    echo "GUARD: osc $1 names a production project ($a) - refusing" >&2
+                    exit 9
+                    ;;
+            esac
+        done
+        ;;
+esac
+
+exec "$realosc" "$@"

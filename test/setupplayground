@@ -1,0 +1,52 @@
+#!/bin/sh
+# Create (or update) the playground projects. Idempotent: osc meta prj -F is a
+# PUT, so re-running just re-asserts the same metadata.
+#
+# usage: set -a ; . test/slorc.test ; set +a ; test/setupplayground
+. test/guard.sh
+set -e
+
+mkdir -p out/pending out/log out/result/slo out/result/slos \
+         cache/meta cache/view cache/force-submit cache/locks
+
+# Factory's build config, or a base pathed at Tumbleweed inherits the ~30 line
+# openSUSE:Tumbleweed prjconf and most packages fail to resolve
+if [ ! -s cache/meta/factory-prjconf ] ; then
+    echo "fetching the Factory prjconf..."
+    osc meta prjconf openSUSE:Factory > cache/meta/factory-prjconf
+fi
+
+# order matters: OBS rejects a <path> or <link> to a project that does not exist
+for f in test/meta/*.xml ; do
+    prj=$(sed -n 's/.*<project name="\([^"]*\)".*/\1/p' "$f" | head -1)
+    case "$prj" in
+        "$sloguard"|"$sloguard":*) ;;
+        *) echo "REFUSING: $f names $prj, outside $sloguard" >&2 ; exit 9 ;;
+    esac
+    echo "meta $prj"
+    osc meta prj -F "$f" "$prj"
+done
+
+# the tools expect primary.xml.zst (tools/diffdistro parses exactly that name);
+# production sets this on openSUSE:Slowroll, so mirror it on every project
+# whose published repo they read. Last RepoType line wins over Factory's.
+repotype='RepoType: rpm-md:sha512:compression-zstd:zchunk'
+
+for g in 1 2 ; do
+    echo "prjconf $slo:Base:$g"
+    { cat cache/meta/factory-prjconf ; echo "$repotype" ; } |
+        osc meta prjconf -F /dev/stdin "$slo:Base:$g"
+    echo "prjconf $slo:$g"
+    echo "$repotype" | osc meta prjconf -F /dev/stdin "$slo:$g"
+    echo "prjconf $slo:Build:$g"
+    sed "s,@BUILDPRJ@,$slo:Build:$g,g" test/meta/build-prjconf |
+        osc meta prjconf -F /dev/stdin "$slo:Build:$g"
+done
+
+# build-compare is not vendored, and releasestagingone calls it by relative path
+if [ ! -x build-compare/same-build-result.sh ] ; then
+    echo "cloning build-compare..."
+    git clone -q -b slowroll https://github.com/bmwiedemann/build-compare build-compare
+fi
+
+echo "playground ready under $slo"

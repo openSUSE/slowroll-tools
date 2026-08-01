@@ -1,0 +1,12 @@
+## prjconf for the test build projects. @BUILDPRJ@ is substituted by
+## test/setupplayground. Mirrors the shape of the production one.
+Prefer: openSUSE-release
+Substitute: kernel-syms kernel-syms kernel-syms-longterm
+%if "%_project" == "@BUILDPRJ@"
+Macros:
+%vendor openSUSE
+%distribution openSUSE Slowroll (test)
+%packager https://bugs.opensuse.org
+:Macros
+%endif
+BuildFlags: logidlelimit:5400

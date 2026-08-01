@@ -1,0 +1,17 @@
+<project name="home:bmwiedemannai:Slowroll:Build:Releasing:2">
+  <title>packages in the process of being released (test, generation 2)</title>
+  <description>Transient batch buffer so one release produces one publish event
+on the update repo. Wiped at the start of every releasestaging run. Mirrors
+openSUSE:Slowroll:Build:Releasing:2.</description>
+  <person userid="bmwiedemannai" role="maintainer"/>
+  <build><disable/></build>
+  <publish><disable/></publish>
+  <debuginfo><enable/></debuginfo>
+  <useforbuild><disable/></useforbuild>
+  <repository name="standard" rebuild="local">
+    <releasetarget project="home:bmwiedemannai:Slowroll:2" repository="standard" trigger="manual"/>
+    <path project="home:bmwiedemannai:Slowroll:2" repository="standard"/>
+    <arch>x86_64</arch>
+    <arch>i586</arch>
+  </repository>
+</project>

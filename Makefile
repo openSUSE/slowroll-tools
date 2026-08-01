@@ -128,7 +128,7 @@ newsnapshot9:
 	rm -f .blockcron
 	echo "switch slowroll-next/slowroll in https://build.opensuse.org/projects/openSUSE:Slowroll:Base:1+2/meta"
 	tools/switchbase ${slo}:Base:Next
-	tr 12 21 <~/.slorc >~/.slorc.next
+	tools/nextslorc <~/.slorc >~/.slorc.next
 	echo "ensure ${slobuild} builds for ${slou} and not just ${slobase}"
 	echo "notify reddit of completion"
 	tools/newsnapshot9

@@ -1,0 +1,15 @@
+<project name="home:bmwiedemannai:Slowroll:2" kind="maintenance_release">
+  <title>test update project, generation 2</title>
+  <description>Mirrors openSUSE:Slowroll:2 - what users consume. Packages only
+ever arrive here via osc release. kind=maintenance_release is what makes OBS
+append the .YYYYMMDDHHMMSS suffix that findlastrelease and followlink expect.</description>
+  <link project="home:bmwiedemannai:Slowroll:Base:2"/>
+  <person userid="bmwiedemannai" role="maintainer"/>
+  <build><disable/></build>
+  <debuginfo><enable/></debuginfo>
+  <repository name="standard" rebuild="direct">
+    <path project="home:bmwiedemannai:Slowroll:Base" repository="standard"/>
+    <arch>x86_64</arch>
+    <arch>i586</arch>
+  </repository>
+</project>

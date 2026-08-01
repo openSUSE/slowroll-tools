@@ -1,0 +1,13 @@
+<project name="home:bmwiedemannai:Slowroll:Base:Next">
+  <title>test base alias: Base:Next</title>
+  <description>Redirects to whichever generation is current. tools/switchbase
+rewrites the Base:N references in here. Mirrors openSUSE:Slowroll:Base:Next.</description>
+  <person userid="bmwiedemannai" role="maintainer"/>
+  <build><disable/></build>
+  <publish><disable/></publish>
+  <repository name="standard">
+    <path project="home:bmwiedemannai:Slowroll:Base:1" repository="standard"/>
+    <arch>x86_64</arch>
+    <arch>i586</arch>
+  </repository>
+</project>
