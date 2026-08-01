@@ -6,6 +6,8 @@
 # overlaps with tools/syncslob
 # usage:
 # DRYRUN=0 DELETE=1 tools/obsrsync $(cat in/missing-dvd-rpms)
+# arguments may be source packages or binary rpm names - out/pkgmapsrcbin is
+# used to map the latter back to the package that builds them
 use strict;
 use XML::Bare;
 use lib 'lib';
@@ -26,9 +28,9 @@ while(my @a = each(%$srcbin)) {
     my $p = $a[0]; $p=~s/:.*//;
     push(@{$allbins{$p}}, @{$a[1]});
     foreach my $bin (@{$a[1]}) {
-        $binsrc{$bin} = $a[0];
+        $binsrc{$bin} = $p;
     }
-} 
+}
 #my $src32ref  = new XML::Bare(text => cache_or_run("cache/factory-i586.xml", sub{ `osc api /build/$src/standard/i586/_repository?view=binaryversions` })) ->parse();
 my $srcref  = new XML::Bare(text => cache_or_run("cache/factory-x86_64.xml", sub{ `osc api /build/$src/standard/x86_64/_repository?view=binaryversions` }, 6*3600)) ->parse();
 #my $dest32ref = new XML::Bare(text => cache_or_run("cache/slob-i586.xml",   sub{ `osc api /build/$dest/standard/i586/_repository?view=binaryversions` })) ->parse();
@@ -52,7 +54,16 @@ process_binaryversions($srcref);
 process_binaryversions($destref);
 
 my %submitted;
-for my $pkg (@pkgs) {
+for my $arg (@pkgs) {
+    # in/missing-dvd-rpms holds binary rpm names - the DVD build log warns
+    # about binaries, not about source packages. Map them over, or we look up
+    # $allbins{libfreecell-solver0}, find nothing, decide everything is in
+    # sync and silently skip the package we were asked to sync.
+    my $pkg = $arg;
+    if(!$allbins{$pkg} && $binsrc{$pkg}) {
+        diag("$pkg is a binary built by $binsrc{$pkg}");
+        $pkg = $binsrc{$pkg};
+    }
     diag("pkg:$pkg");
     next if $submitted{$pkg}++;
     my $allsynced = 1;
