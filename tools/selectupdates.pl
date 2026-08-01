@@ -21,7 +21,7 @@ our $submitted = 0;
 our %exceptions;
 our $slobuild=$ENV{slobuild};
 our $builddisabled = 0;
-for my $t ("major", "minor", "never", "immediate") {
+for my $t ("major", "minor", "never", "immediate", "nopatchlevel") {
     $exceptions{$t} = load_list_map "in/$t-update-exceptions";
 }
 
@@ -104,7 +104,7 @@ foreach my $pkg (sort keys (%{$versionclass})) {
     my $repopkg = $repo{factory}{$pkg};
     next unless $repopkg;
     diag("checking $pkg");
-    my $slorepopkg = $repo{slos}{$pkg} || $repo{slo}{$pkg} ;
+    my $slorepopkg = $repo{"slos$slon"}{$pkg} || $repo{"slo$slon"}{$pkg} ;
     if($slorepopkg && $slorepopkg->{md5} eq $repopkg->{md5}) {
         diag("skip already submitted");
 	next;
