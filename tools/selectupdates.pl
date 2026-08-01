@@ -7,6 +7,7 @@ use IO::Uncompress::Gunzip qw(gunzip);
 use constant DAY => 86400;
 use lib "lib";
 use common;
+use rpm;
 
 $|=1;
 our $dryrun = $ENV{DRYRUN}//1;
@@ -116,8 +117,9 @@ foreach my $pkg (sort keys (%{$versionclass})) {
     my $diff = getdiff($pkg) unless $vercmp == 255 or $vercmp == 66;
     if($vercmp == 255) {submit($pkg, "latest")}
     next unless $diff;
-    $diff =~ m!\A\+"obs://build\.opensuse\.org/openSUSE:Factory/standard/([0-9a-f]*)!;
-    my $rev = $1 // die "did not find disturl for $pkg";
+    # getchangelog prints the disturl on the first line, after a literal quote
+    my ($disturl) = $diff =~ m!\A\+"(obs://\S+)!;
+    my $rev = disturl2rev($disturl) // die "did not find disturl for $pkg";
     $pkgs[0]->{$pkg}{diff} = $diff;
     my $delay = $delay[0];
     if($vercmp == 255 or $exceptions{immediate}{$pkg}) {

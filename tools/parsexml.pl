@@ -5,9 +5,12 @@
 use strict;
 use XML::Bare;
 use JSON::XS;
+use FindBin;
+use lib "$FindBin::RealBin/../lib"; # tools/diffdistro runs us from cache/*/
+use rpm;
 $|=1;
 my $xmlgz = shift;
-my $decompressor = ($xmlgz=~m/\.gz/ ? 'gzip':'zstd');
+my $decompressor = decompressor($xmlgz);
 my $xml = `$decompressor -cd $xmlgz`;
 my $ref = new XML::Bare(text => $xml) ->parse();
 my $coder = JSON::XS->new->pretty->canonical;
