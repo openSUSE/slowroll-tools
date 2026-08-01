@@ -1,4 +1,4 @@
 #!/bin/sh
-slo=openSUSE:Slowroll
+: ${slo:=openSUSE:Slowroll}
 osc release $slobuild --target-project=$slou openSUSE-Slowroll-Guests --target-repository=images -r images
 #osc release $slo:Build:iso --target-project=$slou 000product --target-repository=images -r images

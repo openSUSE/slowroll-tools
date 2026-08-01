@@ -1,6 +1,5 @@
 #!/bin/bash
 if [[ $DEBUG ]] ; then set -x ; fi
-slo=openSUSE:Slowroll
 # from https://github.com/bmwiedemann/build-compare/tree/slowroll
 dry=echo
 [ "$DRYRUN" = 0 ] && dry=
