@@ -13,10 +13,12 @@ slobase=home:bmwiedemannai:Slowroll:Base:1
 slobuild=home:bmwiedemannai:Slowroll:Build:1
 sloreleasing=home:bmwiedemannai:Slowroll:Build:Releasing:1
 
-# where published repos are read from. gwdg is a full mirror - stage3 lacks
-# most of /repositories/, and download.opensuse.org is MirrorCache and caches
-# repodata for a couple of minutes.
-sloorigin=http://ftp.gwdg.de/pub/opensuse
+# Where published repos are read from. downloadcontent is the origin, so it has
+# a new repo the moment OBS publishes it. download.opensuse.org is MirrorCache
+# and caches repodata briefly; ftp.gwdg.de is a full mirror of the distribution
+# trees but does not pick up a freshly created home: project at all - verified
+# 404 while the origin already served revision 1785609441.
+sloorigin=https://downloadcontent.opensuse.org
 twsrcurl=$sloorigin/source/tumbleweed/repo/oss/
 slobasesrcurl=$sloorigin/repositories/home:/bmwiedemannai:/Slowroll:/Base:/1/standard/
 slobaseurl=$sloorigin/repositories/home:/bmwiedemannai:/Slowroll:/Base:/1/standard/
