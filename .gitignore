@@ -2,3 +2,6 @@ buildinfo
 cache
 out
 state
+build-compare
+tmp
+.blockcron
