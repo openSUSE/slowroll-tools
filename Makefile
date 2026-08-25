@@ -138,3 +138,7 @@ cache/ring0:
 
 cache/factory-i586-binaries:
 	osc ls -vb --arch i586 openSUSE:Factory > $@
+test1:
+	( set -a ; . test/slorc.test ; set +a ; test/assertions --offline )
+test2:
+	( set -a ; . test/slorc.test ; set +a ; test/runcycle )
