@@ -18,7 +18,10 @@ our $prev;
 if(-e $filename) {
     $prev = load_file($filename);
 }
-our $current = `curl -L -s $url`;
+our $current = `curl -L -s -f $url`;
+if($? != 0 or $current eq "") {
+    exit 0; # don't trigger on server outage
+}
 if(!defined($prev) or $current ne $prev) {
     store_file($filename, $current);
     exec(@ARGV);
