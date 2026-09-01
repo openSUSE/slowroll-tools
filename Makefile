@@ -21,6 +21,11 @@ select:
 release:
 	tools/releasestaging 2>&1 | tee out/log/release-$$(date -Iseconds)
 
+findcoupled: # suggest in/coupled-* entries; run ~monthly, e.g. after newsnapshot1
+	mkdir -p cache/tumbleweed-bin out
+	d=$$(pwd) ; cd cache/tumbleweed-bin && $$d/tools/getprimary https://download.opensuse.org/tumbleweed/repo/oss/
+	tools/findcoupled.pl | tee out/findcoupled
+
 newsnapshot1: # before or on day of TW snapshot (~6d ahead of bump) # source slorc.next
 	osc api -X DELETE /source/${slobase}/_project/_frozenlinks\?meta=1 ; sleep 5
 	osc api -X POST /source/${slobase}?cmd=freezelink
@@ -43,6 +48,7 @@ newsnapshot1: # before or on day of TW snapshot (~6d ahead of bump) # source slo
 	FORCE=1 ./collectbuildinfo
 	./processbuildinfo
 	go run cmd/processbuildinfo.go
+	echo "consider: make findcoupled"
 
 	#osc ls -vb ${slobase}|grep "Apr.*debugsource" > /tmp/slob ; tools/obsrsync $(perl -ne 'm/.* (.*)-debugsource.rpm/ && print "$1\n"' < /tmp/slob)
 	tools/releasemulti openSUSE:Slowroll:Build:Overlay ${slo}:Base:Next branding-openSUSE
