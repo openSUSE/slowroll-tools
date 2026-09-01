@@ -35,6 +35,18 @@ if (-e "out/pkgmapsrcbin") {
         ." package name. Check suggestions with: osc ls openSUSE:Factory NAME\n";
 }
 
+# _multibuild flavors get sourcerpm names like NetworkManager-branding-openSUSE
+# - strip suffixes until we hit a known OBS package name
+my %obspkg;
+%obspkg = %{load_json("cache/view/factory.json")} if -e "cache/view/factory.json";
+sub srcname($)
+{ my $src = shift;
+    return $src if !%obspkg or $obspkg{$src};
+    my $s = $src;
+    while ($s =~ s/-[^-]+$//) { return $s if $obspkg{$s} }
+    return $src;
+}
+
 my %prov;   # provide name => [{bin, src, epoch, ver, rel}]
 my %reqs;   # binary => [[name, flags, epoch, ver, rel]] - only versioned EQ/GE
 my %binsrc; # binary => source package
@@ -55,7 +67,7 @@ while (my $chunk = <$fh>) {
         next;
     }
     (my $src = $srcrpm) =~ s/-[^-]+-[^-]+\.(?:no)?src\.rpm$//;
-    $src = $binobssrc{$bin} // $src;
+    $src = $binobssrc{$bin} // srcname($src);
     $binsrc{$bin} = $src;
     $binver{$bin} = { epoch => $epoch || "0", ver => $ver, rel => $rel };
     if ($chunk =~ m{<rpm:provides>(.*?)</rpm:provides>}s) {
@@ -167,7 +179,9 @@ foreach my $file (sort keys %new) {
     print "# --- suggested additions to $file$note ---\n";
     foreach my $trigger (sort keys %{$new{$file}}) {
         my @deps = sort keys %{$new{$file}{$trigger}};
-        print "$trigger @deps # ".join("; ", map { $new{$file}{$trigger}{$_} } @deps)."\n";
+        my @ev = map { $new{$file}{$trigger}{$_} } @deps;
+        if (@deps > 3) { splice(@ev, 3); push(@ev, "+".(@deps-3)." more") }
+        print "$trigger @deps # ".join("; ", @ev)."\n";
     }
     print "\n";
 }
