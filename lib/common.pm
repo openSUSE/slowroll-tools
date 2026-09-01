@@ -28,6 +28,18 @@ sub load_list_map($)
     return \%ret;
 }
 
+# load a file with a space-separated group of words per line
+sub load_list_of_lists($)
+{
+    my @ret;
+    for my $line (split("\n", load_file(shift))) {
+        $line =~ s/#.*//; # our in/ lists document themselves in comments
+        my @words = split(' ', $line);
+        push(@ret, \@words) if @words;
+    }
+    return \@ret;
+}
+
 sub load_json($)
 { my $filename = shift;
     return decode_json(load_file($filename));

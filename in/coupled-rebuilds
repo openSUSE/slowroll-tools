@@ -1,0 +1,5 @@
+# when the first package of a line gets a version update, the other packages
+# require a rebuild against it, even when they had no source change themselves
+NetworkManager NetworkManager-branding
+openssl-3 openssl
+SDL2 sdl12-compat

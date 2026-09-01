@@ -1,0 +1,7 @@
+# some packages have strong coupling through required versions, so an update
+# of the first package of a line pulls in updates of the other packages
+# see in/coupled-rebuilds for packages that also need a rebuild without source changes
+MozillaFirefox mozilla-nss mozilla-nspr
+filezilla libfilezilla
+zypper libzypp
+ffmpeg-8 pipewire

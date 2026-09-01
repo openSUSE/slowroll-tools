@@ -24,6 +24,17 @@ our $builddisabled = 0;
 for my $t ("major", "minor", "never", "immediate", "nopatchlevel") {
     $exceptions{$t} = load_list_map "in/$t-update-exceptions";
 }
+our %coupledupdate; # trigger pkg => [pkgs to update along with it]
+for my $group (@{load_list_of_lists("in/coupled-updates")}) {
+    my ($trigger, @rest) = @$group;
+    push(@{$coupledupdate{$trigger}}, @rest);
+}
+our %coupledrebuild; # trigger pkg => [pkgs to rebuild on its update]
+for my $group (@{load_list_of_lists("in/coupled-rebuilds")}) {
+    my ($trigger, @rest) = @$group;
+    push(@{$coupledrebuild{$trigger}}, @rest);
+}
+our %submittednow; # avoid double-submits and endless coupling recursion
 
 sub haddelay($$)
 { my ($timestamp, $delay) = @_;
@@ -86,8 +97,10 @@ sub getdiff($)
     return $diff;
 }
 
+sub submit($$);
 sub submit($$)
 { my ($pkg, $rev) = @_;
+    return if $submittednow{$pkg}++;
     print "submitting $pkg $rev\n";
     if(!$dryrun) {
         if(!$builddisabled) {
@@ -98,11 +111,27 @@ sub submit($$)
         # TODO store $pkgs[0]->{$pkg}{diff} for consumption by users - e.g. RSS feed
         $submitted++ if $?==0;
     } else { $submitted++ }
+    for my $coupled (@{$coupledupdate{$pkg} // []}) {
+        next if $exceptions{never}{$coupled};
+        diag "coupled update: $pkg triggers $coupled";
+        submit($coupled, "latest"); # no-op when it has no pending change
+    }
+    for my $coupled (@{$coupledrebuild{$pkg} // []}) {
+        next if $exceptions{never}{$coupled};
+        next if $submittednow{$coupled}++;
+        print "rebuilding $coupled coupled to $pkg\n";
+        if(!$dryrun) {
+            local $ENV{FORCE} = 1; # resubmit even without source diff
+            system("tools/submitpackageupdate", $coupled, "latest");
+            $submitted++ if $?==0;
+        } else { $submitted++ }
+    }
 }
 
 foreach my $pkg (sort keys (%{$versionclass})) {
     my $repopkg = $repo{factory}{$pkg};
     next unless $repopkg;
+    next if $submittednow{$pkg}; # coupled to an earlier update
     diag("checking $pkg");
     my $slorepopkg = $repo{"slos$slon"}{$pkg} || $repo{"slo$slon"}{$pkg} ;
     if($slorepopkg && $slorepopkg->{md5} eq $repopkg->{md5}) {
