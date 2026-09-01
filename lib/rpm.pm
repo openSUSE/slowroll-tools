@@ -33,4 +33,16 @@ sub decompressor($)
     return $filename =~ m/\.gz$/ ? 'gzip' : 'zstd';
 }
 
+# tools/getprimary only re-downloads when repomd.xml changed, but it keeps
+# every hashed primary it ever fetched. Drop the ones we no longer link to.
+sub prune_old_primaries($$)
+{ my ($dir, $current) = @_;
+    my $keep = (stat($current))[1] or return;
+    for my $f (glob("$dir/*-primary.xml.*")) {
+        next if (stat($f))[1] == $keep;
+        diag("pruning stale $f");
+        unlink($f);
+    }
+}
+
 1;
