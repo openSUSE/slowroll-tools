@@ -1,5 +1,37 @@
 # when the first package of a line gets a version update, the other packages
 # require a rebuild against it, even when they had no source change themselves
+# tools/findcoupled.pl provides a list of possible candidates
+# another good source is ~/code/git/openSUSE/packages> grep "rpm -q --qf.*version" */*/*spec
 NetworkManager NetworkManager-branding
 openssl-3 openssl
-SDL2 sdl12-compat
+SDL2 sdl12_compat
+sdl2-compat sdl12_compat
+#ruby apparmor # for ruby-apparmor
+PackageKit PackageKit-branding-openSUSE # PackageKit requires PackageKit-branding = 1.3.6 (tracks PackageKit version)
+awesome awesome-branding-openSUSE # awesome requires awesome-branding = 4.3 (tracks awesome version)
+branding-openSUSE desktop-data-openSUSE plasma6-openSUSE # desktop-data-openSUSE requires wallpaper-branding = 84.87.20240405; plasma6-sddm-theme-openSUSE requires wallpaper-branding-openSUSE = 84.87.20240405
+cinnamon cinnamon-branding-openSUSE # cinnamon-gschemas requires cinnamon-gschemas-branding = 6.4.6 (tracks cinnamon version)
+cinnamon-desktop cinnamon-branding-openSUSE # libcinnamon-desktop-data requires libcinnamon-desktop-data-branding = 6.4.1 (tracks cinnamon-desktop version)
+epiphany epiphany-branding-openSUSE # epiphany requires epiphany-branding = 50.6 (direction ambiguous - versions coincide)
+gcin gcin-branding-openSUSE
+gdm gdm-branding-openSUSE
+glib2 glib2-branding # gio-branding-openSUSE requires libgio-2_0-0 = 2.88.3
+gnome-menus gnome-menus-branding # gnome-menus requires gnome-menus-branding = 3.38.1 (tracks gnome-menus version)
+gtk2 gtk2-branding gtk2-engines # gtk2-branding-openSUSE requires libgtk-2_0-0 = 2.24.33; gtk2-engine-clearlooks requires gtk2 = 2.24.33
+gtk3 gtk3-branding # gtk3-branding-openSUSE requires libgtk-3-0 = 3.24.52
+gtk4 gtk4-branding # gtk4-branding-openSUSE requires libgtk-4-1 = 4.22.4+29
+hicolor-icon-theme hicolor-icon-theme-branding-openSUSE # hicolor-icon-theme-branding-openSUSE requires hicolor-icon-theme = 0.18
+libgarcon xfce4-branding-openSUSE # libgarcon-data requires libgarcon-branding = 4.20.0 (tracks libgarcon version)
+lightdm-gtk-greeter lightdm-gtk-greeter-branding-openSUSE # lightdm-gtk-greeter-branding-openSUSE requires lightdm-gtk-greeter = 2.0.8
+mate-control-center mate-branding-openSUSE # mate-control-center-branding-openSUSE requires mate-control-center = 1.28.0
+mate-desktop mate-branding-openSUSE # mate-desktop-gschemas-branding-openSUSE requires mate-desktop-gschemas = 1.28.2
+mate-menus mate-branding-openSUSE # mate-menus-branding-openSUSE requires mate-menus = 1.28.0
+mate-panel mate-branding-openSUSE # mate-panel-branding-openSUSE requires mate-panel = 1.28.1
+mate-session-manager mate-branding-openSUSE # mate-session-manager-branding-openSUSE requires mate-session-manager = 1.28.0
+maxima sbcl
+pidgin pidgin-branding-openSUSE # libpurple-branding-openSUSE requires libpurple = 2.14.14
+#policycoreutils selinux-policy
+slick-greeter slick-greeter-branding-openSUSE # lightdm-slick-greeter-branding-openSUSE requires lightdm-slick-greeter = 1.6.1
+xfce4-panel xfce4-branding-openSUSE # xfce4-panel requires xfce4-panel-branding = 4.20.8 (tracks xfce4-panel version)
+xfce4-settings xfce4-branding-openSUSE # xfce4-settings requires xfce4-settings-branding = 4.20.5 (tracks xfce4-settings version)
+xfdesktop xfce4-branding-openSUSE # xfdesktop requires xfdesktop-branding = 4.20.2 (tracks xfdesktop version)
