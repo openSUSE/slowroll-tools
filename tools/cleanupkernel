@@ -6,6 +6,7 @@ my $pkglist = `osc ls $prj`;
 
 my %pkg=();
 my @cleanpkgs=qw(kernel-source kernel-source-longterm);
+#push(@cleanpkgs, (split("\n", `grep -v '#' in/kmps`)));
 
 foreach(split("\n", $pkglist)) {
     next if /:/;
@@ -16,7 +17,7 @@ foreach(split("\n", $pkglist)) {
 
 foreach my $p (@cleanpkgs) {
     my $n=0;
-    for (1..6) {pop(@{$pkg{$p}})} # always keep last kernels
+    for (1..9) {pop(@{$pkg{$p}})} # always keep last kernels
     foreach(@{$pkg{$p}}) {
         next if $n++ % 2;
         print "cleaning up $_\n";
