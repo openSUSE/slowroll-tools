@@ -1,5 +1,6 @@
 000release-packages
 skelcd-openSUSE
+no-yast
 kernel-longterm
 kernel-source-longterm
 kiwi-templates-Minimal
