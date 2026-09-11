@@ -108,6 +108,7 @@ newsnapshot8: # on day of bump
 	##echo "edit tools/diffdistro and tools/selectupdates.pl with slowroll/next as baseurl; make daily" # does not work: slowroll/next does not exist on stage3 to fetch changelogs
 	osc release ${slo}:Build:iso --target-project=${slou} 000product --target-repository=images -r images
 	tools/syncslo-post # let it build
+	tools/cleanuprepo ${sloreleasing}
 	make newsnapshot8b
 newsnapshot8b: # on day of bump
 	( cd / ; osc r -w --xml ${slobuild} >/dev/null )
