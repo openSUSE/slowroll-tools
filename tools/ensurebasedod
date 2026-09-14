@@ -1,0 +1,38 @@
+#!/usr/bin/perl
+# in openSUSE:Slowroll:Base:1 and :2 we point to the Tumbleweed 'slowroll' download-on-demand (dod) repo in the current one and to the slowroll-next in the other.
+# If the month is even (Feb, Apr, Jun...), :2 and we have not yet had the version bump, :1 is the current one.
+# tools/slowrollverrepooss vs tools/slowrollvernext can tell us what we need there.
+use warnings;
+use strict;
+use lib "lib";
+use common;
+
+my $vercur=`tools/slowrollverrepooss`; chomp($vercur);
+#my $vernext=`tools/slowrollvernext`; chomp($vernext);
+#$vercur eq $vernext or die "$vercur ne $vernext = hard case - handle manually";
+$vercur =~ /^....(..)..$/ or die;
+my $curmonth=$1;
+$curmonth =~ s/^0//; # make sure to not read it as octal
+my $odd = int($curmonth)&1;
+my @dodindex=qw(slowroll slowroll-next);
+my $slo=$ENV{slo};
+if($slo =~ /[^a-zA-Z0-9.:-]/) { die "invalid \$slo" }
+
+for my $slon (1,2) {
+  my $oldmeta = `osc meta prj $slo:Base:$slon`;
+  # OBS meta XML is normalized, so we can use regexp instead of a full parser
+  $oldmeta =~ m/path project="openSUSE:Tumbleweed" repository="(slowroll.*)"/ or die;
+  my $dod=$1;
+  my $wantdod=$dodindex[($slon%2)^$odd];
+  print "DEBUG: $slon $dod $wantdod $vercur $odd\n";
+  # only update if needed
+  next if $dod eq $wantdod;
+  # update XML
+  my $meta=$oldmeta;
+  $meta =~ s/repository="(slowroll[^"]*)"/repository="$wantdod"/;
+  my $tmp=".tmp";
+  store_file($tmp, $meta);
+  print "updating Base:$slon to $wantdod ...\n";
+  system(qw(osc meta prj -F), $tmp, "$ENV{slo}:Base:$slon");
+  unlink $tmp;
+}

@@ -24,6 +24,7 @@ release:
 newsnapshot1: # before or on day of TW snapshot (~6d ahead of bump) # source slorc.next
 	osc api -X DELETE /source/${slobase}/_project/_frozenlinks\?meta=1 ; sleep 5
 	osc api -X POST /source/${slobase}?cmd=freezelink
+	tools/ensurebasedod
 	# sync prjconf from Factory to Base
 	echo "sync meta prjconf from Factory to Slowroll:Base:N"
 	osc meta prjconf openSUSE:Factory > cache/meta/factory-prjconf && sed -i 's/distribution-logos-openSUSE-Tumbleweed/distribution-logos-openSUSE-Slowroll/; /excludebuild:installation-images:Slowroll/d' cache/meta/factory-prjconf && osc meta prjconf -F cache/meta/factory-prjconf ${slobase}
