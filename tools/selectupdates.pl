@@ -121,8 +121,7 @@ sub submit($$)
         next if $submittednow{$coupled}++;
         print "rebuilding $coupled coupled to $pkg\n";
         if(!$dryrun) {
-            local $ENV{FORCE} = 1; # resubmit even without source diff
-            system("tools/submitpackageupdate", $coupled, "latest");
+            system("tools/submitpackagerebuild", $coupled);
             $submitted++ if $?==0;
         } else { $submitted++ }
     }

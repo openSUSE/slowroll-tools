@@ -1,0 +1,6 @@
+#!/bin/sh
+
+for p in "$@" ; do
+  $dry osc linkpac $slou "$p" $slobuild || osc rebuild $slobuild "$p"
+  $dry touch "out/pending/$p"
+done
