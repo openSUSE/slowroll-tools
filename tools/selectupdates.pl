@@ -8,6 +8,7 @@ use constant DAY => 86400;
 use lib "lib";
 use common;
 use rpm;
+use coupled;
 
 $|=1;
 our $dryrun = $ENV{DRYRUN}//1;
@@ -19,22 +20,18 @@ our @baseurl = ('/source/tumbleweed/repo/oss/', # needs trailing slash
 our $changelogdir = "cache/changelog";
 our $submitted = 0;
 our %exceptions;
+our %submittednow; # from coupled.pm
 our $slobuild=$ENV{slobuild};
 our $builddisabled = 0;
 for my $t ("major", "minor", "never", "immediate", "nopatchlevel") {
     $exceptions{$t} = load_list_map "in/$t-update-exceptions";
 }
-our %coupledupdate; # trigger pkg => [pkgs to update along with it]
-for my $group (@{load_list_of_lists("in/coupled-updates")}) {
-    my ($trigger, @rest) = @$group;
-    push(@{$coupledupdate{$trigger}}, @rest);
+END { # also after die
+    if($builddisabled) {
+        local $?;
+        system(qw{osc api -X POST}, "/source/$slobuild?cmd=remove_flag&flag=build");
+    }
 }
-our %coupledrebuild; # trigger pkg => [pkgs to rebuild on its update]
-for my $group (@{load_list_of_lists("in/coupled-rebuilds")}) {
-    my ($trigger, @rest) = @$group;
-    push(@{$coupledrebuild{$trigger}}, @rest);
-}
-our %submittednow; # avoid double-submits and endless coupling recursion
 
 sub haddelay($$)
 { my ($timestamp, $delay) = @_;
@@ -97,35 +94,21 @@ sub getdiff($)
     return $diff;
 }
 
-sub submit($$);
-sub submit($$)
-{ my ($pkg, $rev) = @_;
-    return if $submittednow{$pkg}++;
+sub submitone($$$)
+{ my ($pkg, $rev, $force) = @_;
     print "submitting $pkg $rev\n";
     if(!$dryrun) {
         if(!$builddisabled) {
             system(qw{osc api -X POST}, "/source/$slobuild?cmd=set_flag&flag=build&status=disable");
             $builddisabled = 1;
         }
-        system("tools/submitpackageupdate", $pkg, $rev);
+        my $ret = submitsingle($pkg, $rev, $force);
         # TODO store $pkgs[0]->{$pkg}{diff} for consumption by users - e.g. RSS feed
-        $submitted++ if $?==0;
-    } else { $submitted++ }
-    for my $coupled (@{$coupledupdate{$pkg} // []}) {
-        next if $exceptions{never}{$coupled};
-        diag "coupled update: $pkg triggers $coupled";
-        submit($coupled, "latest"); # no-op when it has no pending change
+        $submitted++ unless $ret;
+        return $ret;
     }
-    for my $coupled (@{$coupledrebuild{$pkg} // []}) {
-        next if $exceptions{never}{$coupled};
-        next if $submittednow{$coupled}++;
-        print "rebuilding $coupled coupled to $pkg\n";
-        if(!$dryrun) {
-            local $ENV{FORCE} = 1; # resubmit even without source diff
-            system("tools/submitpackageupdate", $coupled, "latest");
-            $submitted++ if $?==0;
-        } else { $submitted++ }
-    }
+    $submitted++;
+    return 0;
 }
 
 foreach my $pkg (sort keys (%{$versionclass})) {
@@ -144,7 +127,7 @@ foreach my $pkg (sort keys (%{$versionclass})) {
     next if $exceptions{never}{$pkg};
     my $deps = getdepcount $pkg;
     my $diff = getdiff($pkg) unless $vercmp == 255 or $vercmp == 66;
-    if($vercmp == 255) {submit($pkg, "latest")}
+    if($vercmp == 255) {submitcoupled($pkg, "latest", $ENV{FORCE}, \&submitone)}
     next unless $diff;
     # getchangelog prints the disturl on the first line, after a literal quote
     my ($disturl) = $diff =~ m!\A\+"(obs://\S+)!;
@@ -194,10 +177,7 @@ foreach my $pkg (sort keys (%{$versionclass})) {
     }
     diag "Diff for $pkg: $diff\n----";
     diag "submit $pkg $rev now after $delay s delay";
-    submit($pkg, $rev);
-}
-if($builddisabled) {
-    system(qw{osc api -X POST}, "/source/$slobuild?cmd=remove_flag&flag=build");
+    submitcoupled($pkg, $rev, $ENV{FORCE}, \&submitone);
 }
 print "Submitted: $submitted\n";
 print "Total pending: ";

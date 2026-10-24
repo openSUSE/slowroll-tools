@@ -70,5 +70,5 @@ if [[ $rev = $frev ]] ; then
     #$dry osc rdelete --force -m "updated-from-Factory" "$prj" "$pkg"
 else
     echo "XX mismatch in $pkg $rev vs $frev => submitting as update"
-    $dry tools/submitpackageupdate "$xpkg" "$rev"
+    $dry tools/submitpackageupdatesingle "$xpkg" "$rev"
 fi
