@@ -96,7 +96,6 @@ newsnapshot4: # with new $slobuild
 	##echo "enable keepobsolete Flag in https://build.opensuse.org/projects/openSUSE:Slowroll/prjconf" # leave enabled. When publishing is enabled, it does not matter.
 	# osc copypac openSUSE:Factory kiwi-templates-Minimal ${slobuild} # for openQA # needs adaptation
 	#for p in $$(osc ls ${slou}|grep -v :|sort -r) ; do echo "$$p"; tools/syncslo-postbump "$$p" ; done | tee out/log/syncslo-postbump-${DATE}
-	tools/switchbase openSUSE:Slowroll # update https://build.opensuse.org/projects/openSUSE:Slowroll/meta Build:N refs
 	tools/switchbase # update https://build.opensuse.org/projects/openSUSE:Slowroll:Base/meta Build:N refs
 	echo make newsnapshot4b
 newsnapshot4b:
