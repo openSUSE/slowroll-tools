@@ -1,0 +1,16 @@
+# Haskell packages not named ghc-* that are coupled with all ghc-* packages:
+# an update of any of them pulls in all others, because they depend on exact ABI hashes
+ShellCheck
+cabal-install
+cabal-plan
+cabal2spec
+cpphs
+ghc
+gtk2hs-buildtools
+hledger
+hledger-ui
+hlint
+hscolour
+texmath
+xmobar
+xmonad

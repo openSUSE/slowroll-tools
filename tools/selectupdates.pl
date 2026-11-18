@@ -34,6 +34,8 @@ for my $group (@{load_list_of_lists("in/coupled-rebuilds")}) {
     my ($trigger, @rest) = @$group;
     push(@{$coupledrebuild{$trigger}}, @rest);
 }
+our %ghcpkgs = %{load_list_map("in/ghcpkgs")}; # all are coupled - see below
+our $ghctriggered = 0;
 our %submittednow; # avoid double-submits and endless coupling recursion
 
 sub haddelay($$)
@@ -46,6 +48,7 @@ my %repo;
 for my $repo ("factory", "slos$slon", "slo$slon") {
     $repo{$repo} = load_json("cache/view/$repo.json");
 }
+$ghcpkgs{$_} = 1 for grep {/^ghc-/ && !/^ghc-bootstrap/} keys %{$repo{factory}};
 my $unreproducible = load_list_map("in/build-compare-differed-builds.txt");
 my $versionclass = load_json("out/versionclass.json");
 my $pkgmapdepcount = load_json("out/pkgmapdepcount");
@@ -115,6 +118,13 @@ sub submit($$)
         next if $exceptions{never}{$coupled};
         diag "coupled update: $pkg triggers $coupled";
         submit($coupled, "latest"); # no-op when it has no pending change
+    }
+    if($ghcpkgs{$pkg} && !$ghctriggered++) {
+        diag "coupled update: $pkg triggers all ghc packages";
+        for my $coupled (sort keys %ghcpkgs) {
+            next if $exceptions{never}{$coupled};
+            submit($coupled, "latest");
+        }
     }
     for my $coupled (@{$coupledrebuild{$pkg} // []}) {
         next if $exceptions{never}{$coupled};
