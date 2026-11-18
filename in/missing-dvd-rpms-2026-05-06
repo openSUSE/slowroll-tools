@@ -1,0 +1,16 @@
+ipxe
+ipxe-qemu
+webkitgtk
+webkit2gtk3
+libjavascriptcoregtk-4_1-0
+libjavascriptcoregtk-6_0-1
+libwebkit2gtk-4_1-0
+libwebkitgtk-6_0-4
+typelib-1_0-JavaScriptCore-4_1
+typelib-1_0-JavaScriptCore-6_0
+typelib-1_0-WebKit2-4_1
+typelib-1_0-WebKit-6_0
+webkit2gtk-4_1-injected-bundles
+WebKitGTK-4.1-lang
+webkitgtk-6_0-injected-bundles
+WebKitGTK-6.0-lang
