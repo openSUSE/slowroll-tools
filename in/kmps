@@ -1,10 +1,8 @@
 # autodetected from rb: grep -l -- -kmp-default- */RPMS/checksums | cut -d/ -f1
 CoreFreq
-avfs
 ayaneo-platform
 bbswitch
 crash
-dpdk
 drbd
 evdi
 facetimehd

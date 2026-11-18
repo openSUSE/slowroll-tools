@@ -4,6 +4,14 @@
 0ad 0ad-data
 FlightGear FlightGear-data SimGear
 MozillaFirefox mozilla-nss mozilla-nspr
+chromium gn
+eduvpn-client eduvpn-common
+ffmpeg-4 SVT-AV1
+ffmpeg-7 SVT-AV1
 filezilla libfilezilla
+libzypp libsolv
+nftables libnftnl
+python-langchain-anthropic python-langchain-core
+python-opentelemetry-api python-opentelemetry-semantic-conventions python-opentelemetry-exporter-http-transport python-opentelemetry-exporter-otlp-common python-opentelemetry-exporter-otlp-proto-common python-opentelemetry-test-utils
+python-asv python-asv-runner
 zypper libzypp
-ffmpeg-8 pipewire

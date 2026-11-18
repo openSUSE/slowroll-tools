@@ -1,5 +1,6 @@
 arpack-ng
 autoconf213
+assimp
 babl
 bctoolbox
 bcunit
@@ -11,6 +12,7 @@ lensfun
 luajit
 mbedtls
 miniupnpc
+mm-common
 pam_wrapper
 pcsc-acr38
 perl-rpm-packaging
@@ -82,3 +84,4 @@ cpp-httplib
 ccache
 Mesa
 suse-reproducible-builds
+lua53

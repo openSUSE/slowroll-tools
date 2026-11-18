@@ -4,6 +4,7 @@ chromium
 emacs-vterm
 firefox-esr
 kernel-firmware
+libcontainers-common
 MozillaFirefox
 MozillaThunderbird
 nvidia-open-driver-G06-signed

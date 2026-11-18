@@ -6,6 +6,7 @@ NetworkManager NetworkManager-branding
 openssl-3 openssl
 SDL2 sdl12_compat
 sdl2-compat sdl12_compat
+SVT-AV1 libavif libheif ffmpeg-4 ffmpeg-7 ffmpeg-8 ffmpeg-9
 #ruby apparmor # for ruby-apparmor
 PackageKit PackageKit-branding-openSUSE # PackageKit requires PackageKit-branding = 1.3.6 (tracks PackageKit version)
 awesome awesome-branding-openSUSE # awesome requires awesome-branding = 4.3 (tracks awesome version)
@@ -13,9 +14,11 @@ branding-openSUSE desktop-data-openSUSE plasma6-openSUSE # desktop-data-openSUSE
 cinnamon cinnamon-branding-openSUSE # cinnamon-gschemas requires cinnamon-gschemas-branding = 6.4.6 (tracks cinnamon version)
 cinnamon-desktop cinnamon-branding-openSUSE # libcinnamon-desktop-data requires libcinnamon-desktop-data-branding = 6.4.1 (tracks cinnamon-desktop version)
 epiphany epiphany-branding-openSUSE # epiphany requires epiphany-branding = 50.6 (direction ambiguous - versions coincide)
+ffmpeg-8 CorsixTH OpenBoard OpenImageIO QMPlay2 QSVEnc SimGear alsa-plugins aubio audacious-plugins audaspace audiowmark baresip blender-5.0 blender-5.1 blender-5.2 calibre cantata chromaprint chromium cmus cutterff cyanrip deadbeef digikam dragonplayer droidcam emulationstation-de ffmpegthumbnailer ffmpegthumbs ffms2 fooyin freerdp freerdp2 gerbera goldendict-ng gpu-screen-recorder gstreamer-plugins-libav guvcview heroic-games-launcher k3b kdenlive keyfinder-cli kf6-kfilemetadata kid3 kpipewire6 leechcraft libheif libmlt libopenshot libplacebo livekit-libwebrtc localsearch minidlna mixxx moonlight motion mpd mpv mpv-mpris neatvnc netgen nodejs-electron notcurses obs-studio opencv openmw owntone pianobar pipewire pqiv python-av qmmp qmmp-plugin-pack qt6-multimedia qt6-webengine retroarch rocdecode rpcs3 scrcpy shairport-sync simplescreenrecorder siril spek subtitlecomposer telegram-desktop timg tupitube unpaper vlc webcamoid wf-recorder wine wine-staging wine-staging-wow64 wine-wow64 wl-screenrec wxsvg xjadeo
 gcin gcin-branding-openSUSE
 gdm gdm-branding-openSUSE
 glib2 glib2-branding # gio-branding-openSUSE requires libgio-2_0-0 = 2.88.3
+ghostscript libspectre
 gnome-menus gnome-menus-branding # gnome-menus requires gnome-menus-branding = 3.38.1 (tracks gnome-menus version)
 gtk2 gtk2-branding gtk2-engines # gtk2-branding-openSUSE requires libgtk-2_0-0 = 2.24.33; gtk2-engine-clearlooks requires gtk2 = 2.24.33
 gtk3 gtk3-branding # gtk3-branding-openSUSE requires libgtk-3-0 = 3.24.52
@@ -30,8 +33,11 @@ mate-panel mate-branding-openSUSE # mate-panel-branding-openSUSE requires mate-p
 mate-session-manager mate-branding-openSUSE # mate-session-manager-branding-openSUSE requires mate-session-manager = 1.28.0
 maxima sbcl
 pidgin pidgin-branding-openSUSE # libpurple-branding-openSUSE requires libpurple = 2.14.14
+python-opentelemetry-api python-opentelemetry-test-utils
 #policycoreutils selinux-policy
 slick-greeter slick-greeter-branding-openSUSE # lightdm-slick-greeter-branding-openSUSE requires lightdm-slick-greeter = 1.6.1
 xfce4-panel xfce4-branding-openSUSE # xfce4-panel requires xfce4-panel-branding = 4.20.8 (tracks xfce4-panel version)
 xfce4-settings xfce4-branding-openSUSE # xfce4-settings requires xfce4-settings-branding = 4.20.5 (tracks xfce4-settings version)
 xfdesktop xfce4-branding-openSUSE # xfdesktop requires xfdesktop-branding = 4.20.2 (tracks xfdesktop version)
+serd lilv
+vlc phonon-vlc
